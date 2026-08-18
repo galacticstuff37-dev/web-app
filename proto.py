@@ -3,9 +3,26 @@
 import pathlib
 ICO = pathlib.Path(__file__).parent / 'icons'
 
+SOLID = pathlib.Path(__file__).parent / 'icons-solid'
+
+# старое имя (Lucide) → файл Phosphor fill. Позволяет не править десятки вызовов.
+IMAP = {
+ 'calendar-days':'calendar-dots', 'sprout':'plant', 'settings-2':'sliders-horizontal',
+ 'chevron-right':'caret-right', 'search':'magnifying-glass', 'droplets':'drop',
+ 'repeat':'arrows-clockwise', 'shield':'shield-check', 'circle-check':'check',
+ 'salad':'leaf', 'leafy-green':'leaf', 'clover':'leaf',
+ 'apple':'cherries', 'bean':'grains', 'wheat':'grains',
+ 'sun-dim':'sun', 'camera':'camera', 'leaf':'leaf', 'carrot':'carrot',
+ 'plus':'plus', 'x':'x', 'check':'check', 'sun':'sun', 'eye':'eye',
+ 'package':'package', 'scissors':'scissors', 'hand-heart':'hand-heart',
+ 'lightbulb':'lightbulb', 'trash':'trash',
+}
+
 def inner(n):
-    s = ICO.joinpath(n + '.svg').read_text(); b = s.split('>', 1)[1]
-    return ' '.join(b[b.index('>') + 1:b.rindex('</svg>')].split())
+    f = SOLID / ((IMAP.get(n, n)) + '.svg')
+    s = f.read_text()
+    body = s[s.index('>', s.index('<svg')) + 1 : s.rindex('</svg>')]
+    return ' '.join(body.split())
 
 def ring(pct, dark=False, sz=38, sw=3.2):
     """Кольцо прогресса на SVG — круглые концы, conic-gradient их не умеет."""
@@ -20,9 +37,9 @@ def ring(pct, dark=False, sz=38, sw=3.2):
             f'stroke-linecap="round" stroke-dasharray="{circ:.1f}" stroke-dashoffset="{off:.1f}" '
             f'transform="rotate(-90 {sz/2} {sz/2})"/></svg>')
 
-def ic(n, c='currentColor', sz=22, sw='1.7'):
-    return (f'<svg viewBox="0 0 24 24" width="{sz}" height="{sz}" fill="none" stroke="{c}" '
-            f'stroke-width="{sw}" stroke-linecap="round" stroke-linejoin="round">{inner(n)}</svg>')
+def ic(n, c='currentColor', sz=22, sw=None):
+    """Solid-иконка Phosphor. sw сохранён в сигнатуре — вызовы его передают, заливке он не нужен."""
+    return (f'<svg viewBox="0 0 256 256" width="{sz}" height="{sz}" fill="{c}">{inner(n)}</svg>')
 
 # ───────────────────────────── TOKENS (все проверены на WCAG AA)
 T = """
@@ -42,20 +59,33 @@ T = """
 }
 """
 
-CSS = T + """
-*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+FACES = """@font-face{font-family:'Caprasimo';font-style:normal;font-weight:400;font-display:swap;src:url('fonts/Caprasimo-400-latin-ext.woff2') format('woff2');unicode-range:U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;}
+@font-face{font-family:'Caprasimo';font-style:normal;font-weight:400;font-display:swap;src:url('fonts/Caprasimo-400-latin.woff2') format('woff2');unicode-range:U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;}
+@font-face{font-family:'Inter Tight';font-style:normal;font-weight:400;font-display:swap;src:url('fonts/InterTight-400-latin-ext.woff2') format('woff2');unicode-range:U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;}
+@font-face{font-family:'Inter Tight';font-style:normal;font-weight:400;font-display:swap;src:url('fonts/InterTight-400-latin.woff2') format('woff2');unicode-range:U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;}
+@font-face{font-family:'Inter Tight';font-style:normal;font-weight:500;font-display:swap;src:url('fonts/InterTight-400-latin-ext.woff2') format('woff2');unicode-range:U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;}
+@font-face{font-family:'Inter Tight';font-style:normal;font-weight:500;font-display:swap;src:url('fonts/InterTight-400-latin.woff2') format('woff2');unicode-range:U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;}
+@font-face{font-family:'Inter Tight';font-style:normal;font-weight:600;font-display:swap;src:url('fonts/InterTight-400-latin-ext.woff2') format('woff2');unicode-range:U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;}
+@font-face{font-family:'Inter Tight';font-style:normal;font-weight:600;font-display:swap;src:url('fonts/InterTight-400-latin.woff2') format('woff2');unicode-range:U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;}
+@font-face{font-family:'Inter Tight';font-style:normal;font-weight:700;font-display:swap;src:url('fonts/InterTight-400-latin-ext.woff2') format('woff2');unicode-range:U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;}
+@font-face{font-family:'Inter Tight';font-style:normal;font-weight:700;font-display:swap;src:url('fonts/InterTight-400-latin.woff2') format('woff2');unicode-range:U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;}
+"""
+
+CSS = T + FACES + """
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;touch-action:manipulation}
+html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
 body{background:#DDE2DA;font-family:'Inter Tight',system-ui,sans-serif;color:var(--ink);
-     display:flex;gap:34px;padding:34px;min-height:100vh}
+     display:flex;gap:32px;padding:32px;min-height:100vh}
 h1,h2,h3{font-weight:600;letter-spacing:-.015em}
 .cap-f{font-family:Caprasimo,Georgia,serif;font-weight:400;letter-spacing:0}
 
 /* ───── левая колонка: телефон */
-.stage{position:sticky;top:34px;align-self:flex-start}
+.stage{position:sticky;top:32px;align-self:flex-start}
 .phone{width:390px;height:844px;background:var(--ground);border-radius:44px;overflow:hidden;
        position:relative;box-shadow:0 30px 70px rgba(11,31,20,.28);border:9px solid #0B1F14}
 .screen{position:absolute;inset:0;display:none;flex-direction:column;overflow:hidden}
 .screen.on{display:flex}
-.stage-bar{display:flex;align-items:center;gap:10px;margin-bottom:14px}
+.stage-bar{display:flex;align-items:center;gap:8px;margin-bottom:16px}
 .stage-bar .t{font-size:15px;font-weight:600}
 .stage-bar .s{font-size:13px;color:#5C6660}
 .hint{font-size:12.5px;color:#5C6660;margin-top:12px;max-width:390px;line-height:1.45}
@@ -64,71 +94,74 @@ h1,h2,h3{font-weight:600;letter-spacing:-.015em}
 /* ───── правая колонка: индекс + флоу */
 .side{flex:1;min-width:0;padding-bottom:60px}
 .side h1{font-size:40px;line-height:1.05}
-.side .lede{font-size:15px;color:var(--ink-2);line-height:1.55;max-width:760px;margin-top:10px}
-.grp{margin-top:26px}
-.grp .gt{font-size:11.5px;font-weight:600;letter-spacing:.11em;text-transform:uppercase;color:var(--muted);margin-bottom:10px}
-.chips{display:flex;flex-wrap:wrap;gap:7px}
-.chip{background:var(--surface);border:0;border-radius:999px;padding:9px 15px;font:500 13.5px/1 'Inter Tight',sans-serif;
+.side .lede{font-size:15px;color:var(--ink-2);line-height:1.55;max-width:760px;margin-top:8px}
+.grp{margin-top:24px}
+.grp .gt{font-size:11.5px;font-weight:600;letter-spacing:.11em;text-transform:uppercase;color:var(--muted);margin-bottom:8px}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip{background:var(--surface);border:0;border-radius:999px;padding:8px 16px;font:500 13.5px/1 'Inter Tight',sans-serif;
       color:var(--ink);cursor:pointer;box-shadow:0 1px 2px rgba(11,31,20,.06)}
 .chip:hover{background:var(--lime)}
 .chip.act{background:var(--primary);color:#fff}
 .tok{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
-.tk{background:var(--surface);border-radius:var(--r-sm);padding:10px 12px;width:168px}
-.tk i{display:block;height:34px;border-radius:9px;margin-bottom:8px}
+.tk{background:var(--surface);border-radius:var(--r-sm);padding:8px 12px;width:168px}
+.tk i{display:block;height:32px;border-radius:8px;margin-bottom:8px}
 .tk b{font-size:12.5px;display:block}
 .tk s{font-size:11.5px;color:var(--muted);text-decoration:none;display:block;margin-top:2px}
-.flow{background:var(--surface);border-radius:var(--r-md);padding:18px;margin-top:12px;font-size:13.5px;line-height:2;color:var(--ink-2)}
+.flow{background:var(--surface);border-radius:var(--r-md);padding:16px;margin-top:12px;font-size:13.5px;line-height:2;color:var(--ink-2)}
 .flow b{color:var(--ink);font-weight:600}
-.flow code{font:500 12.5px ui-monospace,monospace;background:var(--ground);padding:2px 7px;border-radius:6px;color:var(--primary)}
+.flow code{font:500 12.5px ui-monospace,monospace;background:var(--ground);padding:2px 8px;border-radius:8px;color:var(--primary)}
 
 /* ───── app chrome */
-.sb{height:46px;display:flex;align-items:center;justify-content:space-between;padding:0 24px;flex:none;
+.sb{height:48px;display:flex;align-items:center;justify-content:space-between;padding:0 24px;flex:none;
     font-size:13px;font-weight:600}
-.hd{padding:2px 20px 0;display:flex;justify-content:space-between;align-items:center;flex:none}
+.hd{padding:4px 16px 0;display:flex;justify-content:space-between;align-items:center;flex:none;min-height:48px}
+.back{width:44px;height:44px;margin-left:-8px;border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;flex:none}
+.back svg{transform:rotate(180deg)}
+.back:active{background:#E6EBE4}
 .wm{font-size:12.5px;font-weight:700;letter-spacing:.13em}
 .av{width:32px;height:32px;border-radius:50%;background:var(--lime);display:flex;align-items:center;
     justify-content:center;font-size:12.5px;font-weight:700;color:var(--deepest);cursor:pointer}
 .bd{flex:1;overflow-y:auto;overflow-x:hidden;padding:0 20px 8px;scrollbar-width:none;min-height:0}
-.foot{flex:none;padding:10px 20px 22px;background:var(--ground);box-shadow:0 -14px 22px -14px rgba(11,31,20,.14)}
+.foot{flex:none;padding:8px 20px 24px;background:var(--ground);box-shadow:0 -14px 22px -14px rgba(11,31,20,.14)}
 .foot .btn{margin-top:0}
 .bd::-webkit-scrollbar{display:none}
-.greet{font-size:14px;color:var(--muted);margin-top:14px}
+.greet{font-size:14px;color:var(--muted);margin-top:16px}
 .h1{font-size:29px;font-weight:600;line-height:1.14;margin-top:2px}
 .h1 .m{color:#9EA8A2}
-.sl{font-size:11px;font-weight:600;letter-spacing:.12em;color:var(--muted);margin:20px 0 9px}
+.sl{font-size:11px;font-weight:600;letter-spacing:.12em;color:var(--muted);margin:20px 0 8px}
 
 /* ───── ACCENT BLOCK (референс 1) */
-.acc{border-radius:var(--r-lg);padding:20px;margin-top:14px;color:#fff;position:relative;overflow:hidden;
+.acc{border-radius:var(--r-lg);padding:20px;margin-top:16px;color:#fff;position:relative;overflow:hidden;
      background:linear-gradient(150deg,#17683C 0%,#0F3A24 52%,#0B1F14 100%)}
-.acc:after{content:"";position:absolute;width:230px;height:230px;right:-90px;top:-110px;border-radius:50%;
+.acc:after{content:"";position:absolute;width:232px;height:232px;right:-88px;top:-112px;border-radius:50%;
      background:radial-gradient(circle,rgba(180,244,97,.30),rgba(180,244,97,0) 70%)}
 .acc .row1{display:flex;justify-content:space-between;align-items:center;position:relative}
 .acc .tag{background:var(--lime);color:var(--deepest);font-size:11px;font-weight:700;letter-spacing:.06em;
-     padding:5px 11px;border-radius:999px}
+     padding:4px 12px;border-radius:999px}
 .acc .lbl{font-size:12.5px;color:#B7C7BD;margin-top:16px}
-.acc .big{font-size:34px;font-weight:600;letter-spacing:-.02em;line-height:1.05;margin-top:3px}
-.acc .sub{font-size:13.5px;color:#B7C7BD;margin-top:7px;line-height:1.45}
+.acc .big{font-size:34px;font-weight:600;letter-spacing:-.02em;line-height:1.05;margin-top:4px}
+.acc .sub{font-size:13.5px;color:#B7C7BD;margin-top:8px;line-height:1.45}
 .acc .duo{display:flex;gap:8px;margin-top:16px}
-.acc .cell{flex:1;background:#17492F;border-radius:var(--r-sm);padding:12px 13px}
+.acc .cell{flex:1;background:#17492F;border-radius:var(--r-sm);padding:12px 12px}
 .acc .cell s{display:block;font-size:11.5px;color:#A9BCB0;text-decoration:none;white-space:nowrap}
-.acc .cell b{display:block;font-size:18px;font-weight:600;margin-top:3px;white-space:nowrap}
+.acc .cell b{display:block;font-size:18px;font-weight:600;margin-top:4px;white-space:nowrap}
 .acc .plants{margin-top:16px;position:relative}
-.acc .prow{display:flex;align-items:center;gap:12px;padding:11px 0;border-bottom:1px solid rgba(255,255,255,.10)}
+.acc .prow{display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid rgba(255,255,255,.10)}
 .acc .prow:last-child{border-bottom:0}
 .acc .prow .nm{flex:1}
 .acc .prow .nm b{display:block;font-size:15px;font-weight:600}
 .acc .prow .nm s{display:block;font-size:12px;color:#A9BCB0;text-decoration:none;margin-top:1px}
 .acc .prow .rt{font-size:12.5px;color:var(--lime);font-weight:600}
-.rw{width:38px;height:38px;flex:none;position:relative;display:flex;align-items:center;justify-content:center}
+.rw{width:40px;height:40px;flex:none;position:relative;display:flex;align-items:center;justify-content:center}
 .rw i{position:absolute;inset:0;display:flex;align-items:center;justify-content:center}
-.acc-photo{height:150px;border-radius:20px;background-size:cover;background-position:center;
+.acc-photo{height:152px;border-radius:20px;background-size:cover;background-position:center;
            margin:-4px 0 16px;position:relative}
 
 /* ───── карточки, задачи */
 .card{background:var(--surface);border-radius:var(--r-md);padding:16px}
-.task{background:var(--surface);border-radius:var(--r-md);padding:15px 16px;margin-bottom:8px;display:flex;gap:13px;cursor:pointer}
+.task{background:var(--surface);border-radius:var(--r-md);padding:16px 16px;margin-bottom:8px;display:flex;gap:12px;cursor:pointer}
 .task:active{transform:scale(.985)}
-.box{width:26px;height:26px;border-radius:9px;box-shadow:inset 0 0 0 2px #C9D2CC;flex:none;margin-top:1px;
+.box{width:24px;height:24px;border-radius:8px;box-shadow:inset 0 0 0 2px #C9D2CC;flex:none;margin-top:1px;
      display:flex;align-items:center;justify-content:center;transition:background .16s,box-shadow .16s}
 .box svg{opacity:0;transform:scale(.6);transition:opacity .16s,transform .16s}
 .task.done .box{background:var(--bright);box-shadow:none}
@@ -137,8 +170,8 @@ h1,h2,h3{font-weight:600;letter-spacing:-.015em}
 .tt .b{font-size:14px;color:var(--ink-2);line-height:1.42;margin-top:4px}
 .min{font-size:13px;color:var(--muted);flex:none;margin-top:2px;font-weight:500}
 .task.done .t{color:#9EA8A2;text-decoration:line-through;text-decoration-color:#C9D2CC}
-.prog{display:flex;align-items:center;gap:12px;margin:14px 2px 0}
-.bar{flex:1;height:6px;border-radius:999px;background:#DDE3DC;overflow:hidden}
+.prog{display:flex;align-items:center;gap:12px;margin:16px 2px 0}
+.bar{flex:1;height:8px;border-radius:999px;background:#DDE3DC;overflow:hidden}
 .bar i{display:block;height:100%;background:var(--bright);border-radius:999px;transition:width .35s}
 .pct{font-size:13px;color:var(--muted);font-weight:500}
 .blur{height:12px;border-radius:999px;background:#E1E6E0}
@@ -151,37 +184,37 @@ h1,h2,h3{font-weight:600;letter-spacing:-.015em}
 .b-white{background:#fff;color:var(--deepest)}
 .b-ghost{background:#E6EBE4;color:var(--ink)}
 .b-dark{background:var(--deepest);color:#fff}
-.pill{display:inline-flex;align-items:center;height:34px;padding:0 14px;border-radius:999px;
+.pill{display:inline-flex;align-items:center;height:32px;padding:0 16px;border-radius:999px;
       font-size:12.5px;font-weight:700;letter-spacing:.04em}
 
 /* ───── навигация */
-.nav{height:78px;background:var(--surface);display:flex;padding:12px 6px 0;flex:none;border-top:1px solid var(--hair)}
-.ni{flex:1;display:flex;flex-direction:column;align-items:center;gap:5px;cursor:pointer;position:relative;color:#8E9A93}
+.nav{height:80px;background:var(--surface);display:flex;padding:12px 8px 0;flex:none;border-top:1px solid var(--hair)}
+.ni{flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;cursor:pointer;position:relative;color:#8E9A93}
 .ni span{font-size:10.5px;font-weight:500}
 .ni.on{color:var(--primary)}
 .ni.on span{font-weight:700}
-.bdg{position:absolute;top:-3px;left:calc(50% + 8px);width:8px;height:8px;border-radius:50%;background:var(--flame)}
-.ofr{padding:8px 14px 12px;flex:none;cursor:pointer}
-.ofr-in{display:flex;align-items:center;gap:12px;border-radius:18px;padding:12px 14px;
+.bdg{position:absolute;top:-4px;left:calc(50% + 8px);width:8px;height:8px;border-radius:50%;background:var(--flame)}
+.ofr{padding:8px 16px 8px;flex:none;cursor:pointer}
+.ofr-in{display:flex;align-items:center;gap:12px;border-radius:999px;height:52px;padding:0 8px 0 8px;
         background:var(--lime);position:relative;overflow:hidden;
         box-shadow:0 6px 18px rgba(120,190,40,.34)}
-.ofr-ic{width:38px;height:38px;border-radius:50%;background:var(--deepest);display:flex;align-items:center;
+.ofr-ic{width:36px;height:36px;border-radius:50%;background:var(--deepest);display:flex;align-items:center;
         justify-content:center;flex:none;position:relative}
 .ofr-tx{flex:1;position:relative}
-.ofr-tx b{display:block;font-size:15.5px;font-weight:700;color:var(--deepest);letter-spacing:-.01em}
-.ofr-tx s{display:block;font-size:12.5px;color:#2C4A1E;text-decoration:none;margin-top:2px;font-weight:600}
-.ofr-go{width:30px;height:30px;border-radius:50%;background:var(--deepest);display:flex;align-items:center;
+.ofr-tx b{font-size:15px;font-weight:700;color:var(--deepest);letter-spacing:-.01em}
+.ofr-tx s{font-size:15px;color:#2C4A1E;text-decoration:none;font-weight:600;opacity:.72;margin-left:8px}
+.ofr-go{width:36px;height:36px;border-radius:50%;background:var(--deepest);display:flex;align-items:center;
         justify-content:center;flex:none;position:relative}
 .pro{background:var(--deepest);color:var(--lime)}
 
 /* ───── онбординг */
-.pg{display:flex;gap:6px;margin-top:18px}
-.pg i{height:5px;flex:1;border-radius:999px;background:#DDE3DC}
+.pg{display:flex;gap:8px;margin-top:16px}
+.pg i{height:4px;flex:1;border-radius:999px;background:#DDE3DC}
 .pg i.on{background:var(--primary)}
-.opt{background:var(--surface);border-radius:var(--r-md);padding:15px 16px;margin-bottom:8px;font-size:16px;min-height:58px;
+.opt{background:var(--surface);border-radius:var(--r-md);padding:16px 16px;margin-bottom:8px;font-size:16px;min-height:56px;
      font-weight:600;display:flex;justify-content:space-between;align-items:center;cursor:pointer;
      border:2px solid transparent}
-.opt s{display:block;font-size:13px;color:var(--muted);font-weight:400;text-decoration:none;margin-top:3px}
+.opt s{display:block;font-size:13px;color:var(--muted);font-weight:400;text-decoration:none;margin-top:4px}
 .opt.sel{border-color:var(--primary);background:#EAF5EE}
 .opt.sel s{color:var(--ink-2)}
 .opt.dim{color:#A6B0AA;pointer-events:none}.opt.dim s{color:#B8C1BB}
@@ -192,16 +225,16 @@ h1,h2,h3{font-weight:600;letter-spacing:-.015em}
 .btn.off{background:#DDE3DC;color:#9EA8A2;pointer-events:none;box-shadow:none}
 .zip.ph{color:#B4BEB8;letter-spacing:.22em}
 .zipres{display:none}
-.search{display:flex;align-items:center;gap:10px;background:var(--surface);border-radius:16px;
-        padding:0 14px;height:50px;margin-top:14px}
+.search{display:flex;align-items:center;gap:8px;background:var(--surface);border-radius:16px;
+        padding:0 16px;height:52px;margin-top:16px}
 .search input{flex:1;border:0;outline:0;background:transparent;font:500 15.5px 'Inter Tight',sans-serif;
         color:var(--ink);min-width:0}
 .search input::placeholder{color:#9EA8A2;font-weight:400}
 .search .sx{display:none;cursor:pointer}
 .search.has .sx{display:block}
-.gsec{font-size:11px;font-weight:600;letter-spacing:.12em;color:var(--muted);margin:18px 0 8px}
-.empty{text-align:center;color:var(--muted);font-size:14.5px;padding:26px 10px;line-height:1.5}
-.del{width:34px;height:34px;border-radius:50%;background:#F0F2EF;display:flex;align-items:center;
+.gsec{font-size:11px;font-weight:600;letter-spacing:.12em;color:var(--muted);margin:16px 0 8px}
+.empty{text-align:center;color:var(--muted);font-size:14.5px;padding:24px 8px;line-height:1.5}
+.del{width:44px;height:44px;border-radius:50%;background:#F0F2EF;display:flex;align-items:center;
      justify-content:center;flex:none;cursor:pointer;margin-left:8px}
 .del:active{background:#E2E6E0}
 .addbtn{width:32px;height:32px;border-radius:50%;background:#EDF1EB;display:flex;align-items:center;
@@ -210,52 +243,59 @@ h1,h2,h3{font-weight:600;letter-spacing:-.015em}
 .pl.added .addbtn svg:first-child,.pl.added .addbtn svg:last-child{display:none}
 .pl.added .addbtn svg:last-child{display:block}
 .pl.have{opacity:.55}
-.addph{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;
-       border:2px dashed #C2CCC5;border-radius:16px;width:74px;height:92px;flex:none;cursor:pointer;
-       color:var(--muted);font-size:11px;font-weight:600;text-align:center;padding:0 6px;line-height:1.25}
-.addph.sq{width:auto;height:auto;aspect-ratio:1;border-radius:var(--r-sm)}
-.herostub{height:150px;border-radius:var(--r-lg);background:var(--surface);margin-top:14px;
-          display:flex;align-items:center;gap:14px;padding:0 20px;border:2px dashed #C2CCC5}
+.jgrid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.jc{background:var(--surface);border-radius:16px;padding:8px;margin:0}
+.jph{aspect-ratio:1;border-radius:12px;background-size:cover;background-position:center;background-color:#DDE3DC}
+.jc figcaption{padding:8px 4px 4px}
+.jc figcaption b{display:block;font-size:14px;font-weight:600;line-height:1.2}
+.jc figcaption s{display:block;font-size:12px;color:var(--muted);text-decoration:none;margin-top:2px}
+.btn-dash{height:48px;border-radius:999px;border:2px dashed var(--primary);color:var(--primary);
+       display:flex;align-items:center;justify-content:center;gap:8px;margin-top:12px;
+       font-size:15px;font-weight:700;cursor:pointer}
+.btn-dash svg{fill:var(--primary)}
+.btn-dash:active{background:#EAF5EE}
+.herostub{height:152px;border-radius:var(--r-lg);background:var(--surface);margin-top:16px;
+          display:flex;align-items:center;gap:16px;padding:0 20px;border:2px dashed #C2CCC5}
 .herostub b{display:block;font-size:16px;font-weight:600}
-.herostub s{display:block;font-size:13.5px;color:var(--muted);text-decoration:none;margin-top:3px;line-height:1.4}
-#toast{position:absolute;left:16px;right:16px;bottom:158px;background:var(--deepest);color:#fff;
-       border-radius:16px;padding:14px 16px;display:flex;justify-content:space-between;align-items:center;
+.herostub s{display:block;font-size:13.5px;color:var(--muted);text-decoration:none;margin-top:4px;line-height:1.4}
+#toast{position:absolute;left:16px;right:16px;bottom:160px;background:var(--deepest);color:#fff;
+       border-radius:16px;padding:16px 16px;display:flex;justify-content:space-between;align-items:center;
        font-size:14.5px;opacity:0;transform:translateY(10px);pointer-events:none;transition:.22s;z-index:20}
 #toast.on{opacity:1;transform:none;pointer-events:auto}
 #toast b{color:var(--lime);font-weight:700;cursor:pointer}
-.zip{background:var(--surface);border-radius:var(--r-md);padding:18px 16px;font-size:32px;font-weight:700;letter-spacing:.08em}
+.zip{background:var(--surface);border-radius:var(--r-md);padding:16px 16px;font-size:32px;font-weight:700;letter-spacing:.08em}
 
 /* ───── full-bleed фото */
 .shot{position:absolute;inset:0;background-size:cover;background-position:center}
 .scrim{position:absolute;inset:0;background:linear-gradient(180deg,rgba(11,31,20,.55) 0%,rgba(11,31,20,.05) 32%,rgba(11,31,20,.82) 72%,rgba(11,31,20,.96) 100%)}
-.overlay{position:absolute;inset:0;display:flex;flex-direction:column;padding:26px 22px;color:#fff}
+.overlay{position:absolute;inset:0;display:flex;flex-direction:column;padding:24px 24px;color:#fff}
 
 /* ───── тёмный экран (paywall / harvest) */
-.dark{position:absolute;inset:0;background:var(--deepest);padding:24px 22px;display:flex;flex-direction:column;color:#fff;overflow-y:auto;scrollbar-width:none}
+.dark{position:absolute;inset:0;background:var(--deepest);padding:24px 24px;display:flex;flex-direction:column;color:#fff;overflow-y:auto;scrollbar-width:none}
 .dark::-webkit-scrollbar{display:none}
-.glow{position:absolute;width:420px;height:420px;left:-60px;top:-150px;border-radius:50%;
+.glow{position:absolute;width:420px;height:420px;left:-60px;top:-152px;border-radius:50%;
       background:radial-gradient(circle,rgba(180,244,97,.34),rgba(180,244,97,0) 68%);pointer-events:none}
 .glow.b{left:auto;right:-140px;top:280px;width:340px;height:340px;
       background:radial-gradient(circle,rgba(34,165,89,.34),rgba(34,165,89,0) 68%)}
-.xbtn{width:38px;height:38px;border-radius:50%;background:#1B3527;display:flex;align-items:center;
+.xbtn{width:44px;height:44px;border-radius:50%;background:#1B3527;display:flex;align-items:center;
       justify-content:center;cursor:pointer;flex:none}
-.seg{display:flex;background:#152B1F;border-radius:999px;padding:4px;margin:18px auto 0;width:fit-content;position:relative}
-.seg div{padding:10px 26px;border-radius:999px;font-size:14.5px;font-weight:600;cursor:pointer;color:#9DB0A4}
+.seg{display:flex;background:#152B1F;border-radius:999px;padding:4px;margin:16px auto 0;width:fit-content;position:relative}
+.seg div{padding:8px 24px;border-radius:999px;font-size:14.5px;font-weight:600;cursor:pointer;color:#9DB0A4}
 .seg div.on{background:var(--lime);color:var(--deepest)}
-.pcard{border-radius:24px;padding:20px;margin-top:18px;background:#122A1D;border:1.5px solid var(--lime);position:relative}
+.pcard{border-radius:24px;padding:20px;margin-top:16px;background:#122A1D;border:1.5px solid var(--lime);position:relative}
 .pcard .pr{font-size:27px;font-weight:700}
-.pcard .pn{font-size:13.5px;color:#A9BCB0;line-height:1.45;margin-top:6px}
-.feat{margin-top:16px;padding-top:14px;border-top:1px solid rgba(255,255,255,.12)}
-.feat div{display:flex;align-items:flex-start;gap:10px;font-size:14.5px;margin-bottom:11px;color:#E4EEE6}
-.feat i{width:7px;height:7px;border-radius:50%;background:var(--lime);flex:none;margin-top:7px}
+.pcard .pn{font-size:13.5px;color:#A9BCB0;line-height:1.45;margin-top:8px}
+.feat{margin-top:16px;padding-top:16px;border-top:1px solid rgba(255,255,255,.12)}
+.feat div{display:flex;align-items:flex-start;gap:8px;font-size:14.5px;margin-bottom:12px;color:#E4EEE6}
+.feat i{width:8px;height:8px;border-radius:50%;background:var(--lime);flex:none;margin-top:8px}
 .stat{background:#122A1D;border-radius:var(--r-md);padding:16px}
 .stat b{font-size:36px;font-weight:600;display:block;line-height:1}
-.stat s{font-size:12px;color:#A9BCB0;text-decoration:none;display:block;margin-top:6px;line-height:1.35}
-.sg2{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:14px}
+.stat s{font-size:12px;color:#A9BCB0;text-decoration:none;display:block;margin-top:8px;line-height:1.35}
+.sg2{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:16px}
 
 /* ───── прочее */
 .plist{background:var(--surface);border-radius:var(--r-md);padding:4px 16px}
-.pl{display:flex;align-items:center;gap:13px;padding:13px 0;border-bottom:1px solid var(--hair);cursor:pointer}
+.pl{display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid var(--hair);cursor:pointer}
 .pl:last-child{border-bottom:0}
 
 .nm{flex:1}.nm b{display:block;font-size:15.5px;font-weight:600}
@@ -268,14 +308,14 @@ h1,h2,h3{font-weight:600;letter-spacing:-.015em}
 .pl.added .addbtn svg:first-child{display:none}
 .pl.added .addbtn svg:last-child{display:block}
 .pl.locked{opacity:.42;pointer-events:none}
-.gal{display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px}
+.gal{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}
 .gal div{aspect-ratio:1;border-radius:var(--r-sm);background-size:cover;background-position:center;background-color:#DDE3DC}
-.strip{display:flex;gap:7px}
-.strip div{width:74px;height:92px;border-radius:16px;background-size:cover;background-position:center;
+.strip{display:flex;gap:8px}
+.strip div{width:72px;height:92px;border-radius:16px;background-size:cover;background-position:center;
            background-color:#DDE3DC;flex:none}
-.note{background:var(--surface);border-radius:var(--r-md);padding:18px}
+.note{background:var(--surface);border-radius:var(--r-md);padding:16px}
 .note b{font-size:17px;font-weight:600;display:block;line-height:1.3}
-.note p{font-size:14.5px;color:var(--ink-2);line-height:1.45;margin-top:6px}
+.note p{font-size:14.5px;color:var(--ink-2);line-height:1.45;margin-top:8px}
 """
 
 # ───────────────────────────── helpers
@@ -297,11 +337,14 @@ def nav(active='Week', badge=False):
         out.append(f'<div class="ni{on}" data-go="{target}">{b}{ic(icon, "currentColor", 23)}<span>{name}</span></div>')
     return '<div class="nav">' + ''.join(out) + '</div>'
 
-def hd(initial='Y'):
-    return (f'<div class="hd"><div class="wm">HOMEGROWN</div>'
-            f'<div class="av" data-go="settings">{initial}</div></div>')
+def hd(initial='Y', back=None):
+    left = (f'<div class="back" data-go="{back}">{ic("caret-right", "var(--ink)", 20)}</div>'
+            if back else '<div class="wm">HOMEGROWN</div>')
+    right = (f'<div class="av" data-go="settings">{initial}</div>' if not back
+             else '<div class="wm">HOMEGROWN</div>')
+    return f'<div class="hd">{left}{right}</div>'    
 
-def ofr(txt='Unlock all 30 weeks', sub='$29 a year &middot; every crop, every week', go='paywall'):
+def ofr(txt='Unlock all 30 weeks', sub='$29/yr', go='paywall'):
     return (f'<div class="ofr" data-go="{go}"><div class="ofr-in">'
             f'<div class="ofr-ic">{ic("sprout", "var(--lime)", 19, "2")}</div>'
             f'<div class="ofr-tx"><b>{txt}</b><s>{sub}</s></div>'
@@ -350,22 +393,22 @@ IMG = 'img/'
 
 # ═════════════════════════════ 1. ОНБОРДИНГ
 screen('landing',
- f'{sb()}<div class="shot" style="background-image:url({IMG}hero.jpg);top:46px"></div>'
- '<div class="scrim" style="top:46px"></div>'
- '<div class="overlay" style="top:46px">'
+ f'{sb()}<div class="shot" style="background-image:url({IMG}hero.jpg);top:48px"></div>'
+ '<div class="scrim" style="top:48px"></div>'
+ '<div class="overlay" style="top:48px">'
  '<div class="wm" style="color:#fff">HOMEGROWN</div>'
  '<div style="flex:1"></div>'
  '<div class="cap-f" style="font-size:41px;line-height:1.02">Grow real food<br>'
  '<span style="color:var(--lime)">where you live</span></div>'
- '<div style="font-size:16.5px;line-height:1.5;margin-top:14px;color:#DCE7DE">'
+ '<div style="font-size:16.5px;line-height:1.5;margin-top:16px;color:#DCE7DE">'
  'Patio, deck, porch or a sunny windowsill. Tell us your ZIP and how much light you get &mdash; '
  'we&rsquo;ll tell you exactly what to plant this weekend.</div>'
- '<div class="btn b-lime" style="margin-top:22px" data-go="q1">Build my free plan</div>'
+ '<div class="btn b-lime" style="margin-top:24px" data-go="q1">Build my free plan</div>'
  '<div style="font-size:13px;color:#C3D2C7;text-align:center;margin-top:12px">No card. Takes 90 seconds.</div></div>',
  'Landing', 'Фото на весь экран, лайм-кнопка. Никаких попапов и логина — §4.2.', 'Онбординг')
 
 screen('q1',
- f'{sb()}{hd()}<div class="bd">'
+ f'{sb()}{hd(back="landing")}<div class="bd">'
  '<div class="h1" style="margin-top:16px">Where will you grow?</div>' + pg(1) +
  '<div style="margin-top:16px">' +
  opt('Patio', next='q2') + opt('Deck', next='q2') + opt('Porch', next='q2') +
@@ -375,12 +418,12 @@ screen('q1',
  'Q1 · Space', 'Windowsill ведёт в <b>indoor-ветку</b> — другой вопрос о свете и план без конца сезона.', 'Онбординг')
 
 screen('q2',
- f'{sb()}{hd()}<div class="bd">'
+ f'{sb()}{hd(back="q1")}<div class="bd">'
  '<div class="h1" style="margin-top:16px">What&rsquo;s your ZIP?</div>' + pg(2) +
  '<div style="margin-top:16px"><div class="zip ph" data-zip>— — — — —</div>'
- '<div style="font-size:14.5px;color:var(--muted);line-height:1.5;margin-top:14px">'
+ '<div style="font-size:14.5px;color:var(--muted);line-height:1.5;margin-top:16px">'
  'Your frost dates decide what you can plant right now. Tap to enter.</div>'
- '<div class="acc zipres" data-zipres style="margin-top:18px"><div class="row1"><span class="tag">MATCHED</span></div>'
+ '<div class="acc zipres" data-zipres style="margin-top:16px"><div class="row1"><span class="tag">MATCHED</span></div>'
  '<div class="lbl">Climate profile</div><div class="big">Austin, TX</div>'
  '<div class="duo"><div class="cell"><s>Last frost</s><b>Mar 3</b></div>'
  '<div class="cell"><s>Season</s><b>270 days</b></div></div></div>'
@@ -388,7 +431,7 @@ screen('q2',
  'Q2 · ZIP', 'ZIP резолвится в climate_profile. Акцент-блок подтверждает, что система что-то <b>узнала</b>.', 'Онбординг')
 
 screen('q3',
- f'{sb()}{hd()}<div class="bd">'
+ f'{sb()}{hd(back="q2")}<div class="bd">'
  '<div class="h1" style="margin-top:16px">How much direct sun<br>does that spot get?</div>' + pg(3) +
  '<div style="margin-top:16px">' +
  opt('3&ndash;5 hours', 'Mostly shade or morning sun', next='q4') +
@@ -398,7 +441,7 @@ screen('q3',
  'Q3 · Sun', 'Главный фильтр качества плана. not_sure → 3-5 + задача Sun check.', 'Онбординг')
 
 screen('q2i',
- f'{sb()}{hd()}<div class="bd">'
+ f'{sb()}{hd(back="q1")}<div class="bd">'
  '<div class="h1" style="margin-top:16px">Which way does<br>your window face?</div>' + pg(3) +
  '<div style="margin-top:16px">' +
  opt('South', 'Brightest &mdash; basil and peppers work', next='q4') +
@@ -412,21 +455,21 @@ screen('q2i',
  'Q3-indoor · Window', 'Для indoor солнце меряется <b>стороной окна</b>, не часами. Ложится в тот же sun_bucket.', 'Онбординг')
 
 screen('q4',
- f'{sb()}{hd()}<div class="bd">'
+ f'{sb()}{hd(back="q3")}<div class="bd">'
  '<div class="h1" style="margin-top:16px">What do you want to eat?</div>'
- '<div style="font-size:14px;color:var(--muted);margin-top:5px">Up to 3 &middot; '
+ '<div style="font-size:14px;color:var(--muted);margin-top:4px">Up to 3 &middot; '
  '<span data-count>nothing selected yet</span></div>' + pg(4) +
- '<div style="margin-top:14px">' +
+ '<div style="margin-top:16px">' +
  opt('Salads &amp; greens', multi=True) + opt('Fresh herbs', multi=True) +
  opt('Fast first harvest', multi=True) + opt('Tomatoes', multi=True) +
  opt('Peppers', multi=True) + opt('Beans &amp; peas', multi=True) +
  opt('Roots: radish, carrot', multi=True) + opt('Kid-friendly project', multi=True) + '</div>'
- '</div>' + foot('<div style="font-size:13px;color:var(--muted);margin-bottom:9px;text-align:center" data-hint>'
+ '</div>' + foot('<div style="font-size:13px;color:var(--muted);margin-bottom:8px;text-align:center" data-hint>'
  'Pick at least one.</div><div class="btn b-pri off" data-cta data-go="q5">Continue</div>'),
  'Q4 · Goals', 'Лимит 3. Лишние <b>гаснут, а не исчезают</b> — §4.6.', 'Онбординг')
 
 screen('q5',
- f'{sb()}{hd()}<div class="bd">'
+ f'{sb()}{hd(back="q4")}<div class="bd">'
  '<div class="h1" style="margin-top:16px">How much time can<br>you give it?</div>' + pg(5) +
  '<div style="margin-top:16px">' +
  opt('About 10 minutes', 'Keep it very simple &middot; 3 crops', next='preview') +
@@ -435,15 +478,15 @@ screen('q5',
  'Q5 · Effort', 'Определяет количество культур и максимум задач в неделю.', 'Онбординг')
 
 screen('preview',
- f'{sb()}{hd()}<div class="bd">'
+ f'{sb()}{hd(back="q5")}<div class="bd">'
  '<div class="greet">Your plan is ready</div>'
- '<div class="cap-f" id="planhead" style="font-size:31px;line-height:1.06;margin-top:5px">4 crops.</div>'
- '<div style="font-size:13.5px;color:var(--muted);margin-top:7px" id="planmeta">Austin, TX</div>'
+ '<div class="cap-f" id="planhead" style="font-size:31px;line-height:1.06;margin-top:4px">4 crops.</div>'
+ '<div style="font-size:13.5px;color:var(--muted);margin-top:8px" id="planmeta">Austin, TX</div>'
  '<div class="acc"><div class="row1"><span class="tag">YOUR PLAN</span></div>'
  '<div class="plants" id="planrows"></div></div>'
- '<div class="note" style="margin-top:10px"><p style="margin-top:0" id="planwhy"></p></div>'
+ '<div class="note" style="margin-top:8px"><p style="margin-top:0" id="planwhy"></p></div>'
  '</div>' + foot('<div class="btn b-pri" data-go="save">Start this week&rsquo;s tasks</div>')
- + ofr('See all 30 weeks', 'Plus your shopping list as a printable PDF'),
+ + ofr('See all 30 weeks', '$29/yr'),
  'Plan Preview', 'Момент ценности. <b>План до регистрации</b> — §4.8. У каждой культуры поле why из движка.', 'Онбординг')
 
 screen('save',
@@ -452,7 +495,7 @@ screen('save',
  f'{sb().replace("var(--ink)","#fff").replace(chr(34)+"sb"+chr(34), chr(34)+"sb"+chr(34))}'
  '<div style="flex:1"></div>'
  '<span class="pill b-lime" style="align-self:flex-start">4 CROPS &middot; 30 WEEKS</span>'
- '<div class="cap-f" style="font-size:37px;line-height:1.03;margin-top:14px">Save your plan<br>'
+ '<div class="cap-f" style="font-size:37px;line-height:1.03;margin-top:16px">Save your plan<br>'
  '<span style="color:var(--lime)">so we can remind you.</span></div>'
  '<div style="font-size:16px;color:#DCE7DE;line-height:1.5;margin-top:12px">'
  'Your plan is already built. This just saves it. We email you 3 tasks a week &mdash; nothing else.</div>'
@@ -474,9 +517,9 @@ screen('home',
  'поэтому добавил одно — появится одно.', 'Home')
 
 screen('add-plant',
- f'{sb()}{hd()}<div class="bd">'
- '<div class="h1" style="margin-top:14px">Add a plant</div>'
- '<div style="font-size:14px;color:var(--muted);margin-top:5px">'
+ f'{sb()}{hd(back="home")}<div class="bd">'
+ '<div class="h1" style="margin-top:16px">Add a plant</div>'
+ '<div style="font-size:14px;color:var(--muted);margin-top:4px">'
  'Fits your patio &middot; <span data-addcount>0 of 3 chosen</span></div>'
  '<div class="search"><span class="si">' + ic('search', '#8E9A93', 19, '2') + '</span>'
  '<input id="cropq" placeholder="Search 22 crops — tomato, mint, kale…" autocomplete="off">'
@@ -491,13 +534,13 @@ screen('add-plant',
  'честнее, чем спрятать. OFF-04 стоит внизу как soft-lock.', 'Home')
 
 screen('week-lock',
- f'{sb()}{hd()}<div class="bd">'
+ f'{sb()}{hd(back="home")}<div class="bd">'
  '<div class="h1" style="margin-top:16px">Week 5 <span class="m">&middot; Apr 11&ndash;17</span></div>'
  '<div style="font-size:14px;color:var(--muted);margin-top:4px">3 tasks planned for this week</div>'
  '<div class="sl">THIS WEEK</div>' +
  task('', '4 min', lock=True) + task('', '3 min', lock=True) + task('', '10 min', lock=True) +
- '<div class="acc" style="margin-top:14px"><div class="row1"><span class="tag">LOCKED</span></div>'
- '<div class="big" style="font-size:26px;margin-top:14px">Pro unlocks<br>all 30 weeks</div>'
+ '<div class="acc" style="margin-top:16px"><div class="row1"><span class="tag">LOCKED</span></div>'
+ '<div class="big" style="font-size:26px;margin-top:16px">Pro unlocks<br>all 30 weeks</div>'
  '<div class="sub">The dates and the workload are real &mdash; only the wording is hidden. '
  'You&rsquo;ll never wonder what&rsquo;s next.</div>'
  '<div class="btn b-lime" data-go="paywall">Unlock full season</div>'
@@ -505,19 +548,76 @@ screen('week-lock',
  '</div>' + nav('Week'),
  'Soft-lock', '<b>Даты и объём видны</b>, скрыты только формулировки — §10.3. Это не стена.', 'Home')
 
+
+screen('week-empty',
+ f'{sb()}{hd()}<div class="bd">'
+ '<div class="greet">Good morning &middot; Week 6 &middot; Apr 18 &ndash; Apr 24</div>'
+ '<div class="h1">Nothing needed<br><span class="m">this week.</span></div>'
+ '<div class="note" style="margin-top:16px"><b>Just water and watch</b>'
+ '<p>Everything is on schedule. The next real job is thinning on Apr 27 &mdash; '
+ 'we&rsquo;ll put it on next week&rsquo;s card.</p></div>'
+ '<div class="sl">YOUR PLANTS</div><div id="wkplants"></div>'
+ '</div>' + ofr() + nav('Week'),
+ 'Week · пусто', '<b>§18</b> «Nothing needed this week. Water, watch, enjoy.» '
+ 'Пустая неделя — это подтверждение, что всё идёт по плану, а не сломанный экран.', 'Home')
+
+screen('week-back',
+ f'{sb()}{hd()}<div class="bd">'
+ '<div class="greet">You were away 2 weeks</div>'
+ '<div class="h1">Welcome back.<br><span class="m">Here&rsquo;s what matters now.</span></div>'
+ '<div class="note" style="margin-top:16px"><b>Most of it doesn&rsquo;t matter now</b>'
+ '<p>Nine tasks stopped being useful and closed themselves. Two still pay off.</p></div>'
+ '<div class="sl">TWO THINGS STILL HELP</div>' +
+ task('Thin your radish', '2 min', 'Crowded roots stay small &mdash; this one still pays off.') +
+ task('Water deeply today', '3 min', 'Until it runs from the drainage holes.') +
+ '<div class="btn b-pri" data-go="home">Continue with this week</div>'
+ '</div>' + ofr() + nav('Week', badge=True),
+ 'Week · возврат', '<b>§6.4</b> Продукт <b>никогда</b> не показывает список из двадцати просроченных задач. '
+ 'Движок сворачивает пропуск в две задачи, остальное закрывается статусом expired без обвинения.', 'Home')
+
+screen('week-long',
+ f'{sb()}{hd()}<div class="bd">'
+ '<div class="greet">Last visit: 6 weeks ago</div>'
+ '<div class="h1">It&rsquo;s been a while.<br><span class="m">Let&rsquo;s restart from today.</span></div>'
+ '<div class="note" style="margin-top:16px"><b>Your plan is out of date</b>'
+ '<p>Six weeks changed what&rsquo;s worth planting. We&rsquo;ll rebuild the schedule from today and keep '
+ 'everything you already did &mdash; 11 tasks and 4 photos stay.</p>'
+ '<div class="btn b-pri" data-go="home">Rebuild my plan</div>'
+ '<div class="btn b-ghost" data-go="home">Keep the old one</div></div>'
+ '<div style="font-size:14px;color:var(--muted);line-height:1.45;margin-top:16px;padding:0 4px">'
+ 'Radish and lettuce may have bolted in the heat. If they did, that&rsquo;s normal &mdash; '
+ 'we&rsquo;ll sow again in the fall window.</div>'
+ '</div>' + ofr() + nav('Week'),
+ 'Week · долгий пропуск', '<b>§19.1 №7</b> Пересчёт <b>предлагается</b>, но никогда не делается автоматически. '
+ 'Выполненное и журнал сохраняются, plan.version инкрементируется.', 'Home')
+
+screen('season-end',
+ '<div class="dark"><div class="glow"></div>'
+ '<div class="xbtn" style="align-self:flex-end" data-go="growth">' + ic('x', '#CFE0D4', 20) + '</div>'
+ '<div style="flex:1;display:flex;flex-direction:column;justify-content:center;position:relative">'
+ f'<div style="height:200px;border-radius:24px;background:url({IMG}radish.jpg) center/cover"></div>'
+ '<span class="pill b-lime" style="align-self:flex-start;margin-top:20px">SEASON 2026 &middot; AUSTIN, TX</span>'
+ '<div class="cap-f" style="font-size:40px;line-height:1.02;margin-top:12px">14 harvests.<br>187 days.</div>'
+ '<div style="font-size:16px;color:#A9BCB0;line-height:1.5;margin-top:12px">'
+ 'Radish, leaf lettuce and basil all made it to the table. Your first pick was April 12 &mdash; day 31.</div></div>'
+ '<div class="btn b-lime" data-go="paywall">Plan next year now</div>'
+ '<div class="btn" style="background:#1B3527;color:#fff" data-go="growth">Download season recap</div></div>',
+ 'Season ended · OFF-11', '<b>§7.5</b> Триггер <b>today &ge; first_frost</b>. Итог сезона + план на следующий год. '
+ 'Для indoor-трека это состояние <b>не наступает никогда</b>.', 'Home')
+
 # ═════════════════════════════ 3. PLANTS
 screen('plants',
  f'{sb()}{hd()}<div class="bd">'
- '<div class="h1" style="margin-top:14px">Your plants</div>'
+ '<div class="h1" style="margin-top:16px">Your plants</div>'
  '<div style="font-size:14px;color:var(--muted);margin-top:4px" id="plantsmeta">&nbsp;</div>'
  '<div id="plantlist"></div>'
- '<div class="btn b-ghost" data-go="add-plant" style="margin-top:14px">Add a plant</div>'
+ '<div class="btn b-ghost" data-go="add-plant" style="margin-top:16px">Add a plant</div>'
  '</div>' + ofr() + nav('Plants'),
  'Plants', 'Список из состояния. У каждой строки — крестик удаления с <b>Undo</b>: '
  'удаление не должно быть страшным, растения гибнут и пересеваются (§19.1 №8).', 'Plants')
 
 screen('plant',
- f'{sb()}{hd()}<div class="bd" id="pdetail"></div>' + nav('Plants'),
+ f'{sb()}{hd(back="plants")}<div class="bd" id="pdetail"></div>' + nav('Plants'),
  'Plant detail', 'Карточка выбранного растения. Если фото ещё нет — <b>плитка «Add a photo»</b>, '
  'а не пустые серые квадраты. Внизу — удаление с подтверждением через Undo.', 'Plants')
 
@@ -538,7 +638,7 @@ screen('growth',
  ringrow('salad', 'Leaf lettuce', '3 harvests &middot; first Apr 13', '&nbsp;', 100) +
  ringrow('leaf', 'Basil', '2 harvests &middot; first Apr 23', '&nbsp;', 100) + '</div>'
  '<div class="sl" id="jlab">JOURNAL</div><div id="journal"></div>'
- '</div>' + ofr('Keep every photo', 'Full timeline and your season recap as PDF') + nav('Growth'),
+ '</div>' + ofr('Keep every photo', '$29/yr') + nav('Growth'),
  'Growth · дашборд', 'Счётчик сезона из §9.4 живёт в акцентном блоке. Цифры <b>раскрашены по смыслу</b>: '
  'урожаи лаймом, культуры — flame, дисциплина белым.', 'Growth')
 
@@ -546,7 +646,7 @@ screen('harvest',
  '<div class="dark" style="padding:0">'
  f'<div class="shot" style="background-image:url({IMG}radish.jpg);height:58%"></div>'
  '<div class="scrim" style="height:58%;background:linear-gradient(180deg,rgba(11,31,20,.45),rgba(11,31,20,0) 40%,var(--deepest))"></div>'
- '<div style="position:absolute;inset:0;display:flex;flex-direction:column;padding:24px 22px">'
+ '<div style="position:absolute;inset:0;display:flex;flex-direction:column;padding:24px 24px">'
  '<div class="xbtn" style="align-self:flex-end" data-go="growth">' + ic('x', '#CFE0D4', 17, '2') + '</div>'
  '<div style="flex:1"></div>'
  '<span class="pill b-lime" style="align-self:flex-start">DAY 31</span>'
@@ -558,7 +658,7 @@ screen('harvest',
  'Harvest Moment', 'Тёмный экран с настоящим фото вместо нюдового. Пик удержания и лучшая точка конверсии — §9.', 'Growth')
 
 screen('shopping',
- f'{sb()}{hd()}<div class="bd">'
+ f'{sb()}{hd(back="home")}<div class="bd">'
  '<div class="h1" style="margin-top:16px">Shopping list</div>'
  '<div style="font-size:14px;color:var(--muted);margin-top:4px">Everything for week 1 &middot; about $47</div>'
  '<div class="sl">CONTAINERS</div>' +
@@ -579,24 +679,24 @@ FEATS = ['All 30 weeks of tasks, not just this one', 'Every crop and every succe
 screen('paywall',
  '<div class="dark"><div class="glow"></div><div class="glow b"></div>'
  '<div style="display:flex;justify-content:space-between;align-items:center;position:relative">'
- '<div style="display:flex;align-items:center;gap:9px">' + ic('sprout', 'var(--lime)', 24, '2') +
+ '<div style="display:flex;align-items:center;gap:8px">' + ic('sprout', 'var(--lime)', 24, '2') +
  '<span style="font-size:14px;font-weight:700;letter-spacing:.1em">HOMEGROWN</span></div>'
  '<div class="xbtn" data-pw-exit>' + ic('x', '#CFE0D4', 17, '2') + '</div></div>'
- '<div style="text-align:center;margin-top:26px;position:relative">'
+ '<div style="text-align:center;margin-top:24px;position:relative">'
  '<div style="font-size:31px;font-weight:600;line-height:1.14;letter-spacing:-.02em">'
  'Grow the whole<br><span style="color:var(--lime)">season, planned.</span></div>'
- '<div style="font-size:14.5px;color:#A9BCB0;margin-top:10px">7 days free. Cancel anytime.</div></div>'
+ '<div style="font-size:14.5px;color:#A9BCB0;margin-top:8px">7 days free. Cancel anytime.</div></div>'
  '<div class="seg"><div class="on" data-seg>Season pass</div><div data-seg>Monthly</div></div>'
  '<div class="pcard"><div style="display:flex;justify-content:space-between;align-items:flex-start">'
  '<div><div class="pr">$29<span style="font-size:15px;font-weight:500;color:#A9BCB0"> / year</span></div>'
  '<div class="pn">Cheaper than one tray of seedlings. Covers a full season, start to frost.</div></div>'
  '<span class="pill b-lime">BEST</span></div>'
  '<div class="feat">' + ''.join(f'<div><i></i><span>{f}</span></div>' for f in FEATS) + '</div></div>'
- '<div style="flex:1;min-height:14px"></div>'
+ '<div style="flex:1;min-height:16px"></div>'
  '<div class="btn b-white" data-pw-exit>Start 7-day free trial</div>'
  '<div style="font-size:14px;color:#fff;text-align:center;margin-top:16px;cursor:pointer;font-weight:600" data-pw-exit>'
  'Continue with the free plan</div>'
- '<div style="font-size:12px;color:#6E8175;text-align:center;margin-top:10px;line-height:1.45">'
+ '<div style="font-size:12px;color:#6E8175;text-align:center;margin-top:8px;line-height:1.45">'
  'No card for the trial. Your plan and photos stay yours either way.</div></div>',
  'Paywall', 'Собран по референсу Fit AI: тёмный фон, лаймовый glow, сегмент-переключатель, '
  'фичи с точками, белый CTA. Годовой подан как <b>Season pass</b>, не как скидка — §12.2. '
@@ -606,7 +706,7 @@ screen('week-done',
  '<div class="dark"><div class="glow"></div>'
  '<div class="xbtn" style="align-self:flex-end" data-go="home">' + ic('x', '#CFE0D4', 17, '2') + '</div>'
  '<div style="flex:1;display:flex;flex-direction:column;justify-content:center;position:relative">'
- f'<div style="height:200px;border-radius:26px;background:url({IMG}garden.jpg) center/cover"></div>'
+ f'<div style="height:200px;border-radius:24px;background:url({IMG}garden.jpg) center/cover"></div>'
  '<span class="pill b-lime" style="align-self:flex-start;margin-top:20px">WEEK 3 COMPLETE</span>'
  '<div style="font-size:30px;font-weight:600;line-height:1.15;margin-top:12px">Everything<br>'
  '<span style="color:var(--lime)">on time.</span></div>'
@@ -622,8 +722,8 @@ screen('week-done',
 screen('settings',
  f'{sb()}{hd()}<div class="bd">'
  '<div class="h1" style="margin-top:16px">Settings</div>'
- '<div class="acc" style="margin-top:14px"><div class="row1"><span class="tag">FREE PLAN</span></div>'
- '<div class="big" style="font-size:24px;margin-top:14px">1 space &middot; 3 crops<br>this week only</div>'
+ '<div class="acc" style="margin-top:16px"><div class="row1"><span class="tag">FREE PLAN</span></div>'
+ '<div class="big" style="font-size:24px;margin-top:16px">1 space &middot; 3 crops<br>this week only</div>'
  '<div class="btn b-lime" data-go="paywall">Compare with Pro</div></div>'
  '<div class="sl">YOUR SPACE</div><div class="plist">'
  '<div class="pl"><div class="nm"><b>Space</b><s>Back patio</s></div>' + ic('chevron-right', '#B4BEB8', 18) + '</div>'
@@ -632,14 +732,14 @@ screen('settings',
  '<div class="pl"><div class="nm"><b>Time per week</b><s>20 minutes</s></div>' + ic('chevron-right', '#B4BEB8', 18) + '</div></div>'
  '<div class="sl">EMAIL</div><div class="plist">'
  '<div class="pl"><div class="nm"><b>Weekly tasks</b></div>'
- '<div style="width:44px;height:26px;border-radius:999px;background:var(--bright);position:relative">'
- '<div style="position:absolute;right:3px;top:3px;width:20px;height:20px;border-radius:50%;background:#fff"></div></div></div>'
+ '<div style="width:44px;height:24px;border-radius:999px;background:var(--bright);position:relative">'
+ '<div style="position:absolute;right:4px;top:4px;width:20px;height:20px;border-radius:50%;background:#fff"></div></div></div>'
  '<div class="pl"><div class="nm"><b>Harvest reminders</b></div>'
- '<div style="width:44px;height:26px;border-radius:999px;background:var(--bright);position:relative">'
- '<div style="position:absolute;right:3px;top:3px;width:20px;height:20px;border-radius:50%;background:#fff"></div></div></div>'
+ '<div style="width:44px;height:24px;border-radius:999px;background:var(--bright);position:relative">'
+ '<div style="position:absolute;right:4px;top:4px;width:20px;height:20px;border-radius:50%;background:#fff"></div></div></div>'
  '<div class="pl"><div class="nm"><b>Season updates</b></div>'
- '<div style="width:44px;height:26px;border-radius:999px;background:#D3DAD4;position:relative">'
- '<div style="position:absolute;left:3px;top:3px;width:20px;height:20px;border-radius:50%;background:#fff"></div></div></div></div>'
+ '<div style="width:44px;height:24px;border-radius:999px;background:#D3DAD4;position:relative">'
+ '<div style="position:absolute;left:4px;top:4px;width:20px;height:20px;border-radius:50%;background:#fff"></div></div></div></div>'
  '<div class="sl">DATA</div><div class="plist">'
  '<div class="pl"><div class="nm"><b>Units</b><s>Imperial</s></div>' + ic('chevron-right', '#B4BEB8', 18) + '</div>'
  '<div class="pl"><div class="nm"><b>Delete account</b><s>Requires typing DELETE</s></div>' + ic('chevron-right', '#B4BEB8', 18) + '</div></div>'
@@ -665,7 +765,7 @@ screen('indoor',
  task('Cut 6 basil leaves from the top', '2 min', 'Cut above a leaf pair &mdash; it branches and doubles.') +
  task('Sow a new microgreens tray', '5 min') +
  task('Water check: soil top dry?', '2 min') +
- '</div>' + ofr('Add a second windowsill', 'Pro manages up to 5 growing spaces') + nav('Week', badge=True),
+ '</div>' + ofr('Add a second windowsill', 'Pro') + nav('Week', badge=True),
  'Indoor · Home', '«Season ends: never» — вот почему indoor закрывает сезонность. '
  'Ритм — <b>срез каждую неделю</b>, а не один сбор за 30 дней.', 'Indoor')
 
@@ -681,20 +781,20 @@ CROPS = [
  ('Basil','leaf',40,40,'1 gal',2,['herbs']),
  ('Bush beans','bean',45,60,'2 gal',2,['beans','kids']),
  ('Beets','carrot',50,60,'0.5 gal',1,['roots']),
- ('Summer squash','apple',50,60,'5 gal',2,[]),
+ ('Summer squash','orange',50,60,'5 gal',2,[]),
  ('Cherry tomato','apple',55,100,'1 gal',2,['tomatoes','kids']),
  ('Tomato','apple',55,100,'5 gal',2,['tomatoes']),
  ('Kale','leafy-green',55,65,'5 gal',1,['salads']),
  ('Turnips','carrot',30,60,'3 gal',1,['roots']),
  ('Carrots','carrot',65,80,'1 quart',1,['roots','kids']),
- ('Cucumber','apple',70,80,'5 gal',2,[]),
- ('Green onions','sprout',70,100,'0.5 gal',1,['herbs']),
+ ('Cucumber','orange',70,80,'5 gal',2,[]),
+ ('Green onions','plant',70,100,'0.5 gal',1,['herbs']),
  ('Parsley','leafy-green',70,84,'0.5 gal',1,['herbs']),
- ('Eggplant','apple',75,100,'5 gal',2,[]),
- ('Garlic chives','sprout',84,84,'0.5 gal',1,['herbs']),
- ('Bell pepper','apple',110,120,'2 gal',2,['peppers']),
+ ('Eggplant','pepper',75,100,'5 gal',2,[]),
+ ('Garlic chives','plant',84,84,'0.5 gal',1,['herbs']),
+ ('Bell pepper','pepper',110,120,'2 gal',2,['peppers']),
 ]
-ICONSET = sorted({c[1] for c in CROPS})
+ICONSET = sorted({c[1] for c in CROPS} | {'plant','orange','pepper','flower','potted-plant','basket'})
 
 JS_SRC = r'''
 const ICONS = __ICONS__;
@@ -787,14 +887,18 @@ const FREE_LIMIT = 3;
 function crop(name){ return CROPS.find(c=>c[0]===name); }
 function mk(name, day, photos){ return {c:crop(name), day:day, photos:photos||[]}; }
 function seedPlants(){
-  MY_PLANTS = [mk('Radish',14,['radish','leaves1']), mk('Leaf lettuce',14,[]),
-               mk('Basil',14,['basil']), mk('Cherry tomato',4,[])];
+  MY_PLANTS = [mk('Radish',27,[{f:'radish',day:24},{f:'leaves1',day:11}]),
+               mk('Leaf lettuce',27,[{f:'leaves3',day:18}]),
+               mk('Basil',27,[{f:'basil',day:21}]), mk('Cherry tomato',9,[])];
 }
 const pPct   = p => Math.min(100, Math.round(p.day / p.c[2] * 100));
 const pStage = p => { const r = p.day/p.c[2];
   return r<0.1?'seed':r<0.35?'seedling':r<0.7?'growing':r<1?'nearly ready':'ready'; };
 const pEta   = p => { const d = p.c[2]-p.day; return d<=0 ? 'ready' : '~'+d+'d'; };
-const allPhotos = () => MY_PLANTS.flatMap(p=>p.photos.map(f=>({f:f,n:p.c[0]})));
+const stageAt = (p,d) => { const r = d/p.c[2];
+  return r<0.1?'seed':r<0.35?'seedling':r<0.7?'growing':r<1?'nearly ready':'ready'; };
+const allPhotos = () => MY_PLANTS.flatMap(p=>p.photos.map(x=>
+  ({f:x.f, n:p.c[0], day:x.day, st:stageAt(p,x.day)}))).sort((a,b)=>b.day-a.day);
 
 /* ─────────── HOME ─────────── */
 const WEEK_TASKS = [
@@ -836,14 +940,14 @@ function renderHome(){
        '<div class="prow" data-open="'+i+'"><div class="rw">'+ringSVG(pPct(p),38,true)+'<i>'+ICONS[p.c[1]]+'</i></div>'
       +'<div class="nm"><b>'+p.c[0]+'</b><s>Day '+p.day+' &middot; '+pStage(p)+'</s></div>'
       +'<div class="rt">'+pEta(p)+'</div></div>').join('')+'</div>'
-    +'<div style="display:flex;justify-content:space-between;align-items:center;margin-top:14px;padding-top:13px;'
+    +'<div style="display:flex;justify-content:space-between;align-items:center;margin-top:16px;padding-top:12px;'
     +'border-top:1px solid rgba(255,255,255,.12);position:relative">'
     +'<span style="font-size:13px;color:#B7C7BD">Next harvest <b style="color:#fff;font-weight:600">Apr 12</b></span>'
     +'<span style="font-size:13px;color:var(--lime);font-weight:600">11-week streak</span></div></div>';
   pr.innerHTML='<div class="prog"><div class="bar"><i style="width:0%"></i></div><div class="pct">0 of '
     +WEEK_TASKS.length+' done</div></div>';
   tk.innerHTML='<div class="sl">THIS WEEK</div>'+WEEK_TASKS.map(taskHTML).join('')
-    +'<div style="font-size:14px;color:var(--muted);padding:10px 4px 0" data-go="week-lock">+2 more this week &rarr;</div>';
+    +'<div style="font-size:14px;color:var(--muted);padding:8px 4px 0" data-go="week-lock">+2 more this week &rarr;</div>';
 }
 
 /* ─────────── PLANTS + удаление ─────────── */
@@ -857,8 +961,8 @@ function renderPlants(){
       +'<p>Pick something that finishes fast — radish is ready in 25 days.</p>'
       +'<div class="btn b-pri" data-go="add-plant">Add a plant</div></div>'; return;
   }
-  box.innerHTML='<div class="plist" style="margin-top:14px">'+MY_PLANTS.map((p,i)=>
-     '<div class="pl"><div data-open="'+i+'" style="display:flex;align-items:center;gap:13px;flex:1;min-width:0">'
+  box.innerHTML='<div class="plist" style="margin-top:16px">'+MY_PLANTS.map((p,i)=>
+     '<div class="pl"><div data-open="'+i+'" style="display:flex;align-items:center;gap:12px;flex:1;min-width:0">'
     +'<div class="rw">'+ringSVG(pPct(p))+'<i>'+ICONS[p.c[1]]+'</i></div>'
     +'<div class="nm"><b>'+p.c[0]+'</b><s>Day '+p.day+' &middot; '+pStage(p)+' &middot; '+pEta(p)+'</s></div></div>'
     +'<div class="del" data-del="'+i+'">'+ICONS._x+'</div></div>').join('')+'</div>';
@@ -879,10 +983,13 @@ function undoRemove(){
 }
 
 /* ─────────── PLANT DETAIL ─────────── */
-function photoTile(f){ return '<div style="background-image:url(img/'+f+'.jpg)"></div>'; }
-function addPhotoTile(label){
-  return '<div class="addph" data-go="growth">'+ICONS._cam
+function addPhotoBtn(label){
+  return '<div class="btn-dash" data-addphoto>'+ICONS._plus
     +'<span>'+(label||'Add a photo')+'</span></div>';
+}
+function photoCard(x){
+  return '<figure class="jc"><div class="jph" style="background-image:url(img/'+x.f+'.jpg)"></div>'
+   +'<figcaption><b>'+x.n+'</b><s>Day '+x.day+' &middot; '+x.st+'</s></figcaption></figure>';
 }
 function renderDetail(){
   const box=document.getElementById('pdetail'); if(!box) return;
@@ -891,27 +998,28 @@ function renderDetail(){
       +'<p>You removed it. Nothing is lost — sow it again whenever you like.</p>'
       +'<div class="btn b-pri" data-go="add-plant">Add a plant</div></div>'; return; }
   const hero = p.photos.length
-    ? '<div style="height:190px;border-radius:var(--r-lg);background:url(img/'+p.photos[0]
-      +'.jpg) center/cover;margin-top:14px"></div>'
+    ? '<div style="height:192px;border-radius:var(--r-lg);background:url(img/'+p.photos[0]
+      +'.jpg) center/cover;margin-top:16px"></div>'
     : '<div class="herostub">'+ICONS._cam2+'<div><b>No photo yet</b><s>One shot a week builds the whole timeline.</s></div></div>';
   const strip = p.photos.length
-    ? '<div class="strip">'+p.photos.map(photoTile).join('')+addPhotoTile('Add')+'</div>'
-    : '<div class="strip">'+addPhotoTile('Add the first photo')+'</div>';
+    ? '<div class="jgrid">'+p.photos.map(x=>photoCard({f:x.f,n:p.c[0],day:x.day,st:stageAt(p,x.day)})).join('')
+      +'</div>'+addPhotoBtn()
+    : addPhotoBtn('Add the first photo');
   box.innerHTML = hero
-    +'<div style="display:flex;align-items:center;gap:13px;margin-top:16px">'
+    +'<div style="display:flex;align-items:center;gap:12px;margin-top:16px">'
     +'<div class="rw" style="width:52px;height:52px">'+ringSVG(pPct(p),52,false,4)+'<i>'+ICONS[p.c[1]]+'</i></div>'
     +'<div><div style="font-size:23px;font-weight:600">'+p.c[0]+'</div>'
     +'<div style="font-size:13.5px;color:var(--muted)">Sown Mar 14 &middot; '+p.c[4]+' &middot; patio</div></div></div>'
-    +'<div class="card" style="margin-top:14px">'
+    +'<div class="card" style="margin-top:16px">'
     +'<div style="display:flex;justify-content:space-between;align-items:baseline">'
     +'<b style="font-size:16px">Day '+p.day+'</b>'
     +'<span style="font-size:13px;color:var(--muted)">typical '+p.c[2]+'–'+p.c[3]+'</span></div>'
-    +'<div style="position:relative;height:30px;margin-top:8px">'
-    +'<div style="position:absolute;top:12px;left:0;right:0;height:6px;border-radius:999px;background:#DDE3DC"></div>'
+    +'<div style="position:relative;height:32px;margin-top:8px">'
+    +'<div style="position:absolute;top:12px;left:0;right:0;height:8px;border-radius:999px;background:#DDE3DC"></div>'
     +'<div style="position:absolute;top:12px;left:'+(p.c[2]/(p.c[3]*1.25)*100).toFixed(0)+'%;width:'
-    +((p.c[3]-p.c[2])/(p.c[3]*1.25)*100).toFixed(0)+'%;height:6px;border-radius:999px;background:var(--lime)"></div>'
-    +'<div style="position:absolute;top:6px;left:calc('+Math.min(96,p.day/(p.c[3]*1.25)*100).toFixed(0)
-    +'% - 9px);width:18px;height:18px;border-radius:50%;background:var(--primary);box-shadow:0 0 0 3px #fff"></div></div>'
+    +((p.c[3]-p.c[2])/(p.c[3]*1.25)*100).toFixed(0)+'%;height:8px;border-radius:999px;background:var(--lime)"></div>'
+    +'<div style="position:absolute;top:8px;left:calc('+Math.min(96,p.day/(p.c[3]*1.25)*100).toFixed(0)
+    +'% - 9px);width:16px;height:16px;border-radius:50%;background:var(--primary);box-shadow:0 0 0 3px #fff"></div></div>'
     +'<div style="font-size:14px;color:var(--ink-2);line-height:1.45">'
     +(p.day>=p.c[2] ? 'Ready to pick. Most of these finish between day '+p.c[2]+' and '+p.c[3]+'.'
                     : 'On track. Most of these finish between day '+p.c[2]+' and '+p.c[3]+'.')+'</div></div>'
@@ -931,12 +1039,9 @@ function renderJournal(){
   if(!ph.length){
     box.innerHTML='<div class="note"><b>Take one photo today</b>'
       +'<p>In 30 days you&rsquo;ll want to see it. One shot a week is enough to build the whole timeline.</p>'
-      +'<div class="btn b-pri">Add a photo</div></div>'; return;
+      +addPhotoBtn('Add the first photo')+'</div>'; return;
   }
-  box.innerHTML='<div class="gal">'+ph.map(x=>photoTile(x.f)).join('')
-    +'<div class="addph sq" data-go="paywall">'+ICONS._cam+'<span>Add</span></div></div>'
-    +'<div style="font-size:13px;color:var(--muted);margin-top:9px;line-height:1.5">'
-    +ph.map(x=>x.n+' · Day 14 · seedling').slice(0,3).join('<br>')+'</div>';
+  box.innerHTML='<div class="jgrid">'+ph.map(photoCard).join('')+'</div>'+addPhotoBtn();
 }
 function renderAll(){ renderHome(); renderPlants(); renderDetail(); renderJournal(); }
 
@@ -960,8 +1065,8 @@ ICON_JS['_check'] = ic('check', '#fff', 17, '3')
 ICON_JS['_check2'] = ic('check', '#fff', 16, '3')
 ICON_JS['_checkg'] = ic('check', 'var(--bright)', 17, '3')
 ICON_JS['_x'] = ic('x', '#6E7A73', 17, '2.4')
-ICON_JS['_cam'] = ic('camera', '#8E9A93', 20, '1.9')
-ICON_JS['_cam2'] = ic('camera', '#8E9A93', 26, '1.8')
+ICON_JS['_cam'] = ic('camera', 'var(--primary)', 22, '2')
+ICON_JS['_cam2'] = ic('camera', 'var(--primary)', 26, '1.9')
 
 
 # ═════════════════════════════ ДОКУМЕНТ ФЛОУ
@@ -1102,7 +1207,6 @@ import json
 JS_EXTRA = JS_SRC.replace('__ICONS__', json.dumps(ICON_JS, ensure_ascii=False)).replace('__CROPS__', json.dumps(CROPS, ensure_ascii=False))
 HTML = f'''<!doctype html><html lang="ru"><head><meta charset="utf-8">
 <title>HOMEGROWN — прототип</title>
-<link href="https://fonts.googleapis.com/css2?family=Caprasimo&family=Inter+Tight:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>{CSS}</style></head><body>
 <div class="stage">
   <div class="stage-bar"><span class="t" id="scr-title">Landing</span><span class="s" id="scr-id">landing</span></div>
@@ -1141,6 +1245,11 @@ function go(id){{
       q.parentElement.classList.remove('has');}} PENDING=[]; renderCrops(''); }}
   if(id==='home') renderHome();
   if(id==='plants') renderPlants();
+  if(id==='week-empty'){{ const w=document.getElementById('wkplants');
+    if(w) w.innerHTML='<div class="plist">'+MY_PLANTS.map((p,i)=>
+      '<div class="pl" data-open="'+i+'"><div class="rw">'+ringSVG(pPct(p))+'<i>'+ICONS[p.c[1]]+'</i></div>'
+      +'<div class="nm"><b>'+p.c[0]+'</b><s>Day '+p.day+' &middot; '+pStage(p)+'</s></div>'
+      +'<div class="eta">'+pEta(p)+'</div></div>').join('')+'</div>'; }}
   if(id==='plant') renderDetail();
   if(id==='growth') renderJournal();
   el.classList.add('on'); el.querySelectorAll('.bd').forEach(b=>b.scrollTop=0);
@@ -1272,8 +1381,51 @@ DIR = pathlib.Path(__file__).parent
 # ── 1. review.html — рамка + индекс (для десктопного ревью)
 (DIR / 'review.html').write_text(HTML, encoding='utf-8')
 
+INSTALL_HTML = r'''
+<div id="a2hs">
+  <div class="a2-ic"></div>
+  <div class="a2-tx"><b>Открывать без адресной строки</b>
+    <s id="a2hint">Поделиться &rarr; «На экран &laquo;Домой&raquo;»</s></div>
+  <button id="a2btn" hidden>Install</button>
+  <div id="a2x">&times;</div>
+</div>
+<script>
+(function(){
+  var standalone = window.matchMedia('(display-mode: standalone)').matches || navigator.standalone;
+  var bar = document.getElementById('a2hs');
+  if(!standalone && !localStorage.getItem('a2hs-off')) setTimeout(function(){bar.classList.add('on')}, 1400);
+  document.getElementById('a2x').onclick = function(){ bar.classList.remove('on'); localStorage.setItem('a2hs-off','1'); };
+  var deferred = null;
+  window.addEventListener('beforeinstallprompt', function(e){
+    e.preventDefault(); deferred = e;
+    document.getElementById('a2hint').textContent = 'Один тап — и приложение на домашнем экране';
+    var b = document.getElementById('a2btn'); b.hidden = false;
+    b.onclick = function(){ deferred.prompt(); deferred = null; bar.classList.remove('on'); };
+  });
+  window.addEventListener('appinstalled', function(){ bar.classList.remove('on'); localStorage.setItem('a2hs-off','1'); });
+  if('serviceWorker' in navigator) window.addEventListener('load', function(){
+    navigator.serviceWorker.register('sw.js').catch(function(){});
+  });
+})();
+</script>
+'''
+
 # ── 2. index.html — мобильный веб, без рамки и без сайдбара
 MOBILE_CSS = """
+#a2hs{position:fixed;left:12px;right:12px;bottom:calc(12px + env(safe-area-inset-bottom));z-index:60;
+  background:var(--deepest);color:#fff;border-radius:20px;padding:12px 12px 12px 16px;display:flex;
+  align-items:center;gap:12px;opacity:0;transform:translateY(14px);pointer-events:none;transition:.26s;
+  box-shadow:0 12px 30px rgba(11,31,20,.35)}
+#a2hs.on{opacity:1;transform:none;pointer-events:auto}
+.a2-ic{width:32px;height:32px;border-radius:8px;flex:none;background:url(img/icon-192.png) center/cover}
+.a2-tx{flex:1;min-width:0}
+.a2-tx b{display:block;font-size:14.5px;font-weight:600}
+.a2-tx s{display:block;font-size:12.5px;color:#A9BCB0;text-decoration:none;margin-top:2px;line-height:1.3}
+#a2btn{background:var(--lime);color:var(--deepest);border:0;border-radius:999px;height:40px;padding:0 16px;
+  font:700 13.5px 'Inter Tight',sans-serif;cursor:pointer;flex:none}
+#a2x{width:44px;height:44px;border-radius:50%;background:#1B3527;display:flex;align-items:center;
+  justify-content:center;font-size:19px;color:#A9BCB0;flex:none;cursor:pointer;line-height:1}
+
 html,body{height:100%}
 body{display:block;padding:0;background:var(--ground);overflow:hidden}
 .stage{display:contents}
@@ -1281,24 +1433,41 @@ body{display:block;padding:0;background:var(--ground);overflow:hidden}
 .mob{position:fixed;inset:0;display:flex;flex-direction:column;background:var(--ground)}
 .mob .screen{position:absolute;inset:0}
 .sb{display:none}
-.hd{padding-top:max(14px,env(safe-area-inset-top))}
+.hd{padding-top:max(16px,env(safe-area-inset-top))}
 .overlay,.dark{padding-top:max(24px,env(safe-area-inset-top))}
 .shot,.scrim{top:0!important}
-.nav{padding-bottom:max(0px,env(safe-area-inset-bottom));height:calc(78px + env(safe-area-inset-bottom))}
-#toast{bottom:calc(158px + env(safe-area-inset-bottom))}
-@media (min-width:760px){
-  body{background:#DDE2DA}
-  .mob{position:relative;width:420px;height:100dvh;margin:0 auto;box-shadow:0 0 60px rgba(11,31,20,.18)}
+.nav{padding-bottom:max(0px,env(safe-area-inset-bottom));height:calc(80px + env(safe-area-inset-bottom))}
+#toast{bottom:calc(160px + env(safe-area-inset-bottom))}
+@media (min-width:768px){
+  body{background:#DDE2DA;display:flex;align-items:center;justify-content:center;height:100vh;overflow:hidden}
+  .mob{position:relative;inset:auto;width:375px;height:812px;flex:none;border-radius:40px;overflow:hidden;
+       box-shadow:0 24px 64px rgba(11,31,20,.28)}
+  .hd{padding-top:16px}
+  .overlay,.dark{padding-top:24px}
+  #a2hs{display:none}
 }
 """
-MOBILE = (HTML
-  .replace('<title>HOMEGROWN — прототип</title>',
-           '<title>HOMEGROWN</title>\n<meta name="viewport" content="width=device-width,initial-scale=1,'
-           'maximum-scale=1,viewport-fit=cover">\n<meta name="theme-color" content="#F2F4F0">')
-  .replace('</style>', MOBILE_CSS + '</style>')
-  .replace('<div class="phone">', '<div class="mob">'))
+PWA_HEAD = (
+ '<title>HOMEGROWN</title>\n'
+ '<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,'
+ 'user-scalable=no,viewport-fit=cover">\n'
+ '<link rel="manifest" href="manifest.webmanifest">\n'
+ '<meta name="theme-color" content="#F2F4F0">\n'
+ '<meta name="mobile-web-app-capable" content="yes">\n'
+ '<meta name="apple-mobile-web-app-capable" content="yes">\n'
+ '<meta name="apple-mobile-web-app-status-bar-style" content="default">\n'
+ '<meta name="apple-mobile-web-app-title" content="HOMEGROWN">\n'
+ '<link rel="apple-touch-icon" href="img/apple-touch-icon.png">\n'
+ '<link rel="icon" href="img/icon-192.png">')
+
+MOBILE = HTML
+assert '<title>HOMEGROWN — прототип</title>' in MOBILE
+MOBILE = MOBILE.replace('<title>HOMEGROWN — прототип</title>', PWA_HEAD)
+MOBILE = MOBILE.replace('</style>', MOBILE_CSS + '</style>')
+MOBILE = MOBILE.replace('<div class="phone">', '<div class="mob">')
 i = MOBILE.index('<div class="side">'); j = MOBILE.index('<script>')
 MOBILE = MOBILE[:i] + MOBILE[j:]
+MOBILE = MOBILE.replace('</body>', INSTALL_HTML + '</body>')
 (DIR / 'index.html').write_text(MOBILE, encoding='utf-8')
 
 # ── 3. flow.html — документ пользовательского флоу
@@ -1321,26 +1490,26 @@ for title, lede, steps in FLOWS:
 FLOW_HTML = f"""<!doctype html><html lang="ru"><head><meta charset="utf-8">
 <title>HOMEGROWN — пользовательский флоу</title>
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<link href="https://fonts.googleapis.com/css2?family=Caprasimo&family=Inter+Tight:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>{T}
+{FACES}
 *{{box-sizing:border-box;margin:0;padding:0}}
 body{{background:var(--ground);font-family:'Inter Tight',system-ui,sans-serif;color:var(--ink);
-     padding:46px 40px 90px;max-width:1180px;margin:0 auto;line-height:1.5}}
+     padding:48px 40px 88px;max-width:1180px;margin:0 auto;line-height:1.5}}
 .top{{font-size:11.5px;font-weight:600;letter-spacing:.11em;text-transform:uppercase;color:var(--muted)}}
-h1{{font-family:Caprasimo;font-size:44px;line-height:1.04;margin:10px 0 12px;font-weight:400}}
+h1{{font-family:Caprasimo;font-size:44px;line-height:1.04;margin:8px 0 12px;font-weight:400}}
 .intro{{font-size:16px;color:var(--ink-2);max-width:760px;line-height:1.6}}
 section{{margin-top:44px}}
 h2{{font-size:22px;font-weight:600;letter-spacing:-.01em}}
-.lede{{font-size:14.5px;color:var(--muted);margin:5px 0 14px}}
-table{{width:100%;border-collapse:collapse;background:var(--surface);border-radius:18px;overflow:hidden}}
+.lede{{font-size:14.5px;color:var(--muted);margin:4px 0 16px}}
+table{{width:100%;border-collapse:collapse;background:var(--surface);border-radius:16px;overflow:hidden}}
 th{{text-align:left;font-size:11px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;
-   color:var(--muted);padding:14px 16px;background:#EAEEE8}}
-td{{padding:14px 16px;font-size:14.5px;vertical-align:top;border-top:1px solid var(--hair)}}
-.c1{{width:150px}}.c4{{width:180px;color:var(--primary);font-weight:600}}
+   color:var(--muted);padding:16px 16px;background:#EAEEE8}}
+td{{padding:16px 16px;font-size:14.5px;vertical-align:top;border-top:1px solid var(--hair)}}
+.c1{{width:152px}}.c4{{width:180px;color:var(--primary);font-weight:600}}
 tr.nt td{{border-top:0;padding-top:0;font-size:13.5px;color:var(--ink-2);background:#FAFBF9}}
 tr.nt td:last-child:before{{content:"↳ ";color:var(--muted)}}
-.legend{{display:flex;gap:10px;flex-wrap:wrap;margin-top:16px}}
-.lg{{background:var(--surface);border-radius:14px;padding:12px 14px;font-size:13.5px;flex:1;min-width:240px}}
+.legend{{display:flex;gap:8px;flex-wrap:wrap;margin-top:16px}}
+.lg{{background:var(--surface);border-radius:16px;padding:12px 16px;font-size:13.5px;flex:1;min-width:240px}}
 .lg b{{display:block;font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin-bottom:4px}}
 </style></head><body>
 <div class="top">HOMEGROWN · пользовательский флоу · {len(SCR)} экранов</div>

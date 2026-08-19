@@ -130,21 +130,21 @@ h1,h2,h3{font-weight:600;letter-spacing:-.015em}
 /* ───── app chrome */
 .sb{height:48px;display:flex;align-items:center;justify-content:space-between;padding:0 24px;flex:none;
     font-size:13px;font-weight:600}
-.hd{padding:4px 16px 0;display:flex;justify-content:space-between;align-items:center;flex:none;min-height:48px}
+.hd{padding:4px 16px 8px;display:flex;justify-content:space-between;align-items:center;flex:none;min-height:52px;background:var(--ground);position:relative;z-index:5}
 .back{width:44px;height:44px;margin-left:-8px;border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;flex:none}
 .back svg{transform:rotate(180deg)}
 .back:active{background:#E6EBE4}
-.wm{font-size:12.5px;font-weight:700;letter-spacing:.13em}
+.wm{font-family:Caprasimo,Georgia,serif;font-weight:400;font-size:19px;letter-spacing:.01em;color:var(--primary);line-height:1}
 .av{width:32px;height:32px;border-radius:50%;background:var(--lime);display:flex;align-items:center;
     justify-content:center;font-size:12.5px;font-weight:700;color:var(--deepest);cursor:pointer}
-.bd{flex:1;overflow-y:auto;overflow-x:hidden;padding:0 20px 8px;scrollbar-width:none;min-height:0}
+.bd{flex:1;overflow-y:auto;overflow-x:hidden;padding:8px 20px 8px;scrollbar-width:none;min-height:0}
 .foot{flex:none;padding:8px 20px 24px;background:var(--ground);box-shadow:0 -14px 22px -14px rgba(11,31,20,.14)}
 .foot .btn{margin-top:0}
 .bd::-webkit-scrollbar{display:none}
 .greet{font-size:14px;color:var(--muted);margin-top:16px}
 .h1{font-family:Caprasimo,Georgia,serif;font-weight:400;font-size:30px;line-height:1.06;letter-spacing:0;margin-top:8px}
 .h1 .m{color:#9EA8A2}
-.sl{font-size:11px;font-weight:600;letter-spacing:.12em;color:var(--muted);margin:20px 0 8px}
+.sl{font-size:12.5px;font-weight:600;letter-spacing:-.02em;color:var(--muted);margin:20px 0 8px}
 
 /* ───── ACCENT BLOCK (референс 1) */
 .acc{border-radius:var(--r-lg);padding:20px;margin-top:16px;color:#fff;position:relative;overflow:hidden;
@@ -160,7 +160,7 @@ h1,h2,h3{font-weight:600;letter-spacing:-.015em}
 .addtop:active{background:#EAF5EE}
 .acc .tag{background:var(--lime);color:var(--deepest);font-size:11px;font-weight:700;letter-spacing:.06em;
      padding:4px 12px;border-radius:999px}
-.acc .lbl{font-size:12.5px;color:#B7C7BD;margin-top:16px}
+.acc .lbl{font-size:13px;color:#B7C7BD;margin-top:16px;letter-spacing:-.02em}
 .acc .big{font-size:34px;font-weight:600;letter-spacing:-.02em;line-height:1.05;margin-top:4px}
 .acc .sub{font-size:13.5px;color:#B7C7BD;margin-top:8px;line-height:1.45}
 .acc .duo{display:flex;gap:8px;margin-top:16px}
@@ -185,7 +185,7 @@ h1,h2,h3{font-weight:600;letter-spacing:-.015em}
 
 /* ───── карточки, задачи */
 .card{background:var(--surface);border-radius:var(--r-md);padding:16px}
-.task{background:var(--surface);border-radius:var(--r-md);padding:16px 16px;margin-bottom:8px;display:flex;gap:12px;cursor:pointer}
+.task{background:var(--surface);border-radius:var(--r-md);padding:16px;margin-bottom:8px;display:flex;gap:12px;cursor:pointer;align-items:center}
 .task:active{transform:scale(.985)}
 .box{width:24px;height:24px;border-radius:8px;box-shadow:inset 0 0 0 2px #C9D2CC;flex:none;margin-top:1px;
      display:flex;align-items:center;justify-content:center;transition:background .16s,box-shadow .16s}
@@ -214,13 +214,14 @@ h1,h2,h3{font-weight:600;letter-spacing:-.015em}
       font-size:12.5px;font-weight:700;letter-spacing:.04em}
 
 /* ───── навигация */
-.nav{height:80px;background:var(--surface);display:flex;padding:12px 8px 0;flex:none;border-top:1px solid var(--hair)}
-.ni{flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;cursor:pointer;position:relative;color:#8E9A93}
-.ni span{font-size:10.5px;font-weight:500}
+.nav{height:56px;background:var(--surface);display:flex;padding:6px 4px 0;flex:none;border-top:1px solid var(--hair)}
+.ni{flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;cursor:pointer;position:relative;color:#8E9A93;padding-top:2px}
+.ni span{font-size:10px;font-weight:600;letter-spacing:.01em}
 .ni.on{color:var(--primary)}
 .ni.on span{font-weight:700}
 .bdg{position:absolute;top:-4px;left:calc(50% + 8px);width:8px;height:8px;border-radius:50%;background:var(--flame)}
 .ofr{padding:8px 16px 8px;flex:none;cursor:pointer}
+.ofr:last-child{padding-bottom:calc(12px + env(safe-area-inset-bottom))}
 body.is-pro .ofr{display:none}
 .ofr-in{display:flex;align-items:center;gap:12px;border-radius:999px;height:52px;padding:0 8px 0 8px;
         background:var(--lime);position:relative;overflow:hidden;
@@ -265,7 +266,7 @@ body.is-pro .ofr{display:none}
 .search input::placeholder{color:#9EA8A2;font-weight:400}
 .search .sx{display:none;cursor:pointer}
 .search.has .sx{display:block}
-.gsec{font-size:11px;font-weight:600;letter-spacing:.12em;color:var(--muted);margin:16px 0 8px}
+.gsec{font-size:12.5px;font-weight:600;letter-spacing:-.02em;color:var(--muted);margin:20px 0 8px}
 .empty{text-align:center;color:var(--muted);font-size:14.5px;padding:24px 8px;line-height:1.5}
 .del{width:44px;height:44px;border-radius:50%;background:#F0F2EF;display:flex;align-items:center;
      justify-content:center;flex:none;cursor:pointer;margin-left:8px}
@@ -348,7 +349,7 @@ body.is-pro .ofr{display:none}
            background-color:#DDE3DC;flex:none}
 .note{background:var(--surface);border-radius:var(--r-md);padding:16px}
 .note b{font-size:17px;font-weight:600;display:block;line-height:1.3}
-.quote{background:var(--surface);border-radius:var(--r-md);padding:16px;margin-top:8px;position:relative}
+.quote{background:var(--surface);border-radius:var(--r-md);padding:16px;margin-top:16px;position:relative}
 .quote .qmark{font-family:Caprasimo,Georgia,serif;font-size:44px;line-height:.7;color:var(--bright);
               opacity:.32;height:24px}
 .quote p{font-size:15px;line-height:1.45;color:var(--ink);margin-top:4px}
@@ -465,7 +466,7 @@ screen('q2',
  '<div style="margin-top:16px"><div class="zip ph" data-zip>— — — — —</div>'
  '<div style="font-size:14.5px;color:var(--muted);line-height:1.5;margin-top:16px">'
  'Your frost dates decide what you can plant right now. Tap to enter.</div>'
- '<div class="acc zipres" data-zipres style="margin-top:16px"><div class="row1"><span class="tag">MATCHED</span></div>'
+ '<div class="acc zipres" data-zipres style="margin-top:16px"><div class="row1"><span class="tag">Matched</span></div>'
  '<div class="lbl">Climate profile</div><div class="big">Austin, TX</div>'
  '<div class="duo"><div class="cell"><s>Last frost</s><b>Mar 3</b></div>'
  '<div class="cell"><s>Season</s><b>270 days</b></div></div></div>'
@@ -524,14 +525,14 @@ screen('preview',
  '<div class="greet">Your plan is ready</div>'
  '<div class="cap-f" id="planhead" style="font-size:31px;line-height:1.06;margin-top:4px">4 crops.</div>'
  '<div style="font-size:13.5px;color:var(--muted);margin-top:8px" id="planmeta">Austin, TX</div>'
- '<div class="acc"><div class="row1"><span class="tag">YOUR PLAN</span></div>'
- '<div class="plants" id="planrows"></div>'
- '<div class="accwhy" id="planwhy"></div></div>'
- '<div class="quote"><div class="qmark">&ldquo;</div>'
+  '<div class="quote"><div class="qmark">&ldquo;</div>'
  '<p>Radish and leaf lettuce are what we hand every first-timer &mdash; they finish before anyone '
  'has time to lose interest. The container sizes here are the ones we actually recommend.</p>'
  '<div class="qwho"><div class="qav">MG</div><div><b>Placeholder name</b>'
  '<s>Extension master gardener &middot; sample quote</s></div></div></div>'
+'<div class="acc"><div class="row1"><span class="tag">Your plan</span></div>'
+ '<div class="plants" id="planrows"></div>'
+ '<div class="accwhy" id="planwhy"></div></div>'
  '</div>' + foot('<div class="btn b-pri" data-go="save">Start this week&rsquo;s tasks</div>')
  + ofr('See all 30 weeks', '$29/yr'),
  'Plan Preview', '⚠ Цитата — <b>плейсхолдер</b>: настоящий отзыв надо получить у реального человека с его согласия, выдумывать его нельзя. Момент ценности. <b>План до регистрации</b> — §4.8. У каждой культуры поле why из движка.', 'Онбординг')
@@ -596,7 +597,7 @@ screen('week-empty',
  '<div class="note" style="margin-top:16px"><b>Just water and watch</b>'
  '<p>Everything is on schedule. The next real job is thinning on Apr 27 &mdash; '
  'we&rsquo;ll put it on next week&rsquo;s card.</p></div>'
- '<div class="sl">YOUR PLANTS</div><div id="wkplants"></div>'
+ '<div class="sl">Your plants</div><div id="wkplants"></div>'
  '</div>' + ofr() + nav('Week'),
  'Week · пусто', '<b>§18</b> «Nothing needed this week. Water, watch, enjoy.» '
  'Пустая неделя — это подтверждение, что всё идёт по плану, а не сломанный экран.', 'Home')
@@ -607,7 +608,7 @@ screen('week-back',
  '<div class="h1">Welcome back.<br><span class="m">Here&rsquo;s what matters now.</span></div>'
  '<div class="note" style="margin-top:16px"><b>Most of it doesn&rsquo;t matter now</b>'
  '<p>Nine tasks stopped being useful and closed themselves. Two still pay off.</p></div>'
- '<div class="sl">TWO THINGS STILL HELP</div>' +
+ '<div class="sl">Two things still help</div>' +
  task('Thin your radish', '2 min', 'Crowded roots stay small &mdash; this one still pays off.') +
  task('Water deeply today', '3 min', 'Until it runs from the drainage holes.') +
  '<div class="btn b-pri" data-go="home">Continue with this week</div>'
@@ -666,18 +667,18 @@ screen('growth',
  f'{sb()}{hd()}<div class="bd">'
  '<div class="h1" style="margin-top:16px">Your season</div>'
  '<div style="font-size:14px;color:var(--muted);margin-top:4px">Started Mar 14 &middot; day 62</div>'
- '<div class="acc"><div class="row1"><span class="tag">SEASON COUNTER</span></div>'
+ '<div class="acc"><div class="row1"><span class="tag">Season counter</span></div>'
  '<div class="lbl">Harvests logged</div>'
  '<div class="big" style="font-size:52px;color:var(--lime)">9</div>'
  '<div class="sub">Radish four times, lettuce three, basil twice. Your first pick was April 12 &mdash; day 31.</div>'
  '<div class="duo"><div class="cell"><s>Days</s><b>62</b></div>'
  '<div class="cell"><s>Harvested</s><b>3 crops</b></div>'
  '<div class="cell"><s>Streak</s><b>11 wk</b></div></div></div>'
- '<div class="sl">CROPS THAT MADE IT</div><div class="plist">' +
+ '<div class="sl">Crops that made it</div><div class="plist">' +
  ringrow('carrot', 'Radish', '4 harvests &middot; first Apr 12', '&nbsp;', 100, go='plant') +
  ringrow('salad', 'Leaf lettuce', '3 harvests &middot; first Apr 13', '&nbsp;', 100) +
  ringrow('leaf', 'Basil', '2 harvests &middot; first Apr 23', '&nbsp;', 100) + '</div>'
- '<div class="sl" id="jlab">JOURNAL</div><div id="journal"></div>'
+ '<div class="sl" id="jlab">Journal</div><div id="journal"></div>'
  '</div>' + ofr('Keep every photo', '$29/yr') + nav('Growth'),
  'Growth · дашборд', 'Счётчик сезона из §9.4 живёт в акцентном блоке. Цифры <b>раскрашены по смыслу</b>: '
  'урожаи лаймом, культуры — flame, дисциплина белым.', 'Growth')
@@ -689,7 +690,7 @@ screen('harvest',
  '<div style="position:absolute;inset:0;display:flex;flex-direction:column;padding:24px 24px">'
  '<div class="xbtn" style="align-self:flex-end" data-go="growth">' + ic('x', '#CFE0D4', 17, '2') + '</div>'
  '<div style="flex:1"></div>'
- '<span class="pill b-lime" style="align-self:flex-start">DAY 31</span>'
+ '<span class="pill b-lime" style="align-self:flex-start">Day 31</span>'
  '<div class="cap-f" style="font-size:40px;line-height:1.02;margin-top:12px;color:#fff">First harvest.</div>'
  '<div style="font-size:16px;color:#C6D6CA;line-height:1.5;margin-top:12px">'
  'You grew this on your patio. Sow the next round Apr 15 &mdash; your lettuce is 6 days out.</div>'
@@ -701,7 +702,7 @@ screen('shopping',
  f'{sb()}{hd(back="home")}<div class="bd">'
  '<div class="h1" style="margin-top:16px">Shopping list</div>'
  '<div style="font-size:14px;color:var(--muted);margin-top:4px">Everything for week 1 &middot; about $47</div>'
- '<div class="sl">CONTAINERS</div>' +
+ '<div class="sl">Containers</div>' +
  task('1-gallon pot &times;2', '~$8', 'Basil and the cherry tomato.') +
  task('Window box, 24 inch', '~$14', 'Lettuce and radish share it.') +
  task('Saucers &times;3', '~$6') +
@@ -730,7 +731,7 @@ screen('paywall',
  '<div class="pcard"><div style="display:flex;justify-content:space-between;align-items:flex-start">'
  '<div><div class="pr">$29<span style="font-size:15px;font-weight:500;color:#A9BCB0"> / year</span></div>'
  '<div class="pn">Cheaper than one tray of seedlings. Covers a full season, start to frost.</div></div>'
- '<span class="pill b-lime">BEST</span></div>'
+ '<span class="pill b-lime">Best</span></div>'
  '<div class="feat">' + ''.join(f'<div><i></i><span>{f}</span></div>' for f in FEATS) + '</div></div>'
  '<div style="flex:1;min-height:16px"></div>'
  '<div class="btn b-white" data-buy>Start 7-day free trial</div>'
@@ -747,7 +748,7 @@ screen('week-done',
  '<div class="xbtn" style="align-self:flex-end" data-go="home">' + ic('x', '#CFE0D4', 17, '2') + '</div>'
  '<div style="flex:1;display:flex;flex-direction:column;justify-content:center;position:relative">'
  f'<div style="height:200px;border-radius:24px;background:url({IMG}garden.jpg) center/cover"></div>'
- '<span class="pill b-lime" style="align-self:flex-start;margin-top:20px">WEEK 3 COMPLETE</span>'
+ '<span class="pill b-lime" style="align-self:flex-start;margin-top:20px">Week 3 Complete</span>'
  '<div style="font-size:30px;font-weight:600;line-height:1.15;margin-top:12px">Everything<br>'
  '<span style="color:var(--lime)">on time.</span></div>'
  '<div style="font-size:15.5px;color:#A9BCB0;line-height:1.5;margin-top:12px">'
@@ -763,19 +764,19 @@ screen('settings',
  f'{sb()}{hd()}<div class="bd">'
  '<div class="h1" style="margin-top:16px">Settings</div>'
  '<div id="planbox"></div>'
- '<div class="sl">YOUR SPACE</div><div class="plist">'
+ '<div class="sl">Your space</div><div class="plist">'
  '<div class="pl"><div class="nm"><b>Space</b><s>Back patio</s></div>' + ic('chevron-right', '#B4BEB8', 18) + '</div>'
  '<div class="pl"><div class="nm"><b>ZIP</b><s>78704 &middot; Austin, TX</s></div>' + ic('chevron-right', '#B4BEB8', 18) + '</div>'
  '<div class="pl"><div class="nm"><b>Sun</b><s>6&ndash;8 hours</s></div>' + ic('chevron-right', '#B4BEB8', 18) + '</div>'
  '<div class="pl"><div class="nm"><b>Time per week</b><s>20 minutes</s></div>' + ic('chevron-right', '#B4BEB8', 18) + '</div></div>'
- '<div class="sl">EMAIL</div><div class="plist">'
+ '<div class="sl">Email</div><div class="plist">'
  '<div class="pl"><div class="nm"><b>Weekly tasks</b></div>'
  '<div class="tgl on" role="switch" aria-checked="true" tabindex="0"><i></i></div></div>'
  '<div class="pl"><div class="nm"><b>Harvest reminders</b></div>'
  '<div class="tgl on" role="switch" aria-checked="true" tabindex="0"><i></i></div></div>'
  '<div class="pl"><div class="nm"><b>Season updates</b></div>'
  '<div class="tgl"><i></i></div></div></div>'
- '<div class="sl">DATA</div><div class="plist">'
+ '<div class="sl">Data</div><div class="plist">'
  '<div class="pl"><div class="nm"><b>Units</b><s>Imperial</s></div>' + ic('chevron-right', '#B4BEB8', 18) + '</div>'
  '<div class="pl"><div class="nm"><b>Delete account</b><s>Requires typing DELETE</s></div>' + ic('chevron-right', '#B4BEB8', 18) + '</div></div>'
  '</div>' + nav('Settings'),
@@ -796,7 +797,7 @@ screen('indoor',
  '</div>'
  '<div class="duo"><div class="cell"><s>Cuts this year</s><b style="color:var(--lime)">23</b></div>'
  '<div class="cell"><s>Season ends</s><b>never</b></div></div></div>'
- '<div class="sl">THIS WEEK</div>' +
+ '<div class="sl">This week</div>' +
  task('Cut 6 basil leaves from the top', '2 min', 'Cut above a leaf pair &mdash; it branches and doubles.') +
  task('Sow a new microgreens tray', '5 min') +
  task('Water check: soil top dry?', '2 min') +
@@ -876,10 +877,10 @@ function renderCrops(q){
   let h = '';
   if(A.length){
     const fast = A.filter(c=>c[2]<=35), slow = A.filter(c=>c[2]>35);
-    if(fast.length) h += '<div class="gsec">FAST WINS</div><div class="plist">'+fast.map(c=>cropRow(c)).join('')+'</div>';
-    if(slow.length) h += '<div class="gsec">WORTH THE WAIT</div><div class="plist">'+slow.map(c=>cropRow(c)).join('')+'</div>';
+    if(fast.length) h += '<div class="gsec">Fast wins</div><div class="plist">'+fast.map(c=>cropRow(c)).join('')+'</div>';
+    if(slow.length) h += '<div class="gsec">Worth the wait</div><div class="plist">'+slow.map(c=>cropRow(c)).join('')+'</div>';
   }
-  if(B.length) h += '<div class="gsec">NEEDS MORE SUN THAN YOU HAVE</div><div class="plist" style="opacity:.5">'
+  if(B.length) h += '<div class="gsec">Needs more sun than you have</div><div class="plist" style="opacity:.5">'
                     +B.map(c=>cropRow(c)).join('')+'</div>';
   box.innerHTML = h;
 }
@@ -948,7 +949,7 @@ const pEta   = p => { const d = p.c[2]-p.day; return d<=0 ? 'ready' : '~'+d+'d';
 const stageAt = (p,d) => { const r = d/p.c[2];
   return r<0.1?'seed':r<0.35?'seedling':r<0.7?'growing':r<1?'nearly ready':'ready'; };
 const allPhotos = () => MY_PLANTS.flatMap(p=>p.photos.map(x=>
-  ({f:x.f, n:p.c[0], day:x.day, st:stageAt(p,x.day)}))).sort((a,b)=>b.day-a.day);
+  ({f:x.f, u:x.u, n:p.c[0], day:x.day, st:stageAt(p,x.day)}))).sort((a,b)=>b.day-a.day);
 
 /* ─────────── HOME ─────────── */
 const WEEK_TASKS = [
@@ -969,14 +970,14 @@ function renderHome(){
     g.textContent='Good morning';
     h.innerHTML='Let&rsquo;s get you<br><span class="m">growing.</span>';
     acc.innerHTML='<div class="acc"><div class="acc-photo" style="background-image:url(img/garden.jpg)"></div>'
-      +'<div class="row1"><span class="tag">NOTHING PLANTED YET</span></div>'
+      +'<div class="row1"><span class="tag">Nothing Planted Yet</span></div>'
       +'<div class="lbl">Your patio &middot; 6&ndash;8 h sun</div>'
       +'<div class="big">4 crops fit<br>your space</div>'
       +'<div class="sub">Radish, leaf lettuce, basil and a cherry tomato all finish here. '
       +'First pick around April 12.</div>'
       +'<div class="btn b-lime" data-go="add-plant">Add your first plant</div></div>';
     pr.innerHTML='';
-    tk.innerHTML='<div class="sl">FIRST THING THIS WEEK</div>'
+    tk.innerHTML='<div class="sl">First thing this week</div>'
       +taskHTML(['Buy containers + potting mix','25 min','Everything else waits on this one.'])
       +'<div class="btn b-ghost" data-go="shopping">See the shopping list</div>';
     return;
@@ -984,7 +985,7 @@ function renderHome(){
   const n=MY_PLANTS.length;
   g.textContent='Good morning · Week 3 · Mar 28 – Apr 3';
   h.innerHTML=WEEK_TASKS.length+' things to do';
-  acc.innerHTML='<div class="acc"><div class="row1"><span class="tag">YOUR PLANTS &middot; '+n+'</span>'
+  acc.innerHTML='<div class="acc"><div class="row1"><span class="tag">Your plants &middot; '+n+'</span>'
     +'<div class="addtop" data-go="add-plant">'+ICONS._plusd+'<span>Add</span></div></div>'
     +'<div class="plants">'+MY_PLANTS.map((p,i)=>
        '<div class="prow" data-open="'+i+'"><div class="rw">'+ringSVG(pPct(p),38,true)+'<i>'+ICONS[p.c[1]]+'</i></div>'
@@ -996,7 +997,7 @@ function renderHome(){
     +'<span style="font-size:13px;color:var(--lime);font-weight:600">11-week streak</span></div></div>';
   pr.innerHTML='<div class="prog"><div class="bar"><i style="width:0%"></i></div><div class="pct">0 of '
     +WEEK_TASKS.length+' done</div></div>';
-  tk.innerHTML='<div class="sl">THIS WEEK</div>'+WEEK_TASKS.map(taskHTML).join('')
+  tk.innerHTML='<div class="sl">This week</div>'+WEEK_TASKS.map(taskHTML).join('')
     +'<div style="font-size:14px;color:var(--muted);padding:8px 4px 0" data-go="week-lock">+2 more this week &rarr;</div>';
 }
 
@@ -1037,8 +1038,9 @@ function addPhotoBtn(label){
   return '<div class="btn-dash" data-addphoto>'+ICONS._plus
     +'<span>'+(label||'Add a photo')+'</span></div>';
 }
+const phUrl = x => x.u || ('img/' + x.f + '.jpg');
 function photoCard(x){
-  return '<figure class="jc"><div class="jph" style="background-image:url(img/'+x.f+'.jpg)"></div>'
+  return '<figure class="jc"><div class="jph" style="background-image:url('+phUrl(x)+')"></div>'
    +'<figcaption><b>'+x.n+'</b><s>Day '+x.day+' &middot; '+x.st+'</s></figcaption></figure>';
 }
 function renderDetail(){
@@ -1073,8 +1075,8 @@ function renderDetail(){
     +'<div style="font-size:14px;color:var(--ink-2);line-height:1.45">'
     +(p.day>=p.c[2] ? 'Ready to pick. Most of these finish between day '+p.c[2]+' and '+p.c[3]+'.'
                     : 'On track. Most of these finish between day '+p.c[2]+' and '+p.c[3]+'.')+'</div></div>'
-    +'<div class="sl">TIMELINE'+(p.photos.length?' &middot; '+p.photos.length+' PHOTOS':'')+'</div>'+strip
-    +'<div class="sl">TASK HISTORY</div>'
+    +'<div class="sl">Timeline'+(p.photos.length?' &middot; '+p.photos.length+' photos':'')+'</div>'+strip
+    +'<div class="sl">Task history</div>'
     +'<div class="task done" data-task><div class="box">'+ICONS._check2+'</div>'
     +'<div class="tt"><div class="t">Sow '+p.c[0].toLowerCase()+'</div></div><div class="min">Mar 14</div></div>'
     +(p.day>=p.c[2] ? '<div class="btn b-pri" data-go="harvest">Harvest it — ready now</div>' : '')
@@ -1085,12 +1087,12 @@ function renderDetail(){
 function renderJournal(){
   const box=document.getElementById('journal'); if(!box) return;
   const ph=allPhotos(); const lab=document.getElementById('jlab');
-  if(lab) lab.textContent = !ph.length ? 'JOURNAL'
-    : (IS_PRO ? 'JOURNAL · '+ph.length+' PHOTOS' : 'JOURNAL · '+ph.length+' OF 5 FREE PHOTOS');
+  if(lab) lab.textContent = !ph.length ? 'Journal'
+    : (IS_PRO ? 'Journal · '+ph.length+' photos' : 'Journal · '+ph.length+' of 5 free photos');
   if(!ph.length){
     box.innerHTML='<div class="note"><b>Take one photo today</b>'
       +'<p>In 30 days you&rsquo;ll want to see it. One shot a week is enough to build the whole timeline.</p>'
-      +addPhotoBtn('Add the first photo')+'</div>'; return;
+      +addPhotoBtn('Take the first photo')+'</div>'; return;
   }
   box.innerHTML='<div class="jgrid">'+ph.map(photoCard).join('')+'</div>'+addPhotoBtn();
 }
@@ -1113,7 +1115,7 @@ function dropPro(){
 function renderLock(){
   const box=document.getElementById('lockbody'); if(!box) return;
   if(IS_PRO){
-    box.innerHTML='<div class="sl">THIS WEEK</div>'
+    box.innerHTML='<div class="sl">This week</div>'
       +taskHTML(['Thin the carrots','4 min','Crowded roots stay small.'])
       +taskHTML(['Feed the tomato','3 min',''])
       +taskHTML(['Sow the next round of beans','10 min',''])
@@ -1121,14 +1123,14 @@ function renderLock(){
       +'<p>All 30 weeks are planned. Nothing is hidden any more.</p></div>';
     return;
   }
-  box.innerHTML='<div class="sl">THIS WEEK</div>'
+  box.innerHTML='<div class="sl">This week</div>'
     +'<div class="task"><div class="box"></div><div class="tt"><div class="blur" style="width:76%;margin-bottom:8px">'
     +'</div><div class="blur" style="width:52%"></div></div><div class="min">4 min</div></div>'
     +'<div class="task"><div class="box"></div><div class="tt"><div class="blur" style="width:60%"></div></div>'
     +'<div class="min">3 min</div></div>'
     +'<div class="task"><div class="box"></div><div class="tt"><div class="blur" style="width:68%"></div></div>'
     +'<div class="min">10 min</div></div>'
-    +'<div class="acc" style="margin-top:16px"><div class="row1"><span class="tag">LOCKED</span></div>'
+    +'<div class="acc" style="margin-top:16px"><div class="row1"><span class="tag">Locked</span></div>'
     +'<div class="big" style="font-size:24px;margin-top:16px">Pro unlocks<br>all 30 weeks</div>'
     +'<div class="sub">The dates and the workload are real — only the wording is hidden.</div>'
     +'<div class="btn b-lime" data-go="paywall">Unlock full season</div></div>';
@@ -1136,13 +1138,33 @@ function renderLock(){
 function renderSettingsPlan(){
   const el=document.getElementById('planbox'); if(!el) return;
   el.innerHTML = IS_PRO
-   ? '<div class="acc" style="margin-top:16px"><div class="row1"><span class="tag">PRO · SEASON PASS</span></div>'
+   ? '<div class="acc" style="margin-top:16px"><div class="row1"><span class="tag">Pro · season pass</span></div>'
      +'<div class="big" style="font-size:24px;margin-top:16px">Everything is open</div>'
      +'<div class="sub">All 30 weeks, every crop, unlimited photos, up to 5 spaces. Renews Mar 14, 2027.</div>'
      +'<div class="btn" style="background:#17492F;color:#fff" data-unpro>Back to Free (demo)</div></div>'
-   : '<div class="acc" style="margin-top:16px"><div class="row1"><span class="tag">FREE PLAN</span></div>'
+   : '<div class="acc" style="margin-top:16px"><div class="row1"><span class="tag">Free plan</span></div>'
      +'<div class="big" style="font-size:24px;margin-top:16px">1 space · 3 crops<br>this week only</div>'
      +'<div class="btn b-lime" data-go="paywall">Compare with Pro</div></div>';
+}
+
+
+/* ─────────── камера: снимок с устройства попадает в журнал ─────────── */
+let CAM_TARGET = null;
+function openCamera(target){
+  CAM_TARGET = (target===undefined || target===null) ? SELECTED : target;
+  const el = document.getElementById('cam');
+  if(el){ el.value=''; el.click(); }
+}
+function attachShot(file){
+  if(!file || !MY_PLANTS.length) return;
+  const i = (CAM_TARGET!==null && MY_PLANTS[CAM_TARGET]) ? CAM_TARGET : 0;
+  const p = MY_PLANTS[i];
+  p.photos.unshift({u: URL.createObjectURL(file), day: p.day});
+  renderAll();
+  const t=document.getElementById('toast');
+  t.innerHTML='<span>Photo added to '+p.c[0]+'</span><b data-gogrowth>See journal</b>';
+  t.classList.add('on'); clearTimeout(UNDOT);
+  UNDOT=setTimeout(()=>t.classList.remove('on'), 4000);
 }
 
 function renderAll(){ renderHome(); renderPlants(); renderDetail(); renderJournal();
@@ -1322,7 +1344,7 @@ HTML = f'''<!doctype html><html lang="ru"><head><meta charset="utf-8">
 <style>{CSS}</style></head><body>
 <div class="stage">
   <div class="stage-bar"><span class="t" id="scr-title">Landing</span><span class="s" id="scr-id">landing</span></div>
-  <div class="phone">{screens_html}<div id="toast"></div></div>
+  <div class="phone">{screens_html}<div id="toast"></div><input id="cam" type="file" accept="image/*" capture="environment" hidden></div>
   <div class="hint" id="scr-note"></div>
 </div>
 <div class="side">
@@ -1435,6 +1457,9 @@ document.addEventListener('click', e=>{{
   const pick = e.target.closest('[data-pick]');
   if(pick){{ pick.parentElement.querySelectorAll('.opt').forEach(o=>o.classList.remove('sel'));
             pick.classList.add('sel'); return; }}
+  if(e.target.closest('[data-addphoto]')){{ openCamera(); return; }}
+  if(e.target.closest('[data-gogrowth]')){{ document.getElementById('toast').classList.remove('on');
+                                            go('growth'); return; }}
   if(e.target.closest('[data-buy]')){{ buyPro(); return; }}
   if(e.target.closest('[data-unpro]')){{ dropPro(); return; }}
   const tg = e.target.closest('.tgl');
@@ -1491,6 +1516,9 @@ document.addEventListener('click', e=>{{
   if(d){{ if(d.dataset.demo==='empty') MY_PLANTS=[]; else seedPlants();
           PENDING=[]; SELECTED=0; renderAll(); go('home'); }}
 }});
+(function(){{ const c=document.getElementById('cam');
+  if(c) c.addEventListener('change', function(){{ attachShot(c.files && c.files[0]); }});
+}})();
 seedPlants(); renderAll(); renderLock(); renderSettingsPlan();
 document.addEventListener('keydown', e=>{{
   if((e.key===' '||e.key==='Enter') && e.target.classList && e.target.classList.contains('tgl')){{
@@ -1506,26 +1534,34 @@ DIR = pathlib.Path(__file__).parent
 
 INSTALL_HTML = r'''
 <div id="a2hs">
-  <div class="a2-ic"></div>
-  <div class="a2-tx"><b>Открывать без адресной строки</b>
-    <s id="a2hint">Поделиться &rarr; «На экран &laquo;Домой&raquo;»</s></div>
-  <button id="a2btn" hidden>Install</button>
-  <div id="a2x">&times;</div>
+  <div class="a2-card">
+    <div class="a2-txt">
+      <span class="a2-pill">No address bar</span>
+      <b class="a2-h">Put it on your<br>home screen</b>
+      <s id="a2hint">Share &rarr; Add to Home Screen</s>
+    </div>
+    <div class="a2-act">
+      <button id="a2btn" hidden>Install</button>
+      <div id="a2x">&times;</div>
+    </div>
+  </div>
 </div>
 <script>
 (function(){
   var standalone = window.matchMedia('(display-mode: standalone)').matches || navigator.standalone;
   var bar = document.getElementById('a2hs');
-  if(!standalone && !localStorage.getItem('a2hs-off')) setTimeout(function(){bar.classList.add('on')}, 1400);
-  document.getElementById('a2x').onclick = function(){ bar.classList.remove('on'); localStorage.setItem('a2hs-off','1'); };
+  function showBar(){ bar.classList.add('on'); document.body.classList.add('a2-open'); }
+  function hideBar(){ bar.classList.remove('on'); document.body.classList.remove('a2-open'); }
+  if(!standalone && !localStorage.getItem('a2hs-off')) setTimeout(showBar, 1400);
+  document.getElementById('a2x').onclick = function(){ hideBar(); localStorage.setItem('a2hs-off','1'); };
   var deferred = null;
   window.addEventListener('beforeinstallprompt', function(e){
     e.preventDefault(); deferred = e;
-    document.getElementById('a2hint').textContent = 'Один тап — и приложение на домашнем экране';
+    document.getElementById('a2hint').textContent = 'One tap and it lives on your home screen';
     var b = document.getElementById('a2btn'); b.hidden = false;
-    b.onclick = function(){ deferred.prompt(); deferred = null; bar.classList.remove('on'); };
+    b.onclick = function(){ deferred.prompt(); deferred = null; hideBar(); };
   });
-  window.addEventListener('appinstalled', function(){ bar.classList.remove('on'); localStorage.setItem('a2hs-off','1'); });
+  window.addEventListener('appinstalled', function(){ hideBar(); localStorage.setItem('a2hs-off','1'); });
   if('serviceWorker' in navigator) window.addEventListener('load', function(){
     navigator.serviceWorker.register('sw.js').catch(function(){});
   });
@@ -1536,18 +1572,24 @@ INSTALL_HTML = r'''
 # ── 2. index.html — мобильный веб, без рамки и без сайдбара
 MOBILE_CSS = """
 #a2hs{position:fixed;left:12px;right:12px;bottom:calc(12px + env(safe-area-inset-bottom));z-index:60;
-  background:var(--deepest);color:#fff;border-radius:20px;padding:12px 12px 12px 16px;display:flex;
-  align-items:center;gap:12px;opacity:0;transform:translateY(14px);pointer-events:none;transition:.26s;
-  box-shadow:0 12px 30px rgba(11,31,20,.35)}
+  opacity:0;transform:translateY(16px);pointer-events:none;transition:.26s}
 #a2hs.on{opacity:1;transform:none;pointer-events:auto}
-.a2-ic{width:32px;height:32px;border-radius:8px;flex:none;background:url(img/icon-192.png) center/cover}
-.a2-tx{flex:1;min-width:0}
-.a2-tx b{display:block;font-size:14.5px;font-weight:600}
-.a2-tx s{display:block;font-size:12.5px;color:#A9BCB0;text-decoration:none;margin-top:2px;line-height:1.3}
-#a2btn{background:var(--lime);color:var(--deepest);border:0;border-radius:999px;height:40px;padding:0 16px;
-  font:700 13.5px 'Inter Tight',sans-serif;cursor:pointer;flex:none}
-#a2x{width:44px;height:44px;border-radius:50%;background:#1B3527;display:flex;align-items:center;
-  justify-content:center;font-size:19px;color:#A9BCB0;flex:none;cursor:pointer;line-height:1}
+.a2-card{background:var(--lime);border-radius:24px;padding:16px;display:flex;align-items:flex-end;
+  gap:12px;box-shadow:0 16px 36px rgba(11,31,20,.34)}
+.a2-txt{flex:1;min-width:0}
+.a2-pill{display:inline-block;background:var(--deepest);color:var(--lime);border-radius:999px;
+  padding:6px 12px;font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase}
+.a2-h{display:block;font-size:24px;font-weight:700;line-height:1.06;letter-spacing:-.02em;
+  color:var(--deepest);margin-top:8px}
+#a2hs s{display:block;font-size:12.5px;color:#2C4A1E;text-decoration:none;margin-top:6px;
+  font-weight:600;opacity:.78}
+.a2-act{display:flex;align-items:center;gap:8px;flex:none}
+#a2btn{background:var(--deepest);color:var(--lime);border:0;border-radius:999px;height:44px;padding:0 20px;
+  font:700 15px 'Inter Tight',sans-serif;cursor:pointer}
+#a2x{width:44px;height:44px;border-radius:50%;background:rgba(11,31,20,.12);display:flex;align-items:center;
+  justify-content:center;font-size:22px;color:var(--deepest);flex:none;cursor:pointer;line-height:1}
+body.a2-open .bd{padding-bottom:172px}
+body.a2-open #toast{bottom:calc(196px + env(safe-area-inset-bottom))}
 
 html,body{height:100%}
 body{display:block;padding:0;background:var(--ground);overflow:hidden}
@@ -1556,10 +1598,11 @@ body{display:block;padding:0;background:var(--ground);overflow:hidden}
 .mob{position:fixed;inset:0;display:flex;flex-direction:column;background:var(--ground)}
 .mob .screen{position:absolute;inset:0}
 .sb{display:none}
-.hd{padding-top:max(16px,env(safe-area-inset-top))}
-.overlay,.dark{padding-top:max(24px,env(safe-area-inset-top))}
+.hd{padding-top:calc(8px + env(safe-area-inset-top))}
+.overlay .wm,.dark>*:first-child{margin-top:env(safe-area-inset-top)}
+.overlay,.dark{padding-top:calc(24px + env(safe-area-inset-top))}
 .shot,.scrim{top:0!important}
-.nav{padding-bottom:max(0px,env(safe-area-inset-bottom));height:calc(80px + env(safe-area-inset-bottom))}
+.nav{padding-bottom:env(safe-area-inset-bottom);height:calc(56px + env(safe-area-inset-bottom))}
 #toast{bottom:calc(160px + env(safe-area-inset-bottom))}
 @media (min-width:768px){
   body{background:#DDE2DA;display:flex;align-items:center;justify-content:center;height:100vh;overflow:hidden}
@@ -1578,7 +1621,7 @@ PWA_HEAD = (
  '<meta name="theme-color" content="#F2F4F0">\n'
  '<meta name="mobile-web-app-capable" content="yes">\n'
  '<meta name="apple-mobile-web-app-capable" content="yes">\n'
- '<meta name="apple-mobile-web-app-status-bar-style" content="default">\n'
+ '<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">\n'
  '<meta name="apple-mobile-web-app-title" content="HOMEGROWN">\n'
  '<link rel="apple-touch-icon" href="img/apple-touch-icon.png">\n'
  '<link rel="icon" href="img/icon-192.png">\n'

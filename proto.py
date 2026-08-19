@@ -37,7 +37,14 @@ def ring(pct, dark=False, sz=38, sw=3.2):
             f'stroke-linecap="round" stroke-dasharray="{circ:.1f}" stroke-dashoffset="{off:.1f}" '
             f'transform="rotate(-90 {sz/2} {sz/2})"/></svg>')
 
+def check_ic(c='#fff', sz=16, sw=2.6):
+    """Контурная галочка: две линии со скруглёнными концами."""
+    return (f'<svg viewBox="0 0 24 24" width="{sz}" height="{sz}" fill="none" stroke="{c}" '
+            f'stroke-width="{sw}" stroke-linecap="round" stroke-linejoin="round">'
+            f'<path d="M5 12.8 9.6 17.4 19 8"/></svg>')
+
 def ic(n, c='currentColor', sz=22, sw=None):
+    if n == 'check': return check_ic(c, sz, 2.6)
     """Solid-иконка Phosphor. sw сохранён в сигнатуре — вызовы его передают, заливке он не нужен."""
     return (f'<svg viewBox="0 0 256 256" width="{sz}" height="{sz}" fill="{c}">{inner(n)}</svg>')
 
@@ -126,7 +133,7 @@ h1,h2,h3{font-weight:600;letter-spacing:-.015em}
 .foot .btn{margin-top:0}
 .bd::-webkit-scrollbar{display:none}
 .greet{font-size:14px;color:var(--muted);margin-top:16px}
-.h1{font-size:29px;font-weight:600;line-height:1.14;margin-top:2px}
+.h1{font-family:Caprasimo,Georgia,serif;font-weight:400;font-size:30px;line-height:1.06;letter-spacing:0;margin-top:8px}
 .h1 .m{color:#9EA8A2}
 .sl{font-size:11px;font-weight:600;letter-spacing:.12em;color:var(--muted);margin:20px 0 8px}
 
@@ -224,6 +231,12 @@ h1,h2,h3{font-weight:600;letter-spacing:-.015em}
 .opt.sel .opt-tick{opacity:1;transform:scale(1)}
 .btn.off{background:#DDE3DC;color:#9EA8A2;pointer-events:none;box-shadow:none}
 .zip.ph{color:#B4BEB8;letter-spacing:.22em}
+.tgl{width:48px;height:28px;border-radius:999px;background:#D3DAD4;flex:none;position:relative;
+     cursor:pointer;transition:background .18s}
+.tgl i{position:absolute;left:4px;top:4px;width:20px;height:20px;border-radius:50%;background:#fff;
+       transition:left .18s;box-shadow:0 1px 3px rgba(11,31,20,.22)}
+.tgl.on{background:var(--bright)}
+.tgl.on i{left:24px}
 .zipres{display:none}
 .search{display:flex;align-items:center;gap:8px;background:var(--surface);border-radius:16px;
         padding:0 16px;height:52px;margin-top:16px}
@@ -280,7 +293,7 @@ h1,h2,h3{font-weight:600;letter-spacing:-.015em}
 .xbtn{width:44px;height:44px;border-radius:50%;background:#1B3527;display:flex;align-items:center;
       justify-content:center;cursor:pointer;flex:none}
 .seg{display:flex;background:#152B1F;border-radius:999px;padding:4px;margin:16px auto 0;width:fit-content;position:relative}
-.seg div{padding:8px 24px;border-radius:999px;font-size:14.5px;font-weight:600;cursor:pointer;color:#9DB0A4}
+.seg div{height:36px;display:flex;align-items:center;padding:0 28px;border-radius:999px;font-size:14.5px;font-weight:600;cursor:pointer;color:#9DB0A4}
 .seg div.on{background:var(--lime);color:var(--deepest)}
 .pcard{border-radius:24px;padding:20px;margin-top:16px;background:#122A1D;border:1.5px solid var(--lime);position:relative}
 .pcard .pr{font-size:27px;font-weight:700}
@@ -315,6 +328,15 @@ h1,h2,h3{font-weight:600;letter-spacing:-.015em}
            background-color:#DDE3DC;flex:none}
 .note{background:var(--surface);border-radius:var(--r-md);padding:16px}
 .note b{font-size:17px;font-weight:600;display:block;line-height:1.3}
+.quote{background:var(--surface);border-radius:var(--r-md);padding:16px;margin-top:8px;position:relative}
+.quote .qmark{font-family:Caprasimo,Georgia,serif;font-size:44px;line-height:.7;color:var(--bright);
+              opacity:.32;height:24px}
+.quote p{font-size:15px;line-height:1.45;color:var(--ink);margin-top:4px}
+.qwho{display:flex;align-items:center;gap:12px;margin-top:12px;padding-top:12px;border-top:1px solid var(--hair)}
+.qav{width:36px;height:36px;border-radius:50%;background:var(--deepest);color:var(--lime);flex:none;
+     display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;letter-spacing:.04em}
+.qwho b{display:block;font-size:14px;font-weight:600}
+.qwho s{display:block;font-size:12.5px;color:var(--muted);text-decoration:none;margin-top:2px}
 .note p{font-size:14.5px;color:var(--ink-2);line-height:1.45;margin-top:8px}
 """
 
@@ -485,9 +507,14 @@ screen('preview',
  '<div class="acc"><div class="row1"><span class="tag">YOUR PLAN</span></div>'
  '<div class="plants" id="planrows"></div></div>'
  '<div class="note" style="margin-top:8px"><p style="margin-top:0" id="planwhy"></p></div>'
+ '<div class="quote"><div class="qmark">&ldquo;</div>'
+ '<p>Radish and leaf lettuce are what we hand every first-timer &mdash; they finish before anyone '
+ 'has time to lose interest. The container sizes here are the ones we actually recommend.</p>'
+ '<div class="qwho"><div class="qav">MG</div><div><b>Placeholder name</b>'
+ '<s>Extension master gardener &middot; sample quote</s></div></div></div>'
  '</div>' + foot('<div class="btn b-pri" data-go="save">Start this week&rsquo;s tasks</div>')
  + ofr('See all 30 weeks', '$29/yr'),
- 'Plan Preview', 'Момент ценности. <b>План до регистрации</b> — §4.8. У каждой культуры поле why из движка.', 'Онбординг')
+ 'Plan Preview', '⚠ Цитата — <b>плейсхолдер</b>: настоящий отзыв надо получить у реального человека с его согласия, выдумывать его нельзя. Момент ценности. <b>План до регистрации</b> — §4.8. У каждой культуры поле why из движка.', 'Онбординг')
 
 screen('save',
  f'<div class="shot" style="background-image:url({IMG}hero.jpg)"></div><div class="scrim"></div>'
@@ -732,14 +759,11 @@ screen('settings',
  '<div class="pl"><div class="nm"><b>Time per week</b><s>20 minutes</s></div>' + ic('chevron-right', '#B4BEB8', 18) + '</div></div>'
  '<div class="sl">EMAIL</div><div class="plist">'
  '<div class="pl"><div class="nm"><b>Weekly tasks</b></div>'
- '<div style="width:44px;height:24px;border-radius:999px;background:var(--bright);position:relative">'
- '<div style="position:absolute;right:4px;top:4px;width:20px;height:20px;border-radius:50%;background:#fff"></div></div></div>'
+ '<div class="tgl on"><i></i></div></div>'
  '<div class="pl"><div class="nm"><b>Harvest reminders</b></div>'
- '<div style="width:44px;height:24px;border-radius:999px;background:var(--bright);position:relative">'
- '<div style="position:absolute;right:4px;top:4px;width:20px;height:20px;border-radius:50%;background:#fff"></div></div></div>'
+ '<div class="tgl on"><i></i></div></div>'
  '<div class="pl"><div class="nm"><b>Season updates</b></div>'
- '<div style="width:44px;height:24px;border-radius:999px;background:#D3DAD4;position:relative">'
- '<div style="position:absolute;left:4px;top:4px;width:20px;height:20px;border-radius:50%;background:#fff"></div></div></div></div>'
+ '<div class="tgl"><i></i></div></div></div>'
  '<div class="sl">DATA</div><div class="plist">'
  '<div class="pl"><div class="nm"><b>Units</b><s>Imperial</s></div>' + ic('chevron-right', '#B4BEB8', 18) + '</div>'
  '<div class="pl"><div class="nm"><b>Delete account</b><s>Requires typing DELETE</s></div>' + ic('chevron-right', '#B4BEB8', 18) + '</div></div>'

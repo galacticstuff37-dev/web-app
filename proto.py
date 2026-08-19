@@ -37,14 +37,23 @@ def ring(pct, dark=False, sz=38, sw=3.2):
             f'stroke-linecap="round" stroke-dasharray="{circ:.1f}" stroke-dashoffset="{off:.1f}" '
             f'transform="rotate(-90 {sz/2} {sz/2})"/></svg>')
 
-def check_ic(c='#fff', sz=16, sw=2.6):
-    """Контурная галочка: две линии со скруглёнными концами."""
+# простые глифы рисуем штрихом: у Phosphor они залитые и читаются как плашки
+STROKE_GLYPHS = {
+    'check':         'M5 12.8 9.6 17.4 19 8',
+    'plus':          'M12 5.5v13M5.5 12h13',
+    'x':             'M6.5 6.5 17.5 17.5M17.5 6.5 6.5 17.5',
+    'caret-right':   'm9.5 5 7 7-7 7',
+    'chevron-right': 'm9.5 5 7 7-7 7',
+}
+
+def stroke_ic(n, c='#fff', sz=16, sw=2.4):
     return (f'<svg viewBox="0 0 24 24" width="{sz}" height="{sz}" fill="none" stroke="{c}" '
             f'stroke-width="{sw}" stroke-linecap="round" stroke-linejoin="round">'
-            f'<path d="M5 12.8 9.6 17.4 19 8"/></svg>')
+            f'<path d="{STROKE_GLYPHS[n]}"/></svg>')
 
 def ic(n, c='currentColor', sz=22, sw=None):
-    if n == 'check': return check_ic(c, sz, 2.6)
+    if n in STROKE_GLYPHS:
+        return stroke_ic(n, c, sz, float(sw) if sw else 2.4)
     """Solid-иконка Phosphor. sw сохранён в сигнатуре — вызовы его передают, заливке он не нужен."""
     return (f'<svg viewBox="0 0 256 256" width="{sz}" height="{sz}" fill="{c}">{inner(n)}</svg>')
 
@@ -143,6 +152,12 @@ h1,h2,h3{font-weight:600;letter-spacing:-.015em}
 .acc:after{content:"";position:absolute;width:232px;height:232px;right:-88px;top:-112px;border-radius:50%;
      background:radial-gradient(circle,rgba(180,244,97,.30),rgba(180,244,97,0) 70%)}
 .acc .row1{display:flex;justify-content:space-between;align-items:center;position:relative}
+.addtop{display:flex;align-items:center;gap:4px;height:36px;padding:0 16px;border-radius:999px;
+        background:#fff;color:var(--deepest);font-size:14px;font-weight:700;cursor:pointer;flex:none;
+        position:relative;box-shadow:0 2px 8px rgba(11,31,20,.30)}
+.addtop svg{fill:var(--deepest)}
+.addtop:after{content:"";position:absolute;inset:-4px}
+.addtop:active{background:#EAF5EE}
 .acc .tag{background:var(--lime);color:var(--deepest);font-size:11px;font-weight:700;letter-spacing:.06em;
      padding:4px 12px;border-radius:999px}
 .acc .lbl{font-size:12.5px;color:#B7C7BD;margin-top:16px}
@@ -206,6 +221,7 @@ h1,h2,h3{font-weight:600;letter-spacing:-.015em}
 .ni.on span{font-weight:700}
 .bdg{position:absolute;top:-4px;left:calc(50% + 8px);width:8px;height:8px;border-radius:50%;background:var(--flame)}
 .ofr{padding:8px 16px 8px;flex:none;cursor:pointer}
+body.is-pro .ofr{display:none}
 .ofr-in{display:flex;align-items:center;gap:12px;border-radius:999px;height:52px;padding:0 8px 0 8px;
         background:var(--lime);position:relative;overflow:hidden;
         box-shadow:0 6px 18px rgba(120,190,40,.34)}
@@ -566,16 +582,9 @@ screen('add-plant',
 
 screen('week-lock',
  f'{sb()}{hd(back="home")}<div class="bd">'
- '<div class="h1" style="margin-top:16px">Week 5 <span class="m">&middot; Apr 11&ndash;17</span></div>'
+ '<div class="h1">Week 5 <span class="m">&middot; Apr 11&ndash;17</span></div>'
  '<div style="font-size:14px;color:var(--muted);margin-top:4px">3 tasks planned for this week</div>'
- '<div class="sl">THIS WEEK</div>' +
- task('', '4 min', lock=True) + task('', '3 min', lock=True) + task('', '10 min', lock=True) +
- '<div class="acc" style="margin-top:16px"><div class="row1"><span class="tag">LOCKED</span></div>'
- '<div class="big" style="font-size:26px;margin-top:16px">Pro unlocks<br>all 30 weeks</div>'
- '<div class="sub">The dates and the workload are real &mdash; only the wording is hidden. '
- 'You&rsquo;ll never wonder what&rsquo;s next.</div>'
- '<div class="btn b-lime" data-go="paywall">Unlock full season</div>'
- '<div class="btn" style="background:#17492F;color:#fff" data-go="home">Not now</div></div>'
+ '<div id="lockbody"></div>'
  '</div>' + nav('Week'),
  'Soft-lock', '<b>Даты и объём видны</b>, скрыты только формулировки — §10.3. Это не стена.', 'Home')
 
@@ -724,7 +733,7 @@ screen('paywall',
  '<span class="pill b-lime">BEST</span></div>'
  '<div class="feat">' + ''.join(f'<div><i></i><span>{f}</span></div>' for f in FEATS) + '</div></div>'
  '<div style="flex:1;min-height:16px"></div>'
- '<div class="btn b-white" data-pw-exit>Start 7-day free trial</div>'
+ '<div class="btn b-white" data-buy>Start 7-day free trial</div>'
  '<div style="font-size:14px;color:#fff;text-align:center;margin-top:16px;cursor:pointer;font-weight:600" data-pw-exit>'
  'Continue with the free plan</div>'
  '<div style="font-size:12px;color:#6E8175;text-align:center;margin-top:8px;line-height:1.45">'
@@ -753,9 +762,7 @@ screen('week-done',
 screen('settings',
  f'{sb()}{hd()}<div class="bd">'
  '<div class="h1" style="margin-top:16px">Settings</div>'
- '<div class="acc" style="margin-top:16px"><div class="row1"><span class="tag">FREE PLAN</span></div>'
- '<div class="big" style="font-size:24px;margin-top:16px">1 space &middot; 3 crops<br>this week only</div>'
- '<div class="btn b-lime" data-go="paywall">Compare with Pro</div></div>'
+ '<div id="planbox"></div>'
  '<div class="sl">YOUR SPACE</div><div class="plist">'
  '<div class="pl"><div class="nm"><b>Space</b><s>Back patio</s></div>' + ic('chevron-right', '#B4BEB8', 18) + '</div>'
  '<div class="pl"><div class="nm"><b>ZIP</b><s>78704 &middot; Austin, TX</s></div>' + ic('chevron-right', '#B4BEB8', 18) + '</div>'
@@ -858,7 +865,7 @@ function renderCrops(q){
   if(cta){ cta.classList.toggle('off', !PENDING.length);
            cta.textContent = PENDING.length ? 'Add '+PENDING.length+' to my plan' : 'Add to my plan'; }
   const lim = document.querySelector('#s-add-plant [data-limit]');
-  if(lim) lim.style.display = (MY_PLANTS.length+PENDING.length)>=FREE_LIMIT ? 'block' : 'none';
+  if(lim) lim.style.display = !IS_PRO && (MY_PLANTS.length+PENDING.length)>=FREE_LIMIT ? 'block' : 'none';
   const fits = CROPS.filter(c=>c[5]<=CHOICES.sunRank), rest = CROPS.filter(c=>c[5]>CHOICES.sunRank);
   const m = a => !q || a[0].toLowerCase().includes(q) || a[6].some(t=>t.includes(q));
   const A = fits.filter(m), B = rest.filter(m);
@@ -922,9 +929,10 @@ function renderPreview(){
 }
 
 /* ─────────── состояние: растения, фото, корзина добавления ─────────── */
-let MY_PLANTS = [], SELECTED = 0, PENDING = [], UNDO = null, UNDOT = null;
+let MY_PLANTS = [], SELECTED = 0, PENDING = [], UNDO = null, UNDOT = null, IS_PRO = false;
 const PHOTOS = ['radish','leaves1','basil','leaves3','flowers'];
 const FREE_LIMIT = 3;
+const limit = () => IS_PRO ? 99 : FREE_LIMIT;
 
 function crop(name){ return CROPS.find(c=>c[0]===name); }
 function mk(name, day, photos){ return {c:crop(name), day:day, photos:photos||[]}; }
@@ -977,7 +985,7 @@ function renderHome(){
   g.textContent='Good morning · Week 3 · Mar 28 – Apr 3';
   h.innerHTML=WEEK_TASKS.length+' things to do';
   acc.innerHTML='<div class="acc"><div class="row1"><span class="tag">YOUR PLANTS &middot; '+n+'</span>'
-    +'<span style="font-size:12.5px;color:var(--lime);font-weight:600;cursor:pointer" data-go="add-plant">Add +</span></div>'
+    +'<div class="addtop" data-go="add-plant">'+ICONS._plusd+'<span>Add</span></div></div>'
     +'<div class="plants">'+MY_PLANTS.map((p,i)=>
        '<div class="prow" data-open="'+i+'"><div class="rw">'+ringSVG(pPct(p),38,true)+'<i>'+ICONS[p.c[1]]+'</i></div>'
       +'<div class="nm"><b>'+p.c[0]+'</b><s>Day '+p.day+' &middot; '+pStage(p)+'</s></div>'
@@ -996,7 +1004,7 @@ function renderHome(){
 function renderPlants(){
   const box=document.getElementById('plantlist'); if(!box) return;
   document.getElementById('plantsmeta').textContent =
-    MY_PLANTS.length ? MY_PLANTS.length+' growing · '+MY_PLANTS.length+' of '+FREE_LIMIT+' free slots used'
+    MY_PLANTS.length ? MY_PLANTS.length+' growing · '+(IS_PRO ? 'Pro · unlimited crops' : MY_PLANTS.length+' of '+FREE_LIMIT+' free slots used')
                      : 'Nothing planted yet';
   if(!MY_PLANTS.length){
     box.innerHTML='<div class="note" style="margin-top:16px"><b>No plants yet</b>'
@@ -1077,7 +1085,8 @@ function renderDetail(){
 function renderJournal(){
   const box=document.getElementById('journal'); if(!box) return;
   const ph=allPhotos(); const lab=document.getElementById('jlab');
-  if(lab) lab.textContent = ph.length ? 'JOURNAL · '+ph.length+' OF 5 FREE PHOTOS' : 'JOURNAL';
+  if(lab) lab.textContent = !ph.length ? 'JOURNAL'
+    : (IS_PRO ? 'JOURNAL · '+ph.length+' PHOTOS' : 'JOURNAL · '+ph.length+' OF 5 FREE PHOTOS');
   if(!ph.length){
     box.innerHTML='<div class="note"><b>Take one photo today</b>'
       +'<p>In 30 days you&rsquo;ll want to see it. One shot a week is enough to build the whole timeline.</p>'
@@ -1085,7 +1094,59 @@ function renderJournal(){
   }
   box.innerHTML='<div class="jgrid">'+ph.map(photoCard).join('')+'</div>'+addPhotoBtn();
 }
-function renderAll(){ renderHome(); renderPlants(); renderDetail(); renderJournal(); }
+
+function buyPro(){
+  IS_PRO = true;
+  document.body.classList.add('is-pro');
+  renderAll(); renderLock(); renderSettingsPlan();
+  const t=document.getElementById('toast');
+  t.innerHTML='<span>Pro unlocked — all 30 weeks are open</span><b data-unpro>Undo</b>';
+  t.classList.add('on'); clearTimeout(UNDOT);
+  UNDOT=setTimeout(()=>t.classList.remove('on'), 5000);
+  go(PW_FROM);
+}
+function dropPro(){
+  IS_PRO = false; document.body.classList.remove('is-pro');
+  renderAll(); renderLock(); renderSettingsPlan();
+  document.getElementById('toast').classList.remove('on');
+}
+function renderLock(){
+  const box=document.getElementById('lockbody'); if(!box) return;
+  if(IS_PRO){
+    box.innerHTML='<div class="sl">THIS WEEK</div>'
+      +taskHTML(['Thin the carrots','4 min','Crowded roots stay small.'])
+      +taskHTML(['Feed the tomato','3 min',''])
+      +taskHTML(['Sow the next round of beans','10 min',''])
+      +'<div class="note" style="margin-top:12px"><b>You have the whole season</b>'
+      +'<p>All 30 weeks are planned. Nothing is hidden any more.</p></div>';
+    return;
+  }
+  box.innerHTML='<div class="sl">THIS WEEK</div>'
+    +'<div class="task"><div class="box"></div><div class="tt"><div class="blur" style="width:76%;margin-bottom:8px">'
+    +'</div><div class="blur" style="width:52%"></div></div><div class="min">4 min</div></div>'
+    +'<div class="task"><div class="box"></div><div class="tt"><div class="blur" style="width:60%"></div></div>'
+    +'<div class="min">3 min</div></div>'
+    +'<div class="task"><div class="box"></div><div class="tt"><div class="blur" style="width:68%"></div></div>'
+    +'<div class="min">10 min</div></div>'
+    +'<div class="acc" style="margin-top:16px"><div class="row1"><span class="tag">LOCKED</span></div>'
+    +'<div class="big" style="font-size:24px;margin-top:16px">Pro unlocks<br>all 30 weeks</div>'
+    +'<div class="sub">The dates and the workload are real — only the wording is hidden.</div>'
+    +'<div class="btn b-lime" data-go="paywall">Unlock full season</div></div>';
+}
+function renderSettingsPlan(){
+  const el=document.getElementById('planbox'); if(!el) return;
+  el.innerHTML = IS_PRO
+   ? '<div class="acc" style="margin-top:16px"><div class="row1"><span class="tag">PRO · SEASON PASS</span></div>'
+     +'<div class="big" style="font-size:24px;margin-top:16px">Everything is open</div>'
+     +'<div class="sub">All 30 weeks, every crop, unlimited photos, up to 5 spaces. Renews Mar 14, 2027.</div>'
+     +'<div class="btn" style="background:#17492F;color:#fff" data-unpro>Back to Free (demo)</div></div>'
+   : '<div class="acc" style="margin-top:16px"><div class="row1"><span class="tag">FREE PLAN</span></div>'
+     +'<div class="big" style="font-size:24px;margin-top:16px">1 space · 3 crops<br>this week only</div>'
+     +'<div class="btn b-lime" data-go="paywall">Compare with Pro</div></div>';
+}
+
+function renderAll(){ renderHome(); renderPlants(); renderDetail(); renderJournal();
+                      try{ renderLock(); renderSettingsPlan(); }catch(e){} }
 
 const SUNLABEL = {
  '3\u20135 hours':'3\u20135 hours of sun', '6\u20138 hours':'6\u20138 hours of sun',
@@ -1113,6 +1174,7 @@ ICON_JS = {n: ic(n, 'var(--primary)', 15, '1.9') for n in ICONSET}
 ICON_JS['_plus'] = ic('plus', 'var(--primary)', 17, '2.4')
 ICON_JS['_check'] = ic('check', '#fff', 17, '3')
 ICON_JS['_check2'] = ic('check', '#fff', 16, '3')
+ICON_JS['_plusd'] = ic('plus', 'var(--deepest)', 16, '2.4')
 ICON_JS['_checkg'] = ic('check', 'var(--bright)', 17, '3')
 ICON_JS['_x'] = ic('x', '#6E7A73', 17, '2.4')
 ICON_JS['_cam'] = ic('camera', 'var(--primary)', 22, '2')
@@ -1302,6 +1364,8 @@ function go(id){{
       +'<div class="eta">'+pEta(p)+'</div></div>').join('')+'</div>'; }}
   if(id==='plant') renderDetail();
   if(id==='growth') renderJournal();
+  if(id==='week-lock') renderLock();
+  if(id==='settings') renderSettingsPlan();
   el.classList.add('on'); el.querySelectorAll('.bd').forEach(b=>b.scrollTop=0);
   el.querySelectorAll('.dark,.overlay').forEach(b=>b.scrollTop=0);
   document.querySelectorAll('.chip').forEach(c=>c.classList.toggle('act', c.dataset.go===id));
@@ -1371,6 +1435,8 @@ document.addEventListener('click', e=>{{
   const pick = e.target.closest('[data-pick]');
   if(pick){{ pick.parentElement.querySelectorAll('.opt').forEach(o=>o.classList.remove('sel'));
             pick.classList.add('sel'); return; }}
+  if(e.target.closest('[data-buy]')){{ buyPro(); return; }}
+  if(e.target.closest('[data-unpro]')){{ dropPro(); return; }}
   const tg = e.target.closest('.tgl');
   if(tg){{ const on = tg.classList.toggle('on');
            tg.setAttribute('aria-checked', on ? 'true' : 'false'); return; }}
@@ -1383,7 +1449,7 @@ document.addEventListener('click', e=>{{
   const ad = e.target.closest('[data-add]');
   if(ad){{ const n = ad.dataset.crop; const k = PENDING.indexOf(n);
     if(k>-1) PENDING.splice(k,1);
-    else if(MY_PLANTS.length+PENDING.length < FREE_LIMIT) PENDING.push(n);
+    else if(MY_PLANTS.length+PENDING.length < limit()) PENDING.push(n);
     else {{ const lim=document.querySelector('#s-add-plant [data-limit]'); if(lim) lim.style.display='block'; return; }}
     renderCrops(document.getElementById('cropq').value); return; }}
   const cta = e.target.closest('#s-add-plant [data-cta]');
@@ -1425,7 +1491,7 @@ document.addEventListener('click', e=>{{
   if(d){{ if(d.dataset.demo==='empty') MY_PLANTS=[]; else seedPlants();
           PENDING=[]; SELECTED=0; renderAll(); go('home'); }}
 }});
-seedPlants(); renderAll();
+seedPlants(); renderAll(); renderLock(); renderSettingsPlan();
 document.addEventListener('keydown', e=>{{
   if((e.key===' '||e.key==='Enter') && e.target.classList && e.target.classList.contains('tgl')){{
     e.preventDefault(); e.target.click(); }}

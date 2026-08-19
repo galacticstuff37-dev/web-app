@@ -1581,7 +1581,9 @@ PWA_HEAD = (
  '<meta name="apple-mobile-web-app-status-bar-style" content="default">\n'
  '<meta name="apple-mobile-web-app-title" content="HOMEGROWN">\n'
  '<link rel="apple-touch-icon" href="img/apple-touch-icon.png">\n'
- '<link rel="icon" href="img/icon-192.png">')
+ '<link rel="icon" href="img/icon-192.png">\n'
+ '<link rel="preload" as="font" type="font/woff2" crossorigin href="fonts/Caprasimo-400-latin.woff2">\n'
+ '<link rel="preload" as="font" type="font/woff2" crossorigin href="fonts/InterTight-400-latin.woff2">')
 
 MOBILE = HTML
 assert '<title>HOMEGROWN — прототип</title>' in MOBILE
@@ -1592,6 +1594,57 @@ i = MOBILE.index('<div class="side">'); j = MOBILE.index('<script>')
 MOBILE = MOBILE[:i] + MOBILE[j:]
 MOBILE = MOBILE.replace('</body>', INSTALL_HTML + '</body>')
 (DIR / 'index.html').write_text(MOBILE, encoding='utf-8')
+
+
+# ── service worker генерится вместе со сборкой: имя кэша = хэш index.html,
+#    поэтому каждый деплой гарантированно инвалидирует старый кэш
+import hashlib
+BUILD = hashlib.sha1(MOBILE.encode()).hexdigest()[:10]
+SW_SRC = """const CACHE = 'homegrown-%s';
+const ASSETS = [
+  './', './index.html', './manifest.webmanifest',
+  './img/hero.jpg', './img/garden.jpg', './img/radish.jpg', './img/basil.jpg',
+  './img/flowers.jpg', './img/containers.jpg',
+  './img/leaves1.jpg', './img/leaves2.jpg', './img/leaves3.jpg',
+  './img/icon-192.png', './img/icon-512.png', './img/apple-touch-icon.png',
+  './fonts/Caprasimo-400-latin.woff2', './fonts/Caprasimo-400-latin-ext.woff2',
+  './fonts/InterTight-400-latin.woff2', './fonts/InterTight-400-latin-ext.woff2'
+];
+self.addEventListener('install', e => {
+  e.waitUntil(caches.open(CACHE).then(c => c.addAll(ASSETS)).then(() => self.skipWaiting()));
+});
+self.addEventListener('activate', e => {
+  e.waitUntil(caches.keys()
+    .then(ks => Promise.all(ks.filter(k => k !== CACHE).map(k => caches.delete(k))))
+    .then(() => self.clients.claim()));
+});
+self.addEventListener('fetch', e => {
+  const req = e.request;
+  if (req.method !== 'GET') return;
+  const isDoc = req.mode === 'navigate' || req.destination === 'document';
+  if (isDoc) {
+    // HTML — только из сети, кэш лишь как офлайн-запасной. Иначе обновления
+    // никогда не доходят до вернувшегося посетителя.
+    e.respondWith(
+      fetch(req).then(res => {
+        const copy = res.clone();
+        caches.open(CACHE).then(c => c.put('./index.html', copy)).catch(() => {});
+        return res;
+      }).catch(() => caches.match('./index.html'))
+    );
+    return;
+  }
+  e.respondWith(
+    caches.match(req).then(hit => hit || fetch(req).then(res => {
+      const copy = res.clone();
+      caches.open(CACHE).then(c => c.put(req, copy)).catch(() => {});
+      return res;
+    }))
+  );
+});
+""" % BUILD
+(DIR / 'sw.js').write_text(SW_SRC, encoding='utf-8')
+print('sw.js: cache', BUILD, '| стратегия network-first для HTML')
 
 # ── 3. flow.html — документ пользовательского флоу
 def frows(steps):

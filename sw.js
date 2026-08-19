@@ -1,4 +1,4 @@
-const CACHE = 'homegrown-v2';
+const CACHE = 'homegrown-e61c19fbee';
 const ASSETS = [
   './', './index.html', './manifest.webmanifest',
   './img/hero.jpg', './img/garden.jpg', './img/radish.jpg', './img/basil.jpg',
@@ -17,12 +17,26 @@ self.addEventListener('activate', e => {
     .then(() => self.clients.claim()));
 });
 self.addEventListener('fetch', e => {
-  if (e.request.method !== 'GET') return;
+  const req = e.request;
+  if (req.method !== 'GET') return;
+  const isDoc = req.mode === 'navigate' || req.destination === 'document';
+  if (isDoc) {
+    // HTML — только из сети, кэш лишь как офлайн-запасной. Иначе обновления
+    // никогда не доходят до вернувшегося посетителя.
+    e.respondWith(
+      fetch(req).then(res => {
+        const copy = res.clone();
+        caches.open(CACHE).then(c => c.put('./index.html', copy)).catch(() => {});
+        return res;
+      }).catch(() => caches.match('./index.html'))
+    );
+    return;
+  }
   e.respondWith(
-    caches.match(e.request).then(hit => hit || fetch(e.request).then(res => {
+    caches.match(req).then(hit => hit || fetch(req).then(res => {
       const copy = res.clone();
-      caches.open(CACHE).then(c => c.put(e.request, copy)).catch(() => {});
+      caches.open(CACHE).then(c => c.put(req, copy)).catch(() => {});
       return res;
-    }).catch(() => caches.match('./index.html')))
+    }))
   );
 });

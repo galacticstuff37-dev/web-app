@@ -153,6 +153,10 @@ h1,h2,h3{font-weight:600;letter-spacing:-.015em}
 .acc .cell s{display:block;font-size:11.5px;color:#A9BCB0;text-decoration:none;white-space:nowrap}
 .acc .cell b{display:block;font-size:18px;font-weight:600;margin-top:4px;white-space:nowrap}
 .acc .plants{margin-top:16px;position:relative}
+.accwhy{margin-top:16px;padding-top:16px;border-top:1px solid rgba(255,255,255,.14);position:relative;
+        font-size:14px;line-height:1.5;color:#C2D3C8}
+.accwhy b{color:#fff;font-weight:600}
+.accwhy .warn{display:block;margin-top:8px;color:var(--lime)}
 .acc .prow{display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid rgba(255,255,255,.10)}
 .acc .prow:last-child{border-bottom:0}
 .acc .prow .nm{flex:1}
@@ -505,8 +509,8 @@ screen('preview',
  '<div class="cap-f" id="planhead" style="font-size:31px;line-height:1.06;margin-top:4px">4 crops.</div>'
  '<div style="font-size:13.5px;color:var(--muted);margin-top:8px" id="planmeta">Austin, TX</div>'
  '<div class="acc"><div class="row1"><span class="tag">YOUR PLAN</span></div>'
- '<div class="plants" id="planrows"></div></div>'
- '<div class="note" style="margin-top:8px"><p style="margin-top:0" id="planwhy"></p></div>'
+ '<div class="plants" id="planrows"></div>'
+ '<div class="accwhy" id="planwhy"></div></div>'
  '<div class="quote"><div class="qmark">&ldquo;</div>'
  '<p>Radish and leaf lettuce are what we hand every first-timer &mdash; they finish before anyone '
  'has time to lose interest. The container sizes here are the ones we actually recommend.</p>'
@@ -897,10 +901,24 @@ function renderPreview(){
   document.getElementById('planhead').innerHTML = plan.length+' crops.<br>First pick '+dateAfter(first)+'.';
   document.getElementById('planmeta').textContent =
     'Austin, TX · '+CHOICES.sun+' · '+CHOICES.space+' · about '+(CHOICES.effort===3?10:CHOICES.effort===4?20:30)+' min a week';
-  const g = CHOICES.goals.length ? CHOICES.goals.join(', ') : 'a first harvest';
-  document.getElementById('planwhy').innerHTML =
-    '<b style="display:inline;font-size:14.5px">Why these:</b> you asked for '+g+
-    ', and your '+CHOICES.sun+' is what decides the rest. '+plan[0][0]+' is the fast win — ready in '+plan[0][2]+' days.';
+  const got = new Set(plan.flatMap(c=>c[6]));
+  const asked = CHOICES.goals.length ? CHOICES.goals : ['fast'];
+  const kept = asked.filter(g=>got.has(g)), missed = asked.filter(g=>!got.has(g));
+  const list = a => a.map(x=>GOALWORD[x]||x).reduce((s,x,i,arr)=>
+      s + (i===0?'':(i===arr.length-1?' and ':', ')) + x, '');
+  const fast = plan.reduce((a,b)=>b[2]<a[2]?b:a);
+  let t = '<b>Why these:</b> you asked for ' + list(asked.length?asked:['fast'])
+        + ', and ' + CHOICES.sun + ' is what decides the rest. '
+        + fast[0] + ' is your fast win — ready in ' + fast[2] + ' days.';
+  if(missed.length){
+    const need = missed.map(m=>SUNNEED[m]).filter(Boolean)[0];
+    t += '<span class="warn">' + list(missed).replace(/^./,c=>c.toUpperCase())
+       + (need ? ' need ' + need + ' of direct sun. At your light they rarely finish, '
+               : ' need more light than you have, ')
+       + 'so we left them out and gave you ' + list(kept.length?kept:['a reliable harvest'])
+       + ' instead. You can add them any time.</span>';
+  }
+  document.getElementById('planwhy').innerHTML = t;
 }
 
 /* ─────────── состояние: растения, фото, корзина добавления ─────────── */
@@ -1069,6 +1087,14 @@ function renderJournal(){
 }
 function renderAll(){ renderHome(); renderPlants(); renderDetail(); renderJournal(); }
 
+const SUNLABEL = {
+ '3\u20135 hours':'3\u20135 hours of sun', '6\u20138 hours':'6\u20138 hours of sun',
+ '8+ hours':'8+ hours of sun', 'Not sure yet':'a safe 3\u20135 hours until you check',
+ 'South':'a south-facing window', 'East or West':'an east or west window',
+ 'North':'a north window', 'Not sure':'a cautious low-light start'};
+const GOALWORD = {salads:'salads', herbs:'herbs', fast:'a fast first harvest',
+ tomatoes:'tomatoes', peppers:'peppers', beans:'beans', roots:'root crops', kids:'a kid project'};
+const SUNNEED = {tomatoes:'6\u20138 hours', peppers:'6\u20138 hours', beans:'6\u20138 hours'};
 const SUNRANK = {'3–5 hours':1,'6–8 hours':2,'8+ hours':3,'Not sure yet':1,
                  'South':2,'East or West':1,'North':1,'Not sure':1};
 const GOALTAG = {'Salads & greens':'salads','Fresh herbs':'herbs','Fast first harvest':'fast',
@@ -1077,7 +1103,7 @@ const GOALTAG = {'Salads & greens':'salads','Fresh herbs':'herbs','Fast first ha
 function recordChoice(scr, label){
   if(scr==='s-q1'){ CHOICES.space = label.toLowerCase().indexOf('windowsill')>-1 ? 'a windowsill' : 'a '+label.toLowerCase();
                     CHOICES.indoor = label.indexOf('Windowsill')>-1; }
-  if(scr==='s-q3'||scr==='s-q2i'){ CHOICES.sun = scr==='s-q2i' ? label.toLowerCase()+'-facing window' : label.replace('ours','')+'ours of sun';
+  if(scr==='s-q3'||scr==='s-q2i'){ CHOICES.sun = SUNLABEL[label] || 'your light';
                     CHOICES.sunRank = SUNRANK[label]||1; }
   if(scr==='s-q5'){ CHOICES.effort = label.indexOf('10')>-1?3:label.indexOf('20')>-1?4:5; }
 }

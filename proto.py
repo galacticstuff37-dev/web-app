@@ -759,9 +759,9 @@ screen('settings',
  '<div class="pl"><div class="nm"><b>Time per week</b><s>20 minutes</s></div>' + ic('chevron-right', '#B4BEB8', 18) + '</div></div>'
  '<div class="sl">EMAIL</div><div class="plist">'
  '<div class="pl"><div class="nm"><b>Weekly tasks</b></div>'
- '<div class="tgl on"><i></i></div></div>'
+ '<div class="tgl on" role="switch" aria-checked="true" tabindex="0"><i></i></div></div>'
  '<div class="pl"><div class="nm"><b>Harvest reminders</b></div>'
- '<div class="tgl on"><i></i></div></div>'
+ '<div class="tgl on" role="switch" aria-checked="true" tabindex="0"><i></i></div></div>'
  '<div class="pl"><div class="nm"><b>Season updates</b></div>'
  '<div class="tgl"><i></i></div></div></div>'
  '<div class="sl">DATA</div><div class="plist">'
@@ -1345,6 +1345,9 @@ document.addEventListener('click', e=>{{
   const pick = e.target.closest('[data-pick]');
   if(pick){{ pick.parentElement.querySelectorAll('.opt').forEach(o=>o.classList.remove('sel'));
             pick.classList.add('sel'); return; }}
+  const tg = e.target.closest('.tgl');
+  if(tg){{ const on = tg.classList.toggle('on');
+           tg.setAttribute('aria-checked', on ? 'true' : 'false'); return; }}
   if(e.target.closest('[data-undo]')){{ undoRemove(); return; }}
   const del = e.target.closest('[data-del]');
   if(del){{ removePlant(+del.dataset.del); return; }}
@@ -1397,6 +1400,10 @@ document.addEventListener('click', e=>{{
           PENDING=[]; SELECTED=0; renderAll(); go('home'); }}
 }});
 seedPlants(); renderAll();
+document.addEventListener('keydown', e=>{{
+  if((e.key===' '||e.key==='Enter') && e.target.classList && e.target.classList.contains('tgl')){{
+    e.preventDefault(); e.target.click(); }}
+}});
 go(location.hash.slice(1) || 'landing');
 </script></body></html>'''
 

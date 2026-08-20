@@ -157,7 +157,10 @@ h1,h2,h3{font-weight:600;letter-spacing:-.015em}
 .back:active{background:#E6EBE4}
 .wm{font-family:Caprasimo,Georgia,serif;font-weight:400;font-size:var(--t-20);letter-spacing:.01em;color:var(--primary);line-height:1}
 .bd{flex:1;overflow-y:auto;overflow-x:hidden;padding:8px 20px 8px;scrollbar-width:none;min-height:0}
-.foot{flex:none;padding:8px 20px 24px;background:transparent}
+.screen:has(.foot) .bd{padding-bottom:var(--foot-h, 100px)}
+.foot{position:absolute;left:0;right:0;bottom:0;padding:8px 20px 24px;background:transparent;
+     z-index:22;pointer-events:none}
+.foot>*{pointer-events:auto}
 .foot .btn{margin-top:0}
 .bd::-webkit-scrollbar{display:none}
 .greet{font-size:var(--t-14);color:var(--muted);margin-top:16px}
@@ -251,12 +254,10 @@ h1,h2,h3{font-weight:600;letter-spacing:-.015em}
 .ni.on{color:var(--primary)}
 .ni.on span{font-weight:700}
 .bdg{position:absolute;top:-4px;left:calc(50% + 8px);width:8px;height:8px;border-radius:50%;background:var(--flame)}
-.ofr{position:absolute;left:0;right:0;bottom:calc(72px + env(safe-area-inset-bottom));
-     padding:0 12px;cursor:pointer;z-index:20}
-.ofr:last-child{bottom:calc(16px + env(safe-area-inset-bottom))}
-.screen:has(.ofr) .bd{padding-bottom:100px}
-.screen:has(.foot) .ofr{bottom:calc(100px + env(safe-area-inset-bottom))}
-.screen:has(.foot):has(.nav) .ofr{bottom:calc(156px + env(safe-area-inset-bottom))}
+.ofr{position:absolute;left:0;right:0;padding:0 12px;cursor:pointer;z-index:20;
+     bottom:calc(var(--ofr-bottom, 68px) + env(safe-area-inset-bottom))}
+.screen:has(.ofr) .bd{padding-bottom:calc(var(--ofr-bottom, 68px) + 64px)}
+.screen:has(.ofr):has(.foot) .bd{padding-bottom:calc(var(--ofr-bottom, 68px) + 64px)}
 body.is-pro .ofr{display:none}
 .ofr-in{display:flex;align-items:center;gap:12px;border-radius:999px;height:52px;padding:0 8px 0 8px;
         background:var(--lime);position:relative;overflow:hidden;
@@ -329,6 +330,8 @@ body.is-pro .ofr{display:none}
 .search input{flex:1;border:0;outline:0;background:transparent;font:500 var(--t-16) 'Inter Tight',sans-serif;
         color:var(--ink);min-width:0}
 .search input::placeholder{color:#9EA8A2;font-weight:400}
+.search input::-webkit-search-cancel-button,
+.search input::-webkit-search-decoration{-webkit-appearance:none;appearance:none;display:none}
 .search .si{display:flex;flex:none}
 .search .sx{display:none;cursor:pointer}
 .search.has .sx{display:block}
@@ -413,6 +416,29 @@ body.is-pro .ofr{display:none}
 .callg{display:flex;gap:14px;margin-top:12px;font-size:var(--t-11);color:var(--muted)}
 .callg span{display:flex;align-items:center;gap:5px}
 .callg i{width:10px;height:10px;border-radius:50%;font-style:normal;flex:none}
+.calcta{margin-top:12px;padding-top:12px;border-top:1px solid var(--hair);
+     font-size:var(--t-13);font-weight:600;color:var(--primary)}
+.calleg2{display:flex;gap:14px;flex-wrap:wrap;font-size:var(--t-12);color:var(--muted);
+     margin-bottom:10px}
+.calleg2 span{display:flex;align-items:center;gap:5px}
+.calleg2 i{width:12px;height:12px;border-radius:3px;flex:none;font-style:normal}
+.calbox{background:var(--surface);border-radius:var(--r-lg);padding:10px 12px}
+.calrow{display:flex;align-items:center;gap:8px;padding:3px 0}
+.calrow b{flex:0 0 92px;font-size:var(--t-13);font-weight:600;letter-spacing:-.02em;
+     white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.cal12{display:grid;grid-template-columns:repeat(12,1fr);gap:2px;flex:1;min-width:0}
+.cal12 i{height:16px;border-radius:3px;background:#F0F3EF;font-style:normal}
+.cal12 i.c-sow{background:#B9E3C6}
+.cal12 i.c-pick{background:var(--primary)}
+.cal12 i.c-both{background:linear-gradient(180deg,#B9E3C6 0 55%,var(--primary) 55% 100%)}
+.calleg2 i.c-both{background:linear-gradient(180deg,#B9E3C6 0 55%,var(--primary) 55% 100%)}
+.cal12 i.c-any{background:#DCE7DE}
+.calhead b{flex:0 0 92px}
+.calhead .cal12 i{background:transparent;font-size:var(--t-11);color:var(--muted);
+     text-align:center;line-height:16px;font-weight:600}
+.calhead .cal12 i.cnow{color:var(--primary);font-weight:700}
+.cal12 i.cnow{box-shadow:inset 0 0 0 1.5px var(--deep)}
+.calleg2 i.cnow{background:#F0F3EF;box-shadow:inset 0 0 0 1.5px var(--deep)}
 .callg i.m-water{background:#D6EADC}
 .callg i.m-photo{background:var(--primary)}
 .ccard{background:var(--surface);border-radius:var(--r-lg);padding:12px;margin-bottom:8px}
@@ -1029,6 +1055,19 @@ screen('pick',
  'следствие — для света это «сколько растений подойдёт», для ZIP — зона, заморозки и длина '
  'сезона. Выбрал — вернулся в настройки.', 'Система')
 
+screen('calendar',
+ f'{sb()}{hd(back="growth")}<div class="bd">'
+ '<div class="h1" style="margin-top:16px">Harvest calendar</div>'
+ '<div style="font-size:var(--t-14);color:var(--muted);margin-top:4px;line-height:1.4" id="calsub">&nbsp;</div>'
+ '<div id="calbody" style="margin-top:16px"></div>'
+ '</div>' + nav('Growth'),
+ 'Harvest calendar', 'Общий календарь года: когда что <b>сеять</b> и когда <b>снимать</b>. '
+ 'Окна не выдуманы — считаются из даты последних заморозков выбранного ZIP, длины сезона и '
+ 'числа дней до сбора каждой культуры. Холодостойкие уходят в грунт за месяц до заморозков, '
+ 'теплолюбивые только после; крайний срок посева такой, чтобы культура успела отдать урожай '
+ 'до осенних заморозков. У комнатных сезона нет — их строка открыта весь год. '
+ 'Проваливаешься из виджета на Growth.', 'Growth')
+
 # ═════════════════════════════ 7. ПОДОКОННИК
 screen('indoor',
  f'{sb()}{hd()}<div class="bd">'
@@ -1060,10 +1099,12 @@ screen('indoor',
 #    img=None означает «настоящей фотографии нет» → рисуем плитку с иконкой,
 #    а не битую картинку. Выдумывать ассеты нельзя.
 def sp(id, name, kind, icon, latin, water, light, hum, img=None,
-       days=0, days_max=0, pot='', sun=1, tags=(), sill=False):
+       days=0, days_max=0, pot='', sun=1, tags=(), sill=False, cool=False):
+    # cool=True — холодостойкая культура: сеется до последних заморозков и терпит их.
+    # cool=False у съедобных — теплолюбивая, только после заморозков.
     return dict(id=id, name=name, kind=kind, icon=icon, latin=latin, water=water,
                 light=light, hum=hum, img=img, days=days, daysMax=days_max or days,
-                pot=pot, sun=sun, tags=list(tags), sill=sill)
+                pot=pot, sun=sun, tags=list(tags), sill=sill, cool=cool)
 
 PLANTS = [
  # ── комнатные: у всех восьми есть настоящее фото
@@ -1086,23 +1127,23 @@ PLANTS = [
 
  # ── съедобные: контейнеры сохнут быстро, отсюда короткие интервалы полива
  sp('radish','Radish','edible','carrot','Raphanus sativus',2,'6\u20138 h sun','\u2014','radish',
-    days=25,days_max=35,pot='1 pint',sun=1,tags=('fast','roots','kids')),
+    days=25,days_max=35,pot='1 pint',sun=1,tags=('fast','roots','kids'),cool=True),
  sp('lettuce','Leaf lettuce','edible','leaf','Lactuca sativa',2,'3\u20135 h sun','\u2014','lettuce',
-    days=30,days_max=35,pot='0.5 gal',sun=1,tags=('salads','fast'),sill=True),
+    days=30,days_max=35,pot='0.5 gal',sun=1,tags=('salads','fast'),sill=True,cool=True),
  sp('chard','Swiss chard','edible','leaf','Beta vulgaris',2,'3\u20135 h sun','\u2014','chard',
-    days=30,days_max=40,pot='0.5 gal',sun=1,tags=('salads',)),
+    days=30,days_max=40,pot='0.5 gal',sun=1,tags=('salads',),cool=True),
  sp('mustard','Mustard greens','edible','leaf','Brassica juncea',2,'3\u20135 h sun','\u2014','mustard',
-    days=35,days_max=40,pot='0.5 gal',sun=1,tags=('salads',),sill=True),
+    days=35,days_max=40,pot='0.5 gal',sun=1,tags=('salads',),sill=True,cool=True),
  sp('microgreens','Microgreens','edible','grains','',1,'3\u20135 h sun','\u2014','microgreens',
-    days=10,days_max=14,pot='tray',sun=1,tags=('fast','herbs','kids'),sill=True),
+    days=10,days_max=14,pot='tray',sun=1,tags=('fast','herbs','kids'),sill=True,cool=True),
  sp('cilantro','Cilantro','edible','leaf','Coriandrum sativum',3,'3\u20135 h sun','\u2014','cilantro',
-    days=28,days_max=42,pot='0.5 gal',sun=1,tags=('herbs','fast'),sill=True),
+    days=28,days_max=42,pot='0.5 gal',sun=1,tags=('herbs','fast'),sill=True,cool=True),
  sp('basil','Basil','edible','leaf','Ocimum basilicum',3,'6\u20138 h sun','\u2014','basil',
     days=40,days_max=40,pot='1 gal',sun=2,tags=('herbs',),sill=True),
  sp('beans','Bush beans','edible','grains','Phaseolus vulgaris',2,'6\u20138 h sun','\u2014','beans',
     days=45,days_max=60,pot='2 gal',sun=2,tags=('beans','kids')),
  sp('beets','Beets','edible','carrot','Beta vulgaris',2,'3\u20135 h sun','\u2014','beets',
-    days=50,days_max=60,pot='0.5 gal',sun=1,tags=('roots',)),
+    days=50,days_max=60,pot='0.5 gal',sun=1,tags=('roots',),cool=True),
  sp('squash','Summer squash','edible','orange','Cucurbita pepo',2,'6\u20138 h sun','\u2014','squash',
     days=50,days_max=60,pot='5 gal',sun=2,tags=()),
  sp('cherrytomato','Cherry tomato','edible','cherries','Solanum lycopersicum',2,'6\u20138 h sun','\u2014','cherrytomato',
@@ -1110,21 +1151,21 @@ PLANTS = [
  sp('tomato','Tomato','edible','cherries','Solanum lycopersicum',2,'6\u20138 h sun','\u2014','tomato',
     days=55,days_max=100,pot='5 gal',sun=2,tags=('tomatoes',)),
  sp('kale','Kale','edible','leaf','Brassica oleracea',2,'3\u20135 h sun','\u2014','kale',
-    days=55,days_max=65,pot='5 gal',sun=1,tags=('salads',)),
+    days=55,days_max=65,pot='5 gal',sun=1,tags=('salads',),cool=True),
  sp('turnips','Turnips','edible','carrot','Brassica rapa',2,'3\u20135 h sun','\u2014','turnips',
-    days=30,days_max=60,pot='3 gal',sun=1,tags=('roots',)),
+    days=30,days_max=60,pot='3 gal',sun=1,tags=('roots',),cool=True),
  sp('carrots','Carrots','edible','carrot','Daucus carota',2,'6\u20138 h sun','\u2014','carrots',
-    days=65,days_max=80,pot='1 quart',sun=1,tags=('roots','kids')),
+    days=65,days_max=80,pot='1 quart',sun=1,tags=('roots','kids'),cool=True),
  sp('cucumber','Cucumber','edible','orange','Cucumis sativus',2,'6\u20138 h sun','\u2014','cucumber',
     days=70,days_max=80,pot='5 gal',sun=2,tags=()),
  sp('onions','Green onions','edible','plant','Allium fistulosum',3,'3\u20135 h sun','\u2014','onions',
-    days=70,days_max=100,pot='0.5 gal',sun=1,tags=('herbs',),sill=True),
+    days=70,days_max=100,pot='0.5 gal',sun=1,tags=('herbs',),sill=True,cool=True),
  sp('parsley','Parsley','edible','leaf','Petroselinum crispum',3,'3\u20135 h sun','\u2014','parsley',
-    days=70,days_max=84,pot='0.5 gal',sun=1,tags=('herbs',),sill=True),
+    days=70,days_max=84,pot='0.5 gal',sun=1,tags=('herbs',),sill=True,cool=True),
  sp('eggplant','Eggplant','edible','pepper','Solanum melongena',2,'6\u20138 h sun','\u2014','eggplant',
     days=75,days_max=100,pot='5 gal',sun=2,tags=()),
  sp('chives','Garlic chives','edible','plant','Allium tuberosum',3,'3\u20135 h sun','\u2014','chives',
-    days=84,days_max=84,pot='0.5 gal',sun=1,tags=('herbs',),sill=True),
+    days=84,days_max=84,pot='0.5 gal',sun=1,tags=('herbs',),sill=True,cool=True),
  sp('pepper','Bell pepper','edible','pepper','Capsicum annuum',2,'6\u20138 h sun','\u2014','pepper',
     days=110,days_max=120,pot='2 gal',sun=2,tags=('peppers',)),
 ]
@@ -1528,11 +1569,17 @@ function renderDashHome(){
   if(!MY_PLANTS.length){
     g.textContent = '';
     h.innerHTML = '';
+    const HEAD = {
+      edible: ['One pot is enough to start', 'Grow something<br>you can<br>actually eat.'],
+      house:  ['One plant is enough to start', 'Every room<br>feels better<br>with something<br>alive in it.'],
+      both:   ['One pot is enough to start', 'One pot,<br>one plant,<br>and you have<br>started.']
+    };
+    const hd2 = HEAD[CHOICES.track] || HEAD.both;
     acc.innerHTML = '<div class="empty-hero">'
-      + '<div class="eh-shot" style="background-image:url(img/hero-plants.jpg)"></div>'
+      + '<div class="eh-shot" style="background-image:url(img/hero-garden.jpg)"></div>'
       + '<div class="eh-ov"><div>'
-      + '<div class="eh-k">One plant is enough to start</div>'
-      + '<div class="eh-h">Every room<br>feels better<br>with something<br>alive in it.</div></div>'
+      + '<div class="eh-k">' + hd2[0] + '</div>'
+      + '<div class="eh-h">' + hd2[1] + '</div></div>'
       + '<div class="btn b-lime" data-scan>Add your first plant</div>'
       + '<div class="eh-alt" data-go="add-plant">or pick from the library</div></div></div>';
     return;
@@ -2202,6 +2249,94 @@ function careStats(){
            oldest: MY_PLANTS.reduce(function(a,p){ return Math.max(a, p.day); }, 0),
            healthy: MY_PLANTS.filter(function(p){ return wDue(p) > 2; }).length };
 }
+/* ─────────── календарь урожая ─────────── */
+const MON1 = ['J','F','M','A','M','J','J','A','S','O','N','D'];
+function frostDates(){
+  const parts = zipInfo().frost.split(' ');
+  const last = new Date(2026, MON.indexOf(parts[0]), +parts[1]);
+  const first = new Date(last); first.setDate(first.getDate() + zipInfo().season);
+  return {last: last, first: first};
+}
+/* Окно посева: холодостойкие уходят в грунт за месяц до последних заморозков,
+   теплолюбивые — только после. Крайний срок считается так, чтобы культура
+   успела отдать урожай до первых осенних заморозков. */
+function windows(sp){
+  if(sp.kind === 'house') return null;
+  const f = frostDates();
+  const from = new Date(f.last);
+  if(sp.cool) from.setDate(from.getDate() - 28);
+  const to = new Date(f.first);
+  to.setDate(to.getDate() - sp.daysMax - 14);
+  if(to < from) return {sow:[from, from], pick:[from, from], tight:true};
+  const pickFrom = new Date(from); pickFrom.setDate(pickFrom.getDate() + sp.days);
+  const pickTo = new Date(to); pickTo.setDate(pickTo.getDate() + sp.daysMax);
+  return {sow:[from, to], pick:[pickFrom, pickTo], tight:false};
+}
+const monthsOf = (a, b) => {
+  const out = {};
+  const d = new Date(a.getFullYear(), a.getMonth(), 1);
+  while(d <= b){ out[d.getMonth()] = 1; d.setMonth(d.getMonth() + 1); }
+  return out;
+};
+function monthMap(sp){
+  const w = windows(sp);
+  if(!w) return null;                                  // комнатное: круглый год
+  const sow = monthsOf(w.sow[0], w.sow[1]), pick = monthsOf(w.pick[0], w.pick[1]);
+  return MON1.map(function(_, m){
+    if(sow[m] && pick[m]) return 'both';    // и сеять можно, и что-то снимаешь
+    if(sow[m]) return 'sow';
+    if(pick[m]) return 'pick';
+    return '';
+  });
+}
+const nowMonth = () => dayOffset(TODAY).getMonth();
+function sowableNow(){
+  return speciesPool().filter(function(sp){
+    const mm = monthMap(sp);
+    const k = mm && mm[nowMonth()];
+    return k === 'sow' || k === 'both';
+  });
+}
+function calStrip(sp){
+  const mm = monthMap(sp);
+  const now = nowMonth();
+  const cells = MON1.map(function(_, m){
+    const k = mm ? mm[m] : 'any';
+    return '<i class="' + (k ? 'c-' + k : '') + (m === now ? ' cnow' : '') + '"></i>';
+  }).join('');
+  return '<div class="calrow"><b>' + sp.name + '</b><div class="cal12">' + cells + '</div></div>';
+}
+function renderCalendar(){
+  const box = document.getElementById('calbody'); if(!box) return;
+  const f = frostDates();
+  const sub = document.getElementById('calsub');
+  if(sub) sub.textContent = CHOICES.outdoor
+    ? zipInfo().city + ' · last frost ' + zipInfo().frost + ' · first frost around '
+      + MON[f.first.getMonth()] + ' ' + f.first.getDate()
+    : 'Indoors, so there is no frost to work around — any month works.';
+  const mine = MY_PLANTS.map(function(p){ return p.s; });
+  const seen = {}; const mineU = mine.filter(function(x){
+    if(seen[x.id]) return false; seen[x.id] = 1; return true; });
+  const rest = speciesPool().filter(function(x){ return !seen[x.id]; });
+  const head = '<div class="calrow calhead"><b></b><div class="cal12">'
+    + MON1.map(function(m, i){
+        return '<i class="' + (i === nowMonth() ? 'cnow' : '') + '">' + m + '</i>'; }).join('')
+    + '</div></div>';
+  box.innerHTML =
+      '<div class="calleg2"><span><i class="c-sow"></i>sow</span>'
+    + '<span><i class="c-both"></i>sow &amp; pick</span>'
+    + '<span><i class="c-pick"></i>pick only</span>'
+    + '<span><i class="cnow"></i>this month</span></div>'
+    + (mineU.length ? '<div class="sl">Yours</div><div class="calbox">' + head
+        + mineU.map(calStrip).join('') + '</div>' : '')
+    + '<div class="sl">' + (mineU.length ? 'Could also go in' : 'What can go in') + '</div>'
+    + '<div class="calbox">' + head + rest.map(calStrip).join('') + '</div>'
+    + '<div class="setnote">Windows come from your last frost date and how long each crop needs. '
+      + 'Houseplants have no season, so their row stays open all year.<br><br>'
+      + 'One honest gap: this works off frost, not summer heat. In a hot region the '
+      + 'cool-season crops — lettuce, radish, cilantro — will bolt in midsummer even though '
+      + 'the row here stays open. Sow those in spring and again in late summer.</div>';
+}
 function calWidget(){
   // отмечаем дни, когда растения поливали, и дни со снимками
   const marks = {};
@@ -2217,11 +2352,15 @@ function calWidget(){
     cells += '<i class="' + (m ? 'm-' + m : '') + (future ? ' fut' : '') + '">'
            + dayOffset(d).getDate() + '</i>';
   }
-  return '<div class="wg wg-lite span2"><div class="wg-h"><b>Care calendar</b>'
-    + '<s>' + MON[START.getMonth()] + ' – ' + MON[dayOffset(34).getMonth()] + '</s></div>'
+  const can = sowableNow();
+  return '<div class="wg wg-lite span2" role="button" tabindex="0" data-go="calendar">'
+    + '<div class="wg-h"><b>Harvest calendar</b><s>' + MON[nowMonth()] + ' · open</s></div>'
     + '<div class="cal">' + cells + '</div>'
     + '<div class="callg"><span><i class="m-water"></i>watered</span>'
-    + '<span><i class="m-photo"></i>photo</span></div></div>';
+    + '<span><i class="m-photo"></i>photo</span></div>'
+    + '<div class="calcta">' + (can.length
+        ? can.length + (can.length === 1 ? ' crop can go in this month' : ' crops can go in this month')
+        : 'Nothing new should go in this month') + ' · see the year</div></div>';
 }
 function careWidgets(){
   return '<div class="wgrid">' + calWidget() + '</div>';
@@ -2887,8 +3026,22 @@ function go(id){{
   if(id==='week-lock') renderLock();
   if(id==='settings') renderSettings();
   if(id==='pick') renderPick();
+  if(id==='calendar') renderCalendar();
   stampRoles(el);
-  el.classList.add('on'); el.querySelectorAll('.bd').forEach(b=>b.scrollTop=0);
+  el.classList.add('on');
+  /* Сдвиг лаймового баннера считается от РЕАЛЬНОЙ высоты подвала и таб-бара.
+     Раньше он был захардкожен тремя правилами, и стоило подвалу вырасти на
+     строку, как баннер ложился на кнопку. Мерить можно только после .on. */
+  const ft = el.querySelector('.foot'), nv = el.querySelector('.nav');
+  const nh = nv ? nv.offsetHeight : 0;
+  /* Подвал плавает над контентом, поэтому его надо посадить ровно над таб-баром:
+     иначе кнопка накрывает навигацию. offsetHeight уже включает safe-area. */
+  if(ft) ft.style.bottom = nh + 'px';
+  const fh = ft ? ft.offsetHeight : 0;
+  /* место под плавающие кнопку и баннер освобождает нижний отступ прокрутки */
+  el.style.setProperty('--ofr-bottom', (fh + nh + 12) + 'px');
+  el.style.setProperty('--foot-h', (fh + nh + 16) + 'px');
+  el.querySelectorAll('.bd').forEach(b=>b.scrollTop=0);
   el.querySelectorAll('.dark,.overlay').forEach(b=>b.scrollTop=0);
   document.querySelectorAll('.chip').forEach(c=>c.classList.toggle('act', c.dataset.go===id));
   const n = NOTES[id]||['',''];
@@ -3212,7 +3365,7 @@ BUILD = hashlib.sha1(MOBILE.encode()).hexdigest()[:10]
 SW_SRC = """const CACHE = 'homegrown-%s';
 const ASSETS = [
   './', './index.html', './manifest.webmanifest', './scan-config.js',
-  './img/hero.jpg', './img/hero-farm.jpg', './img/hero-plants.jpg', './img/garden.jpg',
+  './img/hero.jpg', './img/hero-farm.jpg', './img/hero-garden.jpg', './img/garden.jpg',
   './img/radish.jpg', './img/basil.jpg', './img/lettuce.jpg', './img/cherrytomato.jpg',
   './img/flowers.jpg', './img/containers.jpg',
   './img/leaves1.jpg', './img/leaves2.jpg', './img/leaves3.jpg',

@@ -31,7 +31,7 @@ def ring(pct, dark=False, sz=38, sw=3.2):
     off = circ * (1 - max(0, min(100, pct)) / 100)
     track = 'rgba(255,255,255,.20)' if dark else '#DDE3DC'
     col = 'var(--lime)' if dark else 'var(--bright)'
-    return (f'<svg class="rg" width="{sz}" height="{sz}" viewBox="0 0 {sz} {sz}">'
+    return (f'<svg width="{sz}" height="{sz}" viewBox="0 0 {sz} {sz}">'
             f'<circle cx="{sz/2}" cy="{sz/2}" r="{r}" fill="none" stroke="{track}" stroke-width="{sw}"/>'
             f'<circle cx="{sz/2}" cy="{sz/2}" r="{r}" fill="none" stroke="{col}" stroke-width="{sw}" '
             f'stroke-linecap="round" stroke-dasharray="{circ:.1f}" stroke-dashoffset="{off:.1f}" '
@@ -155,12 +155,6 @@ h1,h2,h3{font-weight:600;letter-spacing:-.015em}
 .acc:after{content:"";pointer-events:none;position:absolute;width:232px;height:232px;right:-88px;top:-112px;border-radius:50%;
      background:radial-gradient(circle,rgba(180,244,97,.30),rgba(180,244,97,0) 70%)}
 .acc .row1{display:flex;justify-content:space-between;align-items:center;position:relative}
-.addtop{display:flex;align-items:center;gap:4px;height:36px;padding:0 16px;border-radius:999px;
-        background:#fff;color:var(--deepest);font-size:14px;font-weight:700;cursor:pointer;flex:none;
-        position:relative;box-shadow:0 2px 8px rgba(11,31,20,.30)}
-.addtop svg{fill:var(--deepest)}
-.addtop:after{content:"";position:absolute;inset:-4px}
-.addtop:active{background:#EAF5EE}
 .acc .tag{background:var(--lime);color:var(--deepest);font-size:11px;font-weight:700;letter-spacing:.06em;
      padding:4px 12px;border-radius:999px}
 .acc .lbl{font-size:13px;color:#B7C7BD;margin-top:16px;letter-spacing:-.02em}
@@ -206,7 +200,6 @@ h1,h2,h3{font-weight:600;letter-spacing:-.015em}
 .wk-title{font-family:Caprasimo,Georgia,serif;font-weight:400;font-size:24px;line-height:1.05;
      letter-spacing:0;margin-bottom:12px}
 .wk-row{display:flex;align-items:center;gap:10px}
-.pb-ic{display:flex;flex:none}
 .pb-n{font-size:15px;font-weight:700;letter-spacing:-.02em;flex:none}
 .pb-track{flex:1;height:8px;border-radius:999px;background:#E4E8E2;overflow:hidden;min-width:0}
 .pb-track i{display:block;height:100%;background:var(--bright);border-radius:999px;transition:width .3s}
@@ -223,10 +216,6 @@ h1,h2,h3{font-weight:600;letter-spacing:-.015em}
      margin-top:3px;line-height:1.35}
 .br-t.done{color:#9EA8A2;text-decoration:line-through;text-decoration-color:#C9D2CC}
 .br-m{font-size:13px;color:var(--muted);flex:none;font-weight:500;align-self:flex-start;margin-top:4px}
-.prog{display:flex;align-items:center;gap:12px;margin:16px 2px 0}
-.bar{flex:1;height:8px;border-radius:999px;background:#DDE3DC;overflow:hidden}
-.bar i{display:block;height:100%;background:var(--bright);border-radius:999px;transition:width .35s}
-.pct{font-size:13px;color:var(--muted);font-weight:500}
 .blur{height:12px;border-radius:999px;background:#E1E6E0}
 
 /* ───── кнопки */
@@ -236,7 +225,6 @@ h1,h2,h3{font-weight:600;letter-spacing:-.015em}
 .b-lime{background:var(--lime);color:var(--deepest)}
 .b-white{background:#fff;color:var(--deepest)}
 .b-ghost{background:#E6EBE4;color:var(--ink)}
-.b-dark{background:var(--deepest);color:#fff}
 .pill{display:inline-flex;align-items:center;height:32px;padding:0 16px;border-radius:999px;
       font-size:12.5px;font-weight:700;letter-spacing:.04em}
 
@@ -254,7 +242,6 @@ h1,h2,h3{font-weight:600;letter-spacing:-.015em}
 .screen:has(.foot) .ofr{bottom:calc(100px + env(safe-area-inset-bottom))}
 .screen:has(.foot):has(.nav) .ofr{bottom:calc(156px + env(safe-area-inset-bottom))}
 body.is-pro .ofr{display:none}
-body.is-pro .ofr{display:none}
 .ofr-in{display:flex;align-items:center;gap:12px;border-radius:999px;height:52px;padding:0 8px 0 8px;
         background:var(--lime);position:relative;overflow:hidden;
         box-shadow:0 6px 18px rgba(120,190,40,.34)}
@@ -265,7 +252,6 @@ body.is-pro .ofr{display:none}
 .ofr-tx s{font-size:15px;color:#2C4A1E;text-decoration:none;font-weight:600;opacity:.72;margin-left:8px}
 .ofr-go{width:36px;height:36px;border-radius:50%;background:var(--deepest);display:flex;align-items:center;
         justify-content:center;flex:none;position:relative}
-.pro{background:var(--deepest);color:var(--lime)}
 
 /* ───── онбординг */
 .pg{display:flex;gap:8px;margin-top:16px}
@@ -290,24 +276,17 @@ body.is-pro .ofr{display:none}
        transition:left .18s;box-shadow:0 1px 3px rgba(11,31,20,.22)}
 .tgl.on{background:var(--bright)}
 .tgl.on i{left:24px}
-.zipres{display:none}
+.is-hidden{display:none}
 .search{display:flex;align-items:center;gap:8px;background:var(--surface);border-radius:16px;
         padding:0 16px;height:52px;margin-top:16px}
 .search input{flex:1;border:0;outline:0;background:transparent;font:500 15.5px 'Inter Tight',sans-serif;
         color:var(--ink);min-width:0}
 .search input::placeholder{color:#9EA8A2;font-weight:400}
+.search .si{display:flex;flex:none}
 .search .sx{display:none;cursor:pointer}
 .search.has .sx{display:block}
 .gsec{font-size:12.5px;font-weight:600;letter-spacing:-.02em;color:var(--muted);margin:20px 0 8px}
 .empty{text-align:center;color:var(--muted);font-size:14.5px;padding:24px 8px;line-height:1.5}
-.del{width:44px;height:44px;border-radius:50%;background:#F0F2EF;display:flex;align-items:center;
-     justify-content:center;flex:none;cursor:pointer;margin-left:8px}
-.del:active{background:#E2E6E0}
-.addbtn{width:32px;height:32px;border-radius:50%;background:#EDF1EB;display:flex;align-items:center;
-        justify-content:center;flex:none}
-.pl.added .addbtn{background:var(--bright)}
-.pl.added .addbtn svg:first-child,.pl.added .addbtn svg:last-child{display:none}
-.pl.added .addbtn svg:last-child{display:block}
 .pl.have{opacity:.55}
 .empty-hero{position:relative;border-radius:28px;overflow:hidden;height:560px;margin-top:8px}
 .eh-shot{position:absolute;inset:0;background-size:cover;background-position:center}
@@ -366,15 +345,12 @@ body.is-pro .ofr{display:none}
 .cal i{aspect-ratio:1;border-radius:50%;display:flex;align-items:center;justify-content:center;
        font-size:12px;font-weight:600;font-style:normal;color:#8DA396;background:rgba(255,255,255,.06)}
 .cal i.fut{color:#4C6155;background:rgba(255,255,255,.03)}
-.cal i.m-sow{background:transparent;box-shadow:inset 0 0 0 2px var(--lime);color:var(--lime)}
 .cal i.m-photo{background:#2E5C3A;color:#fff}
-.cal i.m-pick{background:var(--lime);color:var(--deepest)}
 .callg{display:flex;gap:14px;margin-top:12px;font-size:11.5px;color:#A9BCB0}
 .callg span{display:flex;align-items:center;gap:5px}
 .callg i{width:10px;height:10px;border-radius:50%;font-style:normal;flex:none}
-.callg i.m-sow{box-shadow:inset 0 0 0 2px var(--lime)}
 .callg i.m-photo{background:#2E5C3A}
-.callg i.m-pick{background:var(--lime)}
+.callg i.m-water{background:#2E5C3A}
 .ccard{background:var(--surface);border-radius:var(--r-md);padding:12px;margin-bottom:8px}
 .chead{display:flex;align-items:center;gap:12px;cursor:pointer;padding:4px}
 .chead .nm b{display:block;font-size:16px;font-weight:600;letter-spacing:-.02em}
@@ -401,10 +377,6 @@ body.is-pro .ofr{display:none}
        font-size:15px;font-weight:700;cursor:pointer}
 .btn-dash svg{fill:var(--primary)}
 .btn-dash:active{background:#EAF5EE}
-.herostub{height:152px;border-radius:var(--r-lg);background:var(--surface);margin-top:16px;
-          display:flex;align-items:center;gap:16px;padding:0 20px;border:2px dashed #C2CCC5}
-.herostub b{display:block;font-size:16px;font-weight:600}
-.herostub s{display:block;font-size:13.5px;color:var(--muted);text-decoration:none;margin-top:4px;line-height:1.4}
 #toast{position:absolute;left:12px;right:12px;top:calc(8px + env(safe-area-inset-top));background:var(--deepest);color:#fff;
        border-radius:16px;padding:16px 16px;display:flex;justify-content:space-between;align-items:center;
        font-size:14.5px;opacity:0;transform:translateY(-12px);pointer-events:none;transition:.22s;z-index:70}
@@ -421,6 +393,7 @@ body.is-pro .ofr{display:none}
 .scan-shot{position:absolute;inset:0;background:#0B1F14 center/cover no-repeat}
 .scan-ov{position:absolute;inset:0;display:flex;flex-direction:column;padding:24px 20px;
      padding-top:calc(24px + env(safe-area-inset-top))}
+.mile-ov{padding-top:calc(24px + env(safe-area-inset-top))}
 .scan-frame{flex:1;border-radius:28px;box-shadow:inset 0 0 0 3px rgba(180,244,97,.7);margin-bottom:16px;
      position:relative;animation:scanpulse 1.2s ease-in-out infinite}
 .scan-frame.ok{box-shadow:inset 0 0 0 3px var(--lime);animation:none}
@@ -435,7 +408,7 @@ body.is-pro .ofr{display:none}
      animation:dot 1s infinite}
 .scan-dots i:nth-child(2){animation-delay:.15s}.scan-dots i:nth-child(3){animation-delay:.3s}
 @keyframes dot{0%,100%{opacity:.35}50%{opacity:1}}
-.dark{position:absolute;inset:0;background:var(--deepest);padding:24px 24px;display:flex;flex-direction:column;color:#fff;overflow-y:auto;scrollbar-width:none}
+.dark{position:absolute;inset:0;background:var(--deepest);padding:24px 24px;display:flex;flex-direction:column;color:#fff;overflow-y:auto;overflow-x:hidden;scrollbar-width:none}
 .dark::-webkit-scrollbar{display:none}
 .glow{position:absolute;width:420px;height:420px;left:-60px;top:-152px;border-radius:50%;
       background:radial-gradient(circle,rgba(180,244,97,.34),rgba(180,244,97,0) 68%);pointer-events:none}
@@ -472,11 +445,6 @@ body.is-pro .ofr{display:none}
 .pl.added .addbtn svg:first-child{display:none}
 .pl.added .addbtn svg:last-child{display:block}
 .pl.locked{opacity:.42;pointer-events:none}
-.gal{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}
-.gal div{aspect-ratio:1;border-radius:var(--r-sm);background-size:cover;background-position:center;background-color:#DDE3DC}
-.strip{display:flex;gap:8px}
-.strip div{width:72px;height:92px;border-radius:16px;background-size:cover;background-position:center;
-           background-color:#DDE3DC;flex:none}
 .note{background:var(--surface);border-radius:var(--r-md);padding:16px}
 .note b{font-size:17px;font-weight:600;display:block;line-height:1.3}
 .quote{background:var(--surface);border-radius:var(--r-md);padding:16px;margin-top:16px;position:relative}
@@ -489,6 +457,32 @@ body.is-pro .ofr{display:none}
 .qwho b{display:block;font-size:14px;font-weight:600}
 .qwho s{display:block;font-size:12.5px;color:var(--muted);text-decoration:none;margin-top:2px}
 .note p{font-size:14.5px;color:var(--ink-2);line-height:1.45;margin-top:8px}
+
+/* ───── крупное число в акцентном блоке (Growth · health score) */
+.acc .huge{font-family:Caprasimo,Georgia,serif;font-weight:400;font-size:64px;line-height:.96;
+     letter-spacing:-.01em;margin-top:2px}
+
+/* ───── плитка вместо фотографии: у вида нет настоящего снимка, врать нечем */
+.no-ph{position:relative;overflow:hidden}
+.no-ph .ph-ic{position:absolute;inset:0;display:flex;align-items:center;justify-content:center}
+.no-ph .ph-ic svg{width:52%;height:52%}
+.det-ph{height:220px;border-radius:var(--r-lg);background-size:cover;background-position:center}
+
+/* ───── экран-момент (milestone) */
+.mile-scrim{height:58%;background:linear-gradient(180deg,rgba(11,31,20,.45),
+     rgba(11,31,20,0) 40%,var(--deepest))}
+.mile-ov{position:absolute;inset:0;display:flex;flex-direction:column;padding:24px}
+.mile-h{font-size:40px;line-height:1.02;margin-top:12px;color:#fff}
+.mile-s{font-size:16px;color:#C6D6CA;line-height:1.5;margin-top:12px}
+.mile-tx{position:relative;margin-top:auto}
+
+/* ───── итог года и «неделя закрыта» */
+.recap-in{flex:1;display:flex;flex-direction:column;justify-content:center;position:relative}
+.recap-ph{height:200px;border-radius:24px;background-size:cover;background-position:center;
+     background-color:#122A1D}
+.recap-h{font-size:40px;line-height:1.02;margin-top:12px}
+.recap-s{font-size:16px;color:#A9BCB0;line-height:1.5;margin-top:12px}
+.done-h{font-size:30px;font-weight:600;line-height:1.15;margin-top:12px;letter-spacing:-.02em}
 """
 
 # ───────────────────────────── helpers
@@ -519,7 +513,7 @@ def hd(initial='Y', back=None):
             f'<div class="wm">HOMEGROWN</div>'
             f'<div class="hd-r">{right}</div></div>')
 
-def ofr(txt='Unlock all 30 weeks', sub='$29/yr', go='paywall'):
+def ofr(txt='Unlock the full care plan', sub='$29/yr', go='paywall'):
     return (f'<div class="ofr" data-go="{go}"><div class="ofr-in">'
             f'<div class="ofr-ic">{ic("sprout", "var(--lime)", 19, "2")}</div>'
             f'<div class="ofr-tx"><b>{txt}</b><s>{sub}</s></div>'
@@ -561,129 +555,138 @@ def foot(html):
     """Подвал экрана: прибит к низу, не скроллится вместе с контентом."""
     return f'<div class="foot">{html}</div>'
 
-def pg(n, total=5):
-    return '<div class="pg">' + ''.join(f'<i class="{"on" if i < n else ""}"></i>' for i in range(total)) + '</div>'
-
 IMG = 'img/'
 
 # ═════════════════════════════ 1. ОНБОРДИНГ
 screen('landing',
- f'{sb()}<div class="shot" style="background-image:url({IMG}hero.jpg);top:48px"></div>'
+ f'{sb()}<div class="shot" style="background-image:url({IMG}hero-plants.jpg);top:48px"></div>'
  '<div class="scrim" style="top:48px"></div>'
  '<div class="overlay" style="top:48px">'
  '<div class="wm" style="color:#fff">HOMEGROWN</div>'
  '<div style="flex:1"></div>'
- '<div class="cap-f" style="font-size:41px;line-height:1.02">Grow real food<br>'
- '<span style="color:var(--lime)">where you live</span></div>'
+ '<div class="cap-f" style="font-size:41px;line-height:1.02">Keep every plant<br>'
+ '<span style="color:var(--lime)">alive and growing</span></div>'
  '<div style="font-size:16.5px;line-height:1.5;margin-top:16px;color:#DCE7DE">'
- 'Patio, deck, porch or a sunny windowsill. Tell us your ZIP and how much light you get &mdash; '
- 'we&rsquo;ll tell you exactly what to plant this weekend.</div>'
- '<div class="btn b-lime" style="margin-top:24px" data-go="q1">Build my free plan</div>'
+ 'A monstera in the corner, basil on the sill, radishes in a pot. Tell us what you have and '
+ 'how much light it gets &mdash; we&rsquo;ll tell you exactly what it needs this week.</div>'
+ '<div class="btn b-lime" style="margin-top:24px" data-go="q0">Build my free plan</div>'
  '<div style="font-size:13px;color:#C3D2C7;text-align:center;margin-top:12px">No card. Takes 90 seconds.</div></div>',
- 'Landing', 'Фото на весь экран, лайм-кнопка. Никаких попапов и логина — §4.2.', 'Онбординг')
+ 'Landing', 'Фото на весь экран, лайм-кнопка. Никаких попапов и логина — §4.2. '
+ 'Обещание больше не про еду: продукт про растения в целом.', 'Онбординг')
+
+screen('q0',
+ f'{sb()}{hd(back="landing")}<div class="bd">'
+ '<div class="h1" style="margin-top:16px">What are you growing?</div>'
+ '<div style="font-size:14px;color:var(--muted);margin-top:4px">This decides everything else we ask.</div>'
+ '<div class="pg" data-pg></div>'
+ '<div style="margin-top:16px">' +
+ opt('Houseplants', 'Monstera, pothos, snake plant', next='q1') +
+ opt('Something to eat', 'Herbs, greens, tomatoes in pots', next='q1') +
+ opt('Both', 'Plants inside, something edible too', next='q1') + '</div></div>',
+ 'Q0 · Track', 'Развилка продукта. <b>house</b> — только декоративные, <b>edible</b> — только съедобные, '
+ '<b>both</b> — и то и другое. От трека зависят варианты в Q1 и Q4, состав библиотеки и '
+ 'спрашиваем ли вообще ZIP.', 'Онбординг')
 
 screen('q1',
- f'{sb()}{hd(back="landing")}<div class="bd">'
- '<div class="h1" style="margin-top:16px">Where will you grow?</div>' + pg(1) +
- '<div style="margin-top:16px">' +
- opt('Patio', next='q2') + opt('Deck', next='q2') + opt('Porch', next='q2') +
- opt('Backyard', next='q2') + opt('Raised bed', next='q2') + opt('Driveway / side yard', next='q2') +
- opt('Apartment balcony', next='q2') +
- opt('Windowsill / indoors', 'Herbs and greens, year-round', next='q2i') + '</div></div>',
- 'Q1 · Space', 'Windowsill ведёт в <b>indoor-ветку</b> — другой вопрос о свете и план без конца сезона.', 'Онбординг')
+ f'{sb()}{hd(back="q0")}<div class="bd">'
+ '<div class="h1" id="q1head" style="margin-top:16px">Where will it live?</div>'
+ '<div class="pg" data-pg></div>'
+ '<div id="q1opts" style="margin-top:16px"></div></div>',
+ 'Q1 · Space', 'Варианты рендерятся из трека: комнаты для house, площадки для edible, смесь для both. '
+ 'Уличное место включает <b>outdoor</b> — только тогда спрашиваем ZIP и заморозки.', 'Онбординг')
 
 screen('q2',
  f'{sb()}{hd(back="q1")}<div class="bd">'
- '<div class="h1" style="margin-top:16px">What&rsquo;s your ZIP?</div>' + pg(2) +
- '<div style="margin-top:16px"><div class="zip ph" data-zip>— — — — —</div>'
+ '<div class="h1" style="margin-top:16px">What&rsquo;s your ZIP?</div>'
+ '<div class="pg" data-pg></div>'
+ '<div style="margin-top:16px"><div class="zip ph" data-zip>&mdash; &mdash; &mdash; &mdash; &mdash;</div>'
  '<div style="font-size:14.5px;color:var(--muted);line-height:1.5;margin-top:16px">'
- 'Your frost dates decide what you can plant right now. Tap to enter.</div>'
- '<div class="acc zipres" data-zipres style="margin-top:16px"><div class="row1"><span class="tag">Matched</span></div>'
+ 'Frost dates decide what you can put outside right now. Tap to enter.</div>'
+ '<div class="acc is-hidden" data-zipres style="margin-top:16px"><div class="row1"><span class="tag">Matched</span></div>'
  '<div class="lbl">Climate profile</div><div class="big">Austin, TX</div>'
  '<div class="duo"><div class="cell"><s>Last frost</s><b>Mar 3</b></div>'
  '<div class="cell"><s>Season</s><b>270 days</b></div></div></div>'
  '</div></div>' + foot('<div class="btn b-pri off" data-cta data-go="q3">Continue</div>'),
- 'Q2 · ZIP', 'ZIP резолвится в climate_profile. Акцент-блок подтверждает, что система что-то <b>узнала</b>.', 'Онбординг')
+ 'Q2 · ZIP', 'Спрашивается <b>только на уличном треке</b>. Комнатным растениям заморозки не нужны, '
+ 'поэтому indoor этот экран не видит вообще.', 'Онбординг')
 
 screen('q3',
  f'{sb()}{hd(back="q2")}<div class="bd">'
- '<div class="h1" style="margin-top:16px">How much direct sun<br>does that spot get?</div>' + pg(3) +
+ '<div class="h1" style="margin-top:16px">How much direct sun<br>does that spot get?</div>'
+ '<div class="pg" data-pg></div>'
  '<div style="margin-top:16px">' +
  opt('3&ndash;5 hours', 'Mostly shade or morning sun', next='q4') +
  opt('6&ndash;8 hours', 'Good sun most of the day', next='q4') +
  opt('8+ hours', 'Full blazing sun', next='q4') +
  opt('Not sure yet', 'We&rsquo;ll start you safe and check later', next='q4') + '</div></div>',
- 'Q3 · Sun', 'Главный фильтр качества плана. not_sure → 3-5 + задача Sun check.', 'Онбординг')
+ 'Q3 · Sun', 'Главный фильтр качества плана, только для уличного трека. not_sure → ранг 1 + задача Sun check.', 'Онбординг')
 
 screen('q2i',
  f'{sb()}{hd(back="q1")}<div class="bd">'
- '<div class="h1" style="margin-top:16px">Which way does<br>your window face?</div>' + pg(3) +
+ '<div class="h1" style="margin-top:16px">How bright is<br>that spot?</div>'
+ '<div class="pg" data-pg></div>'
  '<div style="margin-top:16px">' +
- opt('South', 'Brightest &mdash; basil and peppers work', next='q4') +
- opt('East or West', 'Good for greens and most herbs', next='q4') +
- opt('North', 'Low light &mdash; microgreens and mint only', next='q4') +
+ opt('South window', 'Brightest &mdash; aloe and basil work here', next='q4') +
+ opt('East or West', 'Good for most houseplants and herbs', next='q4') +
+ opt('North window', 'Low light &mdash; pothos, ZZ, snake plant', next='q4') +
  opt('Not sure', 'We&rsquo;ll start you safe', next='q4') + '</div>'
  '<div class="card" style="margin-top:12px;display:flex;gap:12px;align-items:center">' +
  ic('lightbulb', 'var(--primary)', 24) +
  '<div style="font-size:14px;color:var(--ink-2);line-height:1.4">Got a grow light? '
  '<b style="color:var(--ink)">Tell us</b> &mdash; it upgrades your options.</div></div></div>',
- 'Q3-indoor · Window', 'Для indoor солнце меряется <b>стороной окна</b>, не часами. Ложится в тот же sun_bucket.', 'Онбординг')
+ 'Q2-indoor · Light', 'Внутри света меряется <b>стороной окна</b>, не часами. Ложится в тот же sunRank, '
+ 'движок один. Это экран всего indoor — и комнатных, и подоконниковых съедобных.', 'Онбординг')
 
 screen('q4',
  f'{sb()}{hd(back="q3")}<div class="bd">'
- '<div class="h1" style="margin-top:16px">What do you want to eat?</div>'
+ '<div class="h1" id="q4head" style="margin-top:16px">What are you after?</div>'
  '<div style="font-size:14px;color:var(--muted);margin-top:4px">Up to 3 &middot; '
- '<span data-count>nothing selected yet</span></div>' + pg(4) +
- '<div style="margin-top:16px">' +
- opt('Salads &amp; greens', multi=True) + opt('Fresh herbs', multi=True) +
- opt('Fast first harvest', multi=True) + opt('Tomatoes', multi=True) +
- opt('Peppers', multi=True) + opt('Beans &amp; peas', multi=True) +
- opt('Roots: radish, carrot', multi=True) + opt('Kid-friendly project', multi=True) + '</div>'
+ '<span data-count>nothing selected yet</span></div>'
+ '<div class="pg" data-pg></div>'
+ '<div id="q4opts" style="margin-top:16px"></div>'
  '</div>' + foot('<div style="font-size:13px;color:var(--muted);margin-bottom:8px;text-align:center" data-hint>'
  'Pick at least one.</div><div class="btn b-pri off" data-cta data-go="q5">Continue</div>'),
- 'Q4 · Goals', 'Лимит 3. Лишние <b>гаснут, а не исчезают</b> — §4.6.', 'Онбординг')
+ 'Q4 · Goals', 'Варианты из трека: комнатные спрашивают «hard to kill / low light / statement», '
+ 'съедобные — «salads / herbs / tomatoes». Лимит 3, лишние <b>гаснут, а не исчезают</b> — §4.6.', 'Онбординг')
 
 screen('q5',
  f'{sb()}{hd(back="q4")}<div class="bd">'
- '<div class="h1" style="margin-top:16px">How much time can<br>you give it?</div>' + pg(5) +
- '<div style="margin-top:16px">' +
- opt('About 10 minutes', 'Keep it very simple &middot; 3 crops', next='preview') +
- opt('About 20 minutes', 'I can do a bit more &middot; 4 crops', next='preview') +
- opt('30+ minutes', 'I want a real garden &middot; 5&ndash;6 crops', next='preview') + '</div></div>',
- 'Q5 · Effort', 'Определяет количество культур и максимум задач в неделю.', 'Онбординг')
+ '<div class="h1" style="margin-top:16px">How much time can<br>you give it?</div>'
+ '<div class="pg" data-pg></div>'
+ '<div id="q5opts" style="margin-top:16px"></div></div>',
+ 'Q5 · Effort', 'Определяет размер плана: 3 / 4 / 5&ndash;6 растений. Слово в подписи меняется по треку.', 'Онбординг')
 
 screen('preview',
  f'{sb()}{hd(back="q5")}<div class="bd">'
  '<div class="greet">Your plan is ready</div>'
- '<div class="cap-f" id="planhead" style="font-size:31px;line-height:1.06;margin-top:4px">4 crops.</div>'
- '<div style="font-size:13.5px;color:var(--muted);margin-top:8px" id="planmeta">Austin, TX</div>'
-  '<div class="quote"><div class="qmark">&ldquo;</div>'
- '<p>Radish and leaf lettuce are what we hand every first-timer &mdash; they finish before anyone '
- 'has time to lose interest. The container sizes here are the ones we actually recommend.</p>'
- '<div class="qwho"><div class="qav">MG</div><div><b>Placeholder name</b>'
- '<s>Extension master gardener &middot; sample quote</s></div></div></div>'
-'<div class="acc"><div class="row1"><span class="tag">Your plan</span></div>'
+ '<div class="cap-f" id="planhead" style="font-size:31px;line-height:1.06;margin-top:4px">4 plants.</div>'
+ '<div style="font-size:13.5px;color:var(--muted);margin-top:8px" id="planmeta">&nbsp;</div>'
+ '<div class="quote" id="planquote"></div>'
+ '<div class="acc"><div class="row1"><span class="tag">Your plan</span></div>'
  '<div class="plants" id="planrows"></div>'
  '<div class="accwhy" id="planwhy"></div></div>'
- '</div>' + foot('<div class="btn b-pri" data-go="save">Start this week&rsquo;s tasks</div>')
- + ofr('See all 30 weeks', '$29/yr'),
- 'Plan Preview', '⚠ Цитата — <b>плейсхолдер</b>: настоящий отзыв надо получить у реального человека с его согласия, выдумывать его нельзя. Момент ценности. <b>План до регистрации</b> — §4.8. У каждой культуры поле why из движка.', 'Онбординг')
+ '</div>' + foot('<div class="btn b-pri" data-go="save">Start this week&rsquo;s care</div>')
+ + ofr('See the whole calendar', '$29/yr'),
+ 'Plan Preview', '⚠ Цитата — <b>плейсхолдер</b>: настоящий отзыв надо получить у реального человека '
+ 'с его согласия, выдумывать его нельзя. Момент ценности. <b>План до регистрации</b> — §4.8. '
+ 'Строки плана: съедобным показываем дату первого сбора, комнатным — интервал полива.', 'Онбординг')
 
 screen('save',
- f'<div class="shot" style="background-image:url({IMG}hero.jpg)"></div><div class="scrim"></div>'
+ f'<div class="shot" style="background-image:url({IMG}hero-plants.jpg)"></div><div class="scrim"></div>'
  '<div class="overlay">'
- f'{sb().replace("var(--ink)","#fff").replace(chr(34)+"sb"+chr(34), chr(34)+"sb"+chr(34))}'
+ f'{sb().replace("var(--ink)","#fff")}'
  '<div style="flex:1"></div>'
- '<span class="pill b-lime" style="align-self:flex-start">4 CROPS &middot; 30 WEEKS</span>'
+ '<span class="pill b-lime" id="savepill" style="align-self:flex-start">4 PLANTS</span>'
  '<div class="cap-f" style="font-size:37px;line-height:1.03;margin-top:16px">Save your plan<br>'
  '<span style="color:var(--lime)">so we can remind you.</span></div>'
  '<div style="font-size:16px;color:#DCE7DE;line-height:1.5;margin-top:12px">'
- 'Your plan is already built. This just saves it. We email you 3 tasks a week &mdash; nothing else.</div>'
+ 'Your plan is already built. This just saves it. We email you a few tasks a week &mdash; nothing else.</div>'
  '<div class="btn b-lime" style="margin-top:20px" data-go="paywall">Continue with Google</div>'
  '<div class="btn b-white" data-go="paywall">Continue with email</div></div>',
- 'Save Plan', 'Фото на весь экран. Регистрация — <b>после</b> показанной ценности, magic link без пароля (§4.9).', 'Онбординг')
+ 'Save Plan', 'Фото на весь экран. Регистрация — <b>после</b> показанной ценности, magic link без пароля (§4.9). '
+ 'Пилюля считается из плана: «4 PLANTS · YEAR-ROUND» внутри, «· 30 WEEKS» на улице.', 'Онбординг')
 
-# ═════════════════════════════ 2. HOME — два состояния
+# ═════════════════════════════ 2. HOME
 screen('home',
  f'{sb()}{hd()}<div class="bd">'
  '<div class="greet" id="homegreet">Good morning</div>'
@@ -694,153 +697,127 @@ screen('home',
  '<div id="hometasks"></div>'
  '</div>' + ofr() + nav('Week', badge=True),
  'Home', 'Один экран, два состояния. Пусто → акцентный блок зовёт добавить растение. '
- 'Есть растения → в том же блоке они сами. Всё рендерится из <b>MY_PLANTS</b>, '
- 'поэтому добавил одно — появится одно.', 'Home')
+ 'Есть растения → health score, виджеты и список. Задачи недели <b>считаются из MY_PLANTS</b>, '
+ 'а не захардкожены: полив по просрочке, сбор для созревших, протирка листьев для крупных.', 'Home')
 
 screen('add-plant',
  f'{sb()}{hd(back="home")}<div class="bd">'
  '<div class="h1" style="margin-top:16px">Add a plant</div>'
  '<div style="font-size:14px;color:var(--muted);margin-top:4px">'
- 'Fits your patio &middot; <span data-addcount>0 of 3 chosen</span></div>'
+ '<span id="libsub"></span> &middot; <span data-addcount>nothing selected yet</span></div>'
  '<div class="search"><span class="si">' + ic('search', '#8E9A93', 19, '2') + '</span>'
- '<input id="cropq" placeholder="Search 22 crops — tomato, mint, kale…" autocomplete="off">'
- '<span class="sx" id="cropx">' + ic('x', '#8E9A93', 17, '2.4') + '</span></div>'
- '<div id="croplist"></div>'
- '<div class="note zipres" data-limit style="margin:12px 0 4px"><b>That&rsquo;s the free limit</b>'
- '<p>Free plans grow 3 crops. Pro grows everything your light and space allow &mdash; '
- 'and keeps the schedule for all of them.</p>'
+ '<input id="spq" placeholder="Search by name or latin — monstera, basil…" autocomplete="off">'
+ '<span class="sx" id="spx">' + ic('x', '#8E9A93', 17, '2.4') + '</span></div>'
+ '<div id="splist"></div>'
+ '<div class="note is-hidden" data-limit style="margin:12px 0 4px"><b>That&rsquo;s the free limit</b>'
+ '<p>Free plans keep 3 plants. Pro keeps everything your light and space allow &mdash; '
+ 'and the whole care calendar for all of them.</p>'
  '<div class="btn b-pri" data-go="paywall">Unlock &mdash; $29/yr</div></div>'
- '</div>' + foot('<div class="btn b-pri off" data-cta data-go="home">Add to my plan</div>') + nav('Week'),
- 'Add a plant', 'Культуры сгруппированы по скорости отдачи. Неподходящие <b>показаны, но погашены</b> — '
- 'честнее, чем спрятать. OFF-04 стоит внизу как soft-lock.', 'Home')
+ '</div>' + foot('<div class="btn b-pri off" data-cta>Add to my plants</div>') + nav('Week'),
+ 'Add a plant', 'Библиотека — <b>один справочник на 29 видов</b>: 8 комнатных и 21 съедобная культура. '
+ 'Показывается подмножество под трек и место; тем, чему не хватает света, ставим блок '
+ '«Needs more light» — <b>погашено, а не спрятано</b>. Внизу soft-lock OFF-04.', 'Home')
 
 screen('week-lock',
  f'{sb()}{hd(back="home")}<div class="bd">'
- '<div class="h1">Week 5 <span class="m">&middot; Apr 11&ndash;17</span></div>'
- '<div style="font-size:14px;color:var(--muted);margin-top:4px">3 tasks planned for this week</div>'
+ '<div class="greet">Two weeks from now &middot; Apr 11&ndash;17</div>'
+ '<div class="h1">Three tasks<br><span class="m">already planned.</span></div>'
  '<div id="lockbody"></div>'
  '</div>' + nav('Week'),
- 'Soft-lock', '<b>Даты и объём видны</b>, скрыты только формулировки — §10.3. Это не стена.', 'Home')
-
+ 'Soft-lock', '<b>Даты и объём видны</b>, скрыты только формулировки — §10.3. Это не стена. '
+ 'Обещание Pro теперь «весь календарь ухода», а не «30 недель сезона».', 'Home')
 
 screen('week-empty',
  f'{sb()}{hd()}<div class="bd">'
- '<div class="greet">Good morning &middot; Week 6 &middot; Apr 18 &ndash; Apr 24</div>'
+ '<div class="greet">Good morning &middot; nothing due</div>'
  '<div class="h1">Nothing needed<br><span class="m">this week.</span></div>'
- '<div class="note" style="margin-top:16px"><b>Just water and watch</b>'
- '<p>Everything is on schedule. The next real job is thinning on Apr 27 &mdash; '
- 'we&rsquo;ll put it on next week&rsquo;s card.</p></div>'
+ '<div class="note" id="wkemptynote" style="margin-top:16px"></div>'
  '<div class="sl">Your plants</div><div id="wkplants"></div>'
  '</div>' + ofr() + nav('Week'),
- 'Week · пусто', '<b>§18</b> «Nothing needed this week. Water, watch, enjoy.» '
- 'Пустая неделя — это подтверждение, что всё идёт по плану, а не сломанный экран.', 'Home')
+ 'Week · пусто', '<b>§18</b> «Nothing needed this week. Water, watch, enjoy.» Пустая неделя — '
+ 'подтверждение, что всё идёт по плану. Список растений и срок следующей задачи '
+ '<b>считаются из данных</b> — здесь раньше падало на модели съедобных.', 'Home')
 
 screen('week-back',
  f'{sb()}{hd()}<div class="bd">'
  '<div class="greet">You were away 2 weeks</div>'
  '<div class="h1">Welcome back.<br><span class="m">Here&rsquo;s what matters now.</span></div>'
  '<div class="note" style="margin-top:16px"><b>Most of it doesn&rsquo;t matter now</b>'
- '<p>Nine tasks stopped being useful and closed themselves. Two still pay off.</p></div>'
- '<div class="sl">Two things still help</div>' +
- task('Thin your radish', '2 min', 'Crowded roots stay small &mdash; this one still pays off.') +
- task('Water deeply today', '3 min', 'Until it runs from the drainage holes.') +
+ '<p>Nine tasks stopped being useful and closed themselves. The ones below still pay off.</p></div>'
+ '<div class="sl">Still worth doing</div><div id="backtasks"></div>'
  '<div class="btn b-pri" data-go="home">Continue with this week</div>'
  '</div>' + ofr() + nav('Week', badge=True),
  'Week · возврат', '<b>§6.4</b> Продукт <b>никогда</b> не показывает список из двадцати просроченных задач. '
- 'Движок сворачивает пропуск в две задачи, остальное закрывается статусом expired без обвинения.', 'Home')
+ 'Движок сворачивает пропуск в две задачи из настоящих растений, остальное закрывается '
+ 'статусом expired без обвинения.', 'Home')
 
 screen('week-long',
  f'{sb()}{hd()}<div class="bd">'
  '<div class="greet">Last visit: 6 weeks ago</div>'
  '<div class="h1">It&rsquo;s been a while.<br><span class="m">Let&rsquo;s restart from today.</span></div>'
  '<div class="note" style="margin-top:16px"><b>Your plan is out of date</b>'
- '<p>Six weeks changed what&rsquo;s worth planting. We&rsquo;ll rebuild the schedule from today and keep '
- 'everything you already did &mdash; 11 tasks and 4 photos stay.</p>'
+ '<p>Six weeks changed what needs doing. We&rsquo;ll rebuild the schedule from today and keep '
+ 'everything you already did &mdash; every logged watering and photo stays.</p>'
  '<div class="btn b-pri" data-go="home">Rebuild my plan</div>'
  '<div class="btn b-ghost" data-go="home">Keep the old one</div></div>'
- '<div style="font-size:14px;color:var(--muted);line-height:1.45;margin-top:16px;padding:0 4px">'
- 'Radish and lettuce may have bolted in the heat. If they did, that&rsquo;s normal &mdash; '
- 'we&rsquo;ll sow again in the fall window.</div>'
- '</div>' + ofr() + nav('Week'),
+ '<div id="longnote" style="font-size:14px;color:var(--muted);line-height:1.45;margin-top:16px;padding:0 4px">'
+ '</div></div>' + ofr() + nav('Week'),
  'Week · долгий пропуск', '<b>§19.1 №7</b> Пересчёт <b>предлагается</b>, но никогда не делается автоматически. '
- 'Выполненное и журнал сохраняются, plan.version инкрементируется.', 'Home')
+ 'Нижняя строка называет растения, которые реально пересохли, а не выдуманный редис.', 'Home')
 
 screen('season-end',
- '<div class="dark"><div class="glow"></div>'
- '<div class="xbtn" style="align-self:flex-end" data-go="growth">' + ic('x', '#CFE0D4', 20) + '</div>'
- '<div style="flex:1;display:flex;flex-direction:column;justify-content:center;position:relative">'
- f'<div style="height:200px;border-radius:24px;background:url({IMG}radish.jpg) center/cover"></div>'
- '<span class="pill b-lime" style="align-self:flex-start;margin-top:20px">SEASON 2026 &middot; AUSTIN, TX</span>'
- '<div class="cap-f" style="font-size:40px;line-height:1.02;margin-top:12px">14 harvests.<br>187 days.</div>'
- '<div style="font-size:16px;color:#A9BCB0;line-height:1.5;margin-top:12px">'
- 'Radish, leaf lettuce and basil all made it to the table. Your first pick was April 12 &mdash; day 31.</div></div>'
- '<div class="btn b-lime" data-go="paywall">Plan next year now</div>'
- '<div class="btn" style="background:#1B3527;color:#fff" data-go="growth">Download season recap</div></div>',
- 'Season ended · OFF-11', '<b>§7.5</b> Триггер <b>today &ge; first_frost</b>. Итог сезона + план на следующий год. '
- 'Для indoor-трека это состояние <b>не наступает никогда</b>.', 'Home')
+ '<div class="dark" id="recapbody"></div>',
+ 'Recap · OFF-11', '<b>§7.5</b> Итог. На уличном треке триггер <b>today &ge; first_frost</b> и счёт в сборах; '
+ 'для комнатных сезон не кончается никогда, поэтому итог считается в поливах, растениях и снимках. '
+ 'Один экран, две формулировки — рендерится из данных.', 'Home')
 
-# ═════════════════════════════ 3. PLANTS
+# ═════════════════════════════ 3. РАСТЕНИЯ
 screen('scan',
  '<div class="dark" style="padding:0">'
  '<div id="scanbody"></div></div>',
  'Scan a plant', 'Кнопка Add открывает камеру и распознаёт растение <b>по-настоящему</b> — PlantNet через '
- 'воркер-прокси (ключ в клиент не попадает). Латинское имя маппится на наши 21 культуру; процент — '
- 'настоящий score от API. Состояния: не подключено, нет совпадения, не наша культура, нет сети.', 'Plants')
+ 'воркер-прокси (ключ в клиент не попадает). Латинское имя маппится на наши 29 видов, '
+ 'включая комнатные; процент — настоящий score от API. Состояния: не подключено, нет совпадения, '
+ 'не наш вид, нет сети.', 'Plants')
 
 screen('plant',
- f'{sb()}{hd(back="home")}<div class="bd" id="pdetail"></div>' + nav('Plants'),
- 'Plant detail', 'Таб Plants убран — он дублировал Home и Growth. Растение открывается из блока '
- 'растений на Week и из карточек культур в Growth, удаление живёт здесь кнопкой «Remove from my plan». '
- 'Карточка выбранного растения. Если фото ещё нет — <b>плитка «Add a photo»</b>, '
- 'а не пустые серые квадраты. Внизу — удаление с подтверждением через Undo.', 'Plants')
+ f'{sb()}{hd(back="home")}<div class="bd" id="pdetail"></div>' + nav('Week'),
+ 'Plant detail', 'Карточка растения. Второй виджет зависит от вида: комнатному — свет и влажность, '
+ 'съедобному — прогресс до сбора и «типичный диапазон». Если у вида нет настоящей фотографии, '
+ 'стоит <b>плитка с иконкой</b>, а не битая картинка. Внизу — удаление с Undo.', 'Plants')
 
 # ═════════════════════════════ 4. GROWTH
 screen('growth',
  f'{sb()}{hd()}<div class="bd">'
  '<div class="h1">Your plants</div>'
- '<div style="font-size:14px;color:var(--muted);margin-top:4px" id="seasonsub">&nbsp;</div>'
+ '<div style="font-size:14px;color:var(--muted);margin-top:4px" id="caresub">&nbsp;</div>'
  '<div id="dash"></div>'
- '<div id="cropcards"></div>'
+ '<div id="plantcards"></div>'
  '</div>' + ofr('Keep every photo', '$29/yr') + nav('Growth'),
- 'Growth', 'Домашние растения: история ухода. Пересобрано: раньше здесь были <b>две сущности про одно и то же</b> — список культур и '
- 'отдельная сетка фото, хотя каждое фото и так принадлежит культуре. Теперь один дашборд сезона '
- 'и карточки культур, у каждой свои снимки и своя статистика. Тап по карточке ведёт в растение, '
- 'где лежит полный таймлайн и полоса «типичный диапазон».', 'Growth')
+ 'Growth', 'История ухода. Раньше здесь были <b>две сущности про одно и то же</b> — список и '
+ 'отдельная сетка фото, хотя каждое фото и так принадлежит растению. Теперь один дашборд '
+ 'и карточки растений, у каждой свои снимки. Тап ведёт в карточку.', 'Growth')
 
 screen('harvest',
- '<div class="dark" style="padding:0">'
- f'<div class="shot" style="background-image:url({IMG}radish.jpg);height:58%"></div>'
- '<div class="scrim" style="height:58%;background:linear-gradient(180deg,rgba(11,31,20,.45),rgba(11,31,20,0) 40%,var(--deepest))"></div>'
- '<div style="position:absolute;inset:0;display:flex;flex-direction:column;padding:24px 24px">'
- '<div class="xbtn" style="align-self:flex-end" data-go="growth">' + ic('x', '#CFE0D4', 17, '2') + '</div>'
- '<div style="flex:1"></div>'
- '<span class="pill b-lime" style="align-self:flex-start">Day 31</span>'
- '<div class="cap-f" style="font-size:40px;line-height:1.02;margin-top:12px;color:#fff">First harvest.</div>'
- '<div style="font-size:16px;color:#C6D6CA;line-height:1.5;margin-top:12px">'
- 'You grew this on your patio. Sow the next round Apr 15 &mdash; your lettuce is 6 days out.</div>'
- '<div class="btn b-lime" style="margin-top:20px" data-go="growth">Add a photo</div>'
- '<div class="btn" style="background:#1B3527;color:#fff" data-go="growth">Get my harvest card</div></div></div>',
- 'Harvest Moment', 'Тёмный экран с настоящим фото вместо нюдового. Пик удержания и лучшая точка конверсии — §9.', 'Growth')
+ '<div class="dark" id="milebody" style="padding:0"></div>',
+ 'Milestone', 'Пик удержания и лучшая точка конверсии — §9. Для съедобных это «First harvest. Day 31», '
+ 'для комнатных — «It is thriving» с числом дней и поливов. Экран <b>берёт настоящее фото '
+ 'растения из журнала</b>, если оно есть.', 'Growth')
 
 screen('shopping',
  f'{sb()}{hd(back="home")}<div class="bd">'
  '<div class="h1" style="margin-top:16px">Shopping list</div>'
- '<div style="font-size:14px;color:var(--muted);margin-top:4px">Everything for week 1 &middot; about $47</div>'
- '<div class="sl">Containers</div>' +
- task('1-gallon pot &times;2', '~$8', 'Basil and the cherry tomato.') +
- task('Window box, 24 inch', '~$14', 'Lettuce and radish share it.') +
- task('Saucers &times;3', '~$6') +
- '<div class="sl">SOIL &amp; SEED</div>' +
- task('Potting mix, 1 cu ft', '~$12', 'Not garden soil &mdash; too much clay for a pot.') +
- task('Radish + lettuce seed', '~$7') +
- '<div class="btn b-ghost" data-go="paywall">Printable PDF &mdash; Pro</div>'
+ '<div style="font-size:14px;color:var(--muted);margin-top:4px" id="shopsum">&nbsp;</div>'
+ '<div id="shopbody"></div>'
  '</div>' + nav('Week'),
- 'Shopping list', 'Free — список на экране, Pro — печатный PDF. Ценность видна до покупки.', 'Growth')
+ 'Shopping list', 'Собирается <b>из плана</b>: горшки по размеру каждого вида, поддоны, грунт, лейка, '
+ 'удобрение — и строка семян только если в плане есть съедобное. Сумма считается, а не написана. '
+ 'Free — список на экране, Pro — печатный PDF.', 'Growth')
 
-# ═════════════════════════════ 5. PAYWALL (референс Fit AI)
-FEATS = ['All 30 weeks of tasks, not just this one', 'Every crop and every succession sowing',
-         'Printable shopping list as PDF', 'Unlimited journal photos + season recap',
-         'Up to 5 growing spaces']
+# ═════════════════════════════ 5. ДЕНЬГИ
+FEATS = ['Every week planned, not just this one', 'Every plant in the library, no cap of three',
+         'Printable shopping list as PDF', 'Unlimited journal photos + yearly recap',
+         'Up to 5 rooms or spaces']
 screen('paywall',
  '<div class="dark"><div class="glow"></div><div class="glow b"></div>'
  '<div style="display:flex;justify-content:space-between;align-items:center;position:relative">'
@@ -849,12 +826,12 @@ screen('paywall',
  '<div class="xbtn" data-pw-exit>' + ic('x', '#CFE0D4', 17, '2') + '</div></div>'
  '<div style="text-align:center;margin-top:24px;position:relative">'
  '<div style="font-size:31px;font-weight:600;line-height:1.14;letter-spacing:-.02em">'
- 'Grow the whole<br><span style="color:var(--lime)">season, planned.</span></div>'
+ 'Every plant,<br><span style="color:var(--lime)">planned all year.</span></div>'
  '<div style="font-size:14.5px;color:#A9BCB0;margin-top:8px">7 days free. Cancel anytime.</div></div>'
- '<div class="seg"><div class="on" data-seg>Season pass</div><div data-seg>Monthly</div></div>'
- '<div class="plcard"><div style="display:flex;justify-content:space-between;align-items:flex-start">'
+ '<div class="seg"><div class="on" data-seg>Year pass</div><div data-seg>Monthly</div></div>'
+ '<div class="pcard"><div style="display:flex;justify-content:space-between;align-items:flex-start">'
  '<div><div class="pr">$29<span style="font-size:15px;font-weight:500;color:#A9BCB0"> / year</span></div>'
- '<div class="pn">Cheaper than one tray of seedlings. Covers a full season, start to frost.</div></div>'
+ '<div class="pn">Cheaper than one dead fiddle leaf fig. Covers every plant, all year.</div></div>'
  '<span class="pill b-lime">Best</span></div>'
  '<div class="feat">' + ''.join(f'<div><i></i><span>{f}</span></div>' for f in FEATS) + '</div></div>'
  '<div style="flex:1;min-height:16px"></div>'
@@ -862,62 +839,51 @@ screen('paywall',
  '<div style="font-size:14px;color:#fff;text-align:center;margin-top:16px;cursor:pointer;font-weight:600" data-pw-exit>'
  'Continue with the free plan</div>'
  '<div style="font-size:12px;color:#6E8175;text-align:center;margin-top:8px;line-height:1.45">'
- 'No card for the trial. Your plan and photos stay yours either way.</div></div>',
+ 'No card for the trial. Your plants and photos stay yours either way.</div></div>',
  'Paywall', 'Собран по референсу Fit AI: тёмный фон, лаймовый glow, сегмент-переключатель, '
- 'фичи с точками, белый CTA. Годовой подан как <b>Season pass</b>, не как скидка — §12.2. '
- 'Триал без карты — вариант B из §12.4. Показывается <b>сразу после регистрации</b> и закрывается ''в тот экран, откуда пришёл. Конфликт со спекой: §10.4 запрещает оффер до первой выполненной задачи ''(never_before_first_task = true).', 'Деньги')
+ 'фичи с точками, белый CTA. <b>Починено:</b> карточка цены была помечена классом карточки растения '
+ '(<code>plcard</code>) — из-за этого рисовалась белой полосой 132px, а переключатель тарифов падал '
+ 'на несуществующем <code>.pcard</code>. Показывается сразу после регистрации и закрывается '
+ 'в тот экран, откуда пришёл — конфликт со §10.4 сохранён осознанно.', 'Деньги')
 
 screen('week-done',
- '<div class="dark"><div class="glow"></div>'
- '<div class="xbtn" style="align-self:flex-end" data-go="home">' + ic('x', '#CFE0D4', 17, '2') + '</div>'
- '<div style="flex:1;display:flex;flex-direction:column;justify-content:center;position:relative">'
- f'<div style="height:200px;border-radius:24px;background:url({IMG}garden.jpg) center/cover"></div>'
- '<span class="pill b-lime" style="align-self:flex-start;margin-top:20px">Week 3 Complete</span>'
- '<div style="font-size:30px;font-weight:600;line-height:1.15;margin-top:12px">Everything<br>'
- '<span style="color:var(--lime)">on time.</span></div>'
- '<div style="font-size:15.5px;color:#A9BCB0;line-height:1.5;margin-top:12px">'
- 'Your radish is 14 days out. Pro maps the next 27 weeks so you never wonder what&rsquo;s next.</div>'
- '<div class="sg2"><div class="stat"><b style="color:var(--lime)">11</b><s>weeks in a row</s></div>'
- '<div class="stat"><b>4/4</b><s>tasks this week</s></div></div></div>'
- '<div class="btn b-lime" data-go="paywall">See the whole season</div>'
- '<div class="btn" style="background:#1B3527;color:#fff" data-go="home">Not now</div></div>',
- 'Week complete · OFF-05', 'success_modal, <b>не чаще 1 раза в 7 дней</b>. Прозрачного скрима нет — полный экран.', 'Деньги')
+ '<div class="dark" id="donebody"></div>',
+ 'Week complete · OFF-05', 'success_modal, <b>не чаще 1 раза в 7 дней</b>. Прозрачного скрима нет — '
+ 'полный экран. Цифры и строка «что дальше» берутся из настоящих растений.', 'Деньги')
 
 # ═════════════════════════════ 6. SETTINGS
 screen('settings',
  f'{sb()}{hd()}<div class="bd">'
  '<div class="h1" style="margin-top:16px">Settings</div>'
  '<div id="planbox"></div>'
- '<div class="sl">Your space</div><div class="plist">'
- '<div class="pl"><div class="nm"><b>Space</b><s>Back patio</s></div>' + ic('chevron-right', '#B4BEB8', 18) + '</div>'
- '<div class="pl"><div class="nm"><b>ZIP</b><s>78704 &middot; Austin, TX</s></div>' + ic('chevron-right', '#B4BEB8', 18) + '</div>'
- '<div class="pl"><div class="nm"><b>Sun</b><s>6&ndash;8 hours</s></div>' + ic('chevron-right', '#B4BEB8', 18) + '</div>'
- '<div class="pl"><div class="nm"><b>Time per week</b><s>20 minutes</s></div>' + ic('chevron-right', '#B4BEB8', 18) + '</div></div>'
+ '<div class="sl">Your setup</div><div id="spacebox"></div>'
  '<div class="sl">Email</div><div class="plist">'
  '<div class="pl"><div class="nm"><b>Weekly tasks</b></div>'
  '<div class="tgl on" role="switch" aria-checked="true" tabindex="0"><i></i></div></div>'
- '<div class="pl"><div class="nm"><b>Harvest reminders</b></div>'
+ '<div class="pl"><div class="nm"><b>Watering reminders</b></div>'
  '<div class="tgl on" role="switch" aria-checked="true" tabindex="0"><i></i></div></div>'
- '<div class="pl"><div class="nm"><b>Season updates</b></div>'
- '<div class="tgl"><i></i></div></div></div>'
+ '<div class="pl"><div class="nm"><b>Product updates</b></div>'
+ '<div class="tgl" role="switch" aria-checked="false" tabindex="0"><i></i></div></div></div>'
  '<div class="sl">Data</div><div class="plist">'
  '<div class="pl"><div class="nm"><b>Units</b><s>Imperial</s></div>' + ic('chevron-right', '#B4BEB8', 18) + '</div>'
  '<div class="pl"><div class="nm"><b>Delete account</b><s>Requires typing DELETE</s></div>' + ic('chevron-right', '#B4BEB8', 18) + '</div></div>'
  '</div>' + nav('Settings'),
- 'Settings', 'Смена света, ZIP или усилия <b>предлагает</b> пересчёт, но не делает его сама — §20.', 'Система')
+ 'Settings', 'Блок «Your setup» <b>рендерится из ответов онбординга</b>: строка ZIP появляется только '
+ 'на уличном треке, последняя строка называет трек. Смена света или усилия <b>предлагает</b> '
+ 'пересчёт, но не делает его сама — §20.', 'Система')
 
-# ═════════════════════════════ 7. INDOOR
+# ═════════════════════════════ 7. ПОДОКОННИК
 screen('indoor',
  f'{sb()}{hd()}<div class="bd">'
- '<div class="greet">Good morning &middot; Week 12</div>'
+ '<div class="greet">Good morning &middot; week 12</div>'
  '<div class="h1">Basil is ready<br><span class="m">to cut again.</span></div>'
- f'<div class="acc"><div class="acc-photo" style="background-image:url({IMG}flowers.jpg)"></div>'
+ f'<div class="acc"><div class="acc-photo" style="background-image:url({IMG}basil.jpg)"></div>'
  '<div class="row1"><span class="tag">WINDOWSILL &middot; YEAR-ROUND</span></div>'
  '<div class="plants">' +
  ringrow('leaf', 'Basil', 'Cut 7 times &middot; regrows in 10d', 'ready', 100, dark=True, go='plant') +
- ringrow('wheat', 'Microgreens', 'Tray 3 &middot; day 8', '~2d', 80, dark=True) +
- ringrow('clover', 'Cilantro', 'Cut 2 times &middot; next in 9d', '~9d', 60, dark=True) +
- ringrow('sprout', 'Garlic chives', 'Day 34 &middot; first cut Jun 8', '~50d', 40, dark=True) +
+ ringrow('grains', 'Microgreens', 'Tray 3 &middot; day 8', '~2d', 80, dark=True) +
+ ringrow('leaf', 'Cilantro', 'Cut 2 times &middot; next in 9d', '~9d', 60, dark=True) +
+ ringrow('plant', 'Garlic chives', 'Day 34 &middot; first cut Jun 8', '~50d', 40, dark=True) +
  '</div>'
  '<div class="duo"><div class="cell"><s>Cuts this year</s><b style="color:var(--lime)">23</b></div>'
  '<div class="cell"><s>Season ends</s><b>never</b></div></div></div>'
@@ -926,192 +892,393 @@ screen('indoor',
  task('Sow a new microgreens tray', '5 min') +
  task('Water check: soil top dry?', '2 min') +
  '</div>' + ofr('Add a second windowsill', 'Pro') + nav('Week', badge=True),
- 'Indoor · Home', '«Season ends: never» — вот почему indoor закрывает сезонность. '
- 'Ритм — <b>срез каждую неделю</b>, а не один сбор за 30 дней.', 'Indoor')
+ 'Windowsill · edibles', 'Съедобный трек внутри дома. «Season ends: never» — вот почему подоконник '
+ 'закрывает сезонность: ритм тут <b>срез каждую неделю</b>, а не один сбор за 30 дней. '
+ 'Все четыре вида есть в справочнике с флагом <code>sill</code>. Экран показательный, '
+ 'содержимое статичное.', 'Windowsill')
 
 
-# ── каталог культур для поиска и мини-движка плана (§15.1 + indoor)
-CROPS = [
- ('Radish','carrot',25,35,'1 pint',1,['fast','roots','kids']),
- ('Leaf lettuce','salad',30,35,'0.5 gal',1,['salads','fast']),
- ('Swiss chard','leafy-green',30,40,'0.5 gal',1,['salads']),
- ('Mustard greens','leafy-green',35,40,'0.5 gal',1,['salads']),
- ('Microgreens','wheat',10,14,'tray',1,['fast','herbs','kids']),
- ('Cilantro','clover',28,42,'0.5 gal',1,['herbs','fast']),
- ('Basil','leaf',40,40,'1 gal',2,['herbs']),
- ('Bush beans','bean',45,60,'2 gal',2,['beans','kids']),
- ('Beets','carrot',50,60,'0.5 gal',1,['roots']),
- ('Summer squash','orange',50,60,'5 gal',2,[]),
- ('Cherry tomato','apple',55,100,'1 gal',2,['tomatoes','kids']),
- ('Tomato','apple',55,100,'5 gal',2,['tomatoes']),
- ('Kale','leafy-green',55,65,'5 gal',1,['salads']),
- ('Turnips','carrot',30,60,'3 gal',1,['roots']),
- ('Carrots','carrot',65,80,'1 quart',1,['roots','kids']),
- ('Cucumber','orange',70,80,'5 gal',2,[]),
- ('Green onions','plant',70,100,'0.5 gal',1,['herbs']),
- ('Parsley','leafy-green',70,84,'0.5 gal',1,['herbs']),
- ('Eggplant','pepper',75,100,'5 gal',2,[]),
- ('Garlic chives','plant',84,84,'0.5 gal',1,['herbs']),
- ('Bell pepper','pepper',110,120,'2 gal',2,['peppers']),
+# ── ЕДИНЫЙ справочник растений. kind: house — декоративные, edible — съедобные.
+#    Интервалы полива и требования к свету — стандартные справочные диапазоны.
+#    img=None означает «настоящей фотографии нет» → рисуем плитку с иконкой,
+#    а не битую картинку. Выдумывать ассеты нельзя.
+def sp(id, name, kind, icon, latin, water, light, hum, img=None,
+       days=0, days_max=0, pot='', sun=1, tags=(), sill=False):
+    return dict(id=id, name=name, kind=kind, icon=icon, latin=latin, water=water,
+                light=light, hum=hum, img=img, days=days, daysMax=days_max or days,
+                pot=pot, sun=sun, tags=list(tags), sill=sill)
+
+PLANTS = [
+ # ── комнатные: у всех восьми есть настоящее фото
+ sp('monstera','Monstera','house','leaf','Monstera deliciosa',9,'Bright indirect','Medium',
+    'monstera',sun=1,tags=('statement','trailing'),pot='10 inch'),
+ sp('snakeplant','Snake plant','house','plant','Dracaena trifasciata',18,'Low to bright','Low',
+    'snakeplant',sun=1,tags=('hardy','lowlight','air'),pot='8 inch'),
+ sp('pothos','Pothos','house','leaf','Epipremnum aureum',8,'Low to bright','Medium',
+    'pothos',sun=1,tags=('hardy','lowlight','trailing','air','kids'),pot='6 inch'),
+ sp('zzplant','ZZ plant','house','plant','Zamioculcas zamiifolia',18,'Low light','Low',
+    'zzplant',sun=1,tags=('hardy','lowlight'),pot='8 inch'),
+ sp('fiddleleaf','Fiddle leaf fig','house','leaf','Ficus lyrata',9,'Bright indirect','Medium',
+    'fiddleleaf',sun=2,tags=('statement',),pot='12 inch'),
+ sp('peacelily','Peace lily','house','flower','Spathiphyllum wallisii',6,'Medium indirect','High',
+    'peacelily',sun=1,tags=('flowers','air'),pot='8 inch'),
+ sp('aloe','Aloe vera','house','plant','Aloe vera',18,'Bright direct','Low',
+    'aloe',sun=3,tags=('hardy','useful'),pot='6 inch'),
+ sp('calathea','Calathea','house','leaf','Goeppertia orbifolia',6,'Medium indirect','High',
+    'calathea',sun=1,tags=('statement','petsafe'),pot='8 inch'),
+
+ # ── съедобные: контейнеры сохнут быстро, отсюда короткие интервалы полива
+ sp('radish','Radish','edible','carrot','Raphanus sativus',2,'6\u20138 h sun','\u2014','radish',
+    days=25,days_max=35,pot='1 pint',sun=1,tags=('fast','roots','kids')),
+ sp('lettuce','Leaf lettuce','edible','leaf','Lactuca sativa',2,'3\u20135 h sun','\u2014',None,
+    days=30,days_max=35,pot='0.5 gal',sun=1,tags=('salads','fast'),sill=True),
+ sp('chard','Swiss chard','edible','leaf','Beta vulgaris',2,'3\u20135 h sun','\u2014',None,
+    days=30,days_max=40,pot='0.5 gal',sun=1,tags=('salads',)),
+ sp('mustard','Mustard greens','edible','leaf','Brassica juncea',2,'3\u20135 h sun','\u2014',None,
+    days=35,days_max=40,pot='0.5 gal',sun=1,tags=('salads',),sill=True),
+ sp('microgreens','Microgreens','edible','grains','',1,'3\u20135 h sun','\u2014',None,
+    days=10,days_max=14,pot='tray',sun=1,tags=('fast','herbs','kids'),sill=True),
+ sp('cilantro','Cilantro','edible','leaf','Coriandrum sativum',3,'3\u20135 h sun','\u2014',None,
+    days=28,days_max=42,pot='0.5 gal',sun=1,tags=('herbs','fast'),sill=True),
+ sp('basil','Basil','edible','leaf','Ocimum basilicum',3,'6\u20138 h sun','\u2014','basil',
+    days=40,days_max=40,pot='1 gal',sun=2,tags=('herbs',),sill=True),
+ sp('beans','Bush beans','edible','grains','Phaseolus vulgaris',2,'6\u20138 h sun','\u2014',None,
+    days=45,days_max=60,pot='2 gal',sun=2,tags=('beans','kids')),
+ sp('beets','Beets','edible','carrot','Beta vulgaris',2,'3\u20135 h sun','\u2014',None,
+    days=50,days_max=60,pot='0.5 gal',sun=1,tags=('roots',)),
+ sp('squash','Summer squash','edible','orange','Cucurbita pepo',2,'6\u20138 h sun','\u2014',None,
+    days=50,days_max=60,pot='5 gal',sun=2,tags=()),
+ sp('cherrytomato','Cherry tomato','edible','cherries','Solanum lycopersicum',2,'6\u20138 h sun','\u2014',None,
+    days=55,days_max=100,pot='1 gal',sun=2,tags=('tomatoes','kids')),
+ sp('tomato','Tomato','edible','cherries','Solanum lycopersicum',2,'6\u20138 h sun','\u2014',None,
+    days=55,days_max=100,pot='5 gal',sun=2,tags=('tomatoes',)),
+ sp('kale','Kale','edible','leaf','Brassica oleracea',2,'3\u20135 h sun','\u2014',None,
+    days=55,days_max=65,pot='5 gal',sun=1,tags=('salads',)),
+ sp('turnips','Turnips','edible','carrot','Brassica rapa',2,'3\u20135 h sun','\u2014',None,
+    days=30,days_max=60,pot='3 gal',sun=1,tags=('roots',)),
+ sp('carrots','Carrots','edible','carrot','Daucus carota',2,'6\u20138 h sun','\u2014',None,
+    days=65,days_max=80,pot='1 quart',sun=1,tags=('roots','kids')),
+ sp('cucumber','Cucumber','edible','orange','Cucumis sativus',2,'6\u20138 h sun','\u2014',None,
+    days=70,days_max=80,pot='5 gal',sun=2,tags=()),
+ sp('onions','Green onions','edible','plant','Allium fistulosum',3,'3\u20135 h sun','\u2014',None,
+    days=70,days_max=100,pot='0.5 gal',sun=1,tags=('herbs',),sill=True),
+ sp('parsley','Parsley','edible','leaf','Petroselinum crispum',3,'3\u20135 h sun','\u2014',None,
+    days=70,days_max=84,pot='0.5 gal',sun=1,tags=('herbs',),sill=True),
+ sp('eggplant','Eggplant','edible','pepper','Solanum melongena',2,'6\u20138 h sun','\u2014',None,
+    days=75,days_max=100,pot='5 gal',sun=2,tags=()),
+ sp('chives','Garlic chives','edible','plant','Allium tuberosum',3,'3\u20135 h sun','\u2014',None,
+    days=84,days_max=84,pot='0.5 gal',sun=1,tags=('herbs',),sill=True),
+ sp('pepper','Bell pepper','edible','pepper','Capsicum annuum',2,'6\u20138 h sun','\u2014',None,
+    days=110,days_max=120,pot='2 gal',sun=2,tags=('peppers',)),
 ]
+N_HOUSE  = len([x for x in PLANTS if x['kind'] == 'house'])
+N_EDIBLE = len([x for x in PLANTS if x['kind'] == 'edible'])
+N_PLANTS = len(PLANTS)
 
-# ── библиотека домашних растений: интервал полива и свет — стандартные
-#    справочные диапазоны, не выдуманные
-HOUSEPLANTS = [
- ('Monstera',        'monstera',   9, 'Bright indirect', 'Medium', 'Ocimum'),
- ('Snake plant',     'snakeplant',18, 'Low to bright',   'Low',    'Dracaena'),
- ('Pothos',          'pothos',     8, 'Low to bright',   'Medium', 'Epipremnum'),
- ('ZZ plant',        'zzplant',   18, 'Low light',       'Low',    'Zamioculcas'),
- ('Fiddle leaf fig', 'fiddleleaf', 9, 'Bright indirect', 'Medium', 'Ficus'),
- ('Peace lily',      'peacelily',  6, 'Medium indirect', 'High',   'Spathiphyllum'),
- ('Aloe vera',       'aloe',      18, 'Bright direct',   'Low',    'Aloe'),
- ('Calathea',        'calathea',   6, 'Medium indirect', 'High',   'Goeppertia'),
-]
-
-ICONSET = sorted({c[1] for c in CROPS} | {'plant','orange','pepper','flower','potted-plant','basket'})
+ICONSET = sorted({x['icon'] for x in PLANTS} | {'plant','leaf','flower','potted-plant','basket','drop'})
 
 JS_SRC = r'''
 const ICONS = __ICONS__;
-const CROPS = __CROPS__;
+const SPECIES = __SPECIES__;
 const RING_TRACK = '#DDE3DC', RING_ON = '#22A559';
-const CHOICES = {space:'a patio', sun:'6-8 h sun', sunRank:2, goals:[], effort:4, indoor:false};
+/* track: house | edible | both. outdoor решает, спрашиваем ли ZIP и есть ли конец сезона. */
+const CHOICES = {track:'house', space:'living room', outdoor:false, sun:'bright indirect light',
+                 sunRank:2, goals:[], effort:4, zip:null};
+const anA  = w => (/^[aeiou]/i.test(w) ? 'an ' : 'a ') + w;
+const inOn = () => CHOICES.outdoor ? 'on your ' : 'in your ';
+
+const SP      = id => SPECIES.find(function(x){ return x.id === id; });
+const spName  = n  => SPECIES.find(function(x){ return x.name === n; });
+const ofKind  = k  => SPECIES.filter(function(x){ return x.kind === k; });
+const lc      = s  => s.charAt(0).toLowerCase() + s.slice(1);
+
+/* какие виды вообще уместны при выбранном треке и месте */
+function speciesPool(){
+  return SPECIES.filter(function(s){
+    if(CHOICES.track === 'house'  && s.kind !== 'house')  return false;
+    if(CHOICES.track === 'edible' && s.kind !== 'edible') return false;
+    if(s.kind === 'edible' && !CHOICES.outdoor && !s.sill) return false;
+    return true;
+  });
+}
+const fitsLight = s => s.sun <= CHOICES.sunRank;
 
 function ringSVG(pct, sz, dark, sw){
   sz = sz || 38; sw = sw || 3.2;
   const r = (sz-sw)/2, c = 2*Math.PI*r, off = c*(1-Math.max(0,Math.min(100,pct))/100);
   const tr = dark ? 'rgba(255,255,255,.20)' : RING_TRACK, on = dark ? '#B4F461' : RING_ON;
-  return '<svg class="rg" width="'+sz+'" height="'+sz+'" viewBox="0 0 '+sz+' '+sz+'">'
+  return '<svg width="'+sz+'" height="'+sz+'" viewBox="0 0 '+sz+' '+sz+'">'
    +'<circle cx="'+sz/2+'" cy="'+sz/2+'" r="'+r+'" fill="none" stroke="'+tr+'" stroke-width="'+sw+'"/>'
    +'<circle cx="'+sz/2+'" cy="'+sz/2+'" r="'+r+'" fill="none" stroke="'+on+'" stroke-width="'+sw+'"'
    +' stroke-linecap="round" stroke-dasharray="'+c.toFixed(1)+'" stroke-dashoffset="'+off.toFixed(1)+'"'
    +' transform="rotate(-90 '+sz/2+' '+sz/2+')"/></svg>';
 }
-function cropRow(c){
-  const have = MY_PLANTS.some(p=>p.c[0]===c[0]);
-  const pick = PENDING.includes(c[0]);
-  return '<div class="pl'+(pick?' added':'')+(have?' have':'')+'" '+(have?'':'data-add ')+'data-crop="'+c[0]+'">'
-   +'<div class="rw">'+ringSVG(0)+'<i>'+ICONS[c[1]]+'</i></div>'
-   +'<div class="nm"><b>'+c[0]+'</b><s>'+c[2]+(c[3]!==c[2]?'–'+c[3]:'')+' days · '+c[4]
-   +(c[5]>CHOICES.sunRank?' · needs more sun':'')+'</s></div>'
-   +'<div class="addbtn">'+(have?ICONS._checkg:ICONS._plus+ICONS._check)+'</div></div>';
+
+/* ─────────── фото вида: настоящий снимок либо плитка с иконкой ─────────── */
+const hasPhoto = s => !!s.img;
+function photoStyle(s){
+  return s.img ? 'background-image:url(img/' + s.img + '.jpg)'
+               : 'background:linear-gradient(150deg,#17683C 0%,#0F3A24 60%,#0B1F14 100%)';
 }
-function renderCrops(q){
+function photoTile(s, cls, style){
+  return '<div class="' + cls + (s.img ? '' : ' no-ph') + '" style="'
+   + photoStyle(s) + (style ? ';' + style : '') + '">'
+   + (s.img ? '' : '<span class="ph-ic">' + (ICONS['_big_' + s.icon] || ICONS._big_leaf) + '</span>');
+}
+
+/* ─────────── библиотека: строка вида ─────────── */
+function spSub(s){
+  if(s.kind === 'edible')
+    return s.days + (s.daysMax !== s.days ? '–' + s.daysMax : '') + ' days · ' + s.pot;
+  return 'Water every ' + s.water + 'd · ' + s.light;
+}
+function spRow(s){
+  const have = MY_PLANTS.some(function(p){ return p.s.id === s.id; });
+  const pick = PENDING.indexOf(s.id) > -1;
+  return '<div class="pl' + (pick ? ' added' : '') + (have ? ' have' : '') + '" '
+   + (have ? '' : 'data-add ') + 'data-sp="' + s.id + '">'
+   + '<div class="rw">' + ringSVG(0) + '<i>' + ICONS[s.icon] + '</i></div>'
+   + '<div class="nm"><b>' + s.name + '</b><s>' + spSub(s)
+   + (fitsLight(s) ? '' : ' · needs more light') + '</s></div>'
+   + '<div class="addbtn">' + (have ? ICONS._checkg : ICONS._plus + ICONS._check) + '</div></div>';
+}
+function renderLibrary(q){
   q = (q||'').trim().toLowerCase();
-  const box = document.getElementById('croplist'); if(!box) return;
+  const box = document.getElementById('splist'); if(!box) return;
   const cnt = document.querySelector('[data-addcount]');
-  if(cnt) cnt.textContent = PENDING.length ? PENDING.length+' selected' : 'nothing selected yet';
+  if(cnt) cnt.textContent = PENDING.length ? PENDING.length + ' selected' : 'nothing selected yet';
   const cta = document.querySelector('#s-add-plant [data-cta]');
   if(cta){ cta.classList.toggle('off', !PENDING.length);
-           cta.textContent = PENDING.length ? 'Add '+PENDING.length+' to my plan' : 'Add to my plan'; }
+           cta.textContent = PENDING.length ? 'Add ' + PENDING.length + ' to my plants' : 'Add to my plants'; }
   const lim = document.querySelector('#s-add-plant [data-limit]');
-  if(lim) lim.style.display = !IS_PRO && (MY_PLANTS.length+PENDING.length)>=FREE_LIMIT ? 'block' : 'none';
-  const fits = CROPS.filter(c=>c[5]<=CHOICES.sunRank), rest = CROPS.filter(c=>c[5]>CHOICES.sunRank);
-  const m = a => !q || a[0].toLowerCase().includes(q) || a[6].some(t=>t.includes(q));
-  const A = fits.filter(m), B = rest.filter(m);
-  if(!A.length && !B.length){
-    box.innerHTML = '<div class="empty">Nothing matches “'+q+'”.<br>We grow 21 crops that finish in one season.</div>';
+  if(lim) lim.style.display = !IS_PRO && (MY_PLANTS.length + PENDING.length) >= FREE_LIMIT ? 'block' : 'none';
+  const sub = document.getElementById('libsub');
+  if(sub) sub.textContent = LIBNOTE[CHOICES.track] || LIBNOTE.both;
+
+  const pool = speciesPool();
+  const m = s => !q || s.name.toLowerCase().indexOf(q) > -1
+              || (s.latin || '').toLowerCase().indexOf(q) > -1
+              || s.tags.some(function(t){ return t.indexOf(q) > -1; });
+  const hit = pool.filter(m);
+  if(!hit.length){
+    box.innerHTML = '<div class="empty">Nothing matches “' + q + '”.<br>'
+      + 'We know ' + SPECIES.length + ' plants — ' + ofKind('house').length + ' houseplants and '
+      + ofKind('edible').length + ' edible.</div>';
     return;
   }
+  const lit = hit.filter(fitsLight), dim = hit.filter(function(s){ return !fitsLight(s); });
+  const sect = (label, list) => list.length
+    ? '<div class="gsec">' + label + '</div><div class="plist">' + list.map(spRow).join('') + '</div>' : '';
   let h = '';
-  if(A.length){
-    const fast = A.filter(c=>c[2]<=35), slow = A.filter(c=>c[2]>35);
-    if(fast.length) h += '<div class="gsec">Fast wins</div><div class="plist">'+fast.map(c=>cropRow(c)).join('')+'</div>';
-    if(slow.length) h += '<div class="gsec">Worth the wait</div><div class="plist">'+slow.map(c=>cropRow(c)).join('')+'</div>';
+  const house = lit.filter(function(s){ return s.kind === 'house'; });
+  const edible = lit.filter(function(s){ return s.kind === 'edible'; });
+  if(CHOICES.track === 'both'){
+    h += sect('Houseplants', house);
+    h += sect(CHOICES.outdoor ? 'Edible — container crops' : 'Edible — windowsill crops', edible);
+  } else if(CHOICES.track === 'house'){
+    h += sect('Hard to kill', house.filter(function(s){ return s.water >= 12; }));
+    h += sect('A bit more attention', house.filter(function(s){ return s.water < 12; }));
+  } else {
+    h += sect('Fast wins', edible.filter(function(s){ return s.days <= 35; }));
+    h += sect('Worth the wait', edible.filter(function(s){ return s.days > 35; }));
   }
-  if(B.length) h += '<div class="gsec">Needs more sun than you have</div><div class="plist" style="opacity:.5">'
-                    +B.map(c=>cropRow(c)).join('')+'</div>';
+  if(dim.length) h += '<div class="gsec">Needs more light than you have</div>'
+     + '<div class="plist" style="opacity:.5">' + dim.map(spRow).join('') + '</div>';
   box.innerHTML = h;
 }
+const LIBNOTE = {
+  house: 'Everything here survives an ordinary room.',
+  edible: 'Container crops that finish in one season.',
+  both: 'Houseplants first, edible crops below.'
+};
+
+/* ─────────── мини-движок плана ─────────── */
 function buildPlan(){
   const g = CHOICES.goals, n = CHOICES.effort;
-  let pool = CROPS.filter(c=>c[5]<=CHOICES.sunRank);
-  const score = c => (c[6].filter(t=>g.includes(t)).length*40) + (c[2]<=35?20:0) + (120-c[3])/12;
-  pool = pool.slice().sort((a,b)=>score(b)-score(a));
+  let pool = speciesPool().filter(fitsLight);
+  if(!pool.length) pool = speciesPool();
+  const score = s => (s.tags.filter(function(t){ return g.indexOf(t) > -1; }).length * 40)
+                   + (s.kind === 'edible' && s.days <= 35 ? 20 : 0)
+                   + (s.kind === 'house' ? (s.water >= 12 ? 14 : 6) : 0)
+                   + (s.kind === 'edible' ? (120 - s.daysMax) / 12 : 0);
+  pool = pool.slice().sort(function(a,b){ return score(b) - score(a); });
   const out = [];
-  for(const c of pool){
-    if(out.length>=n) break;
-    if(c[2]>70 && out.filter(x=>x[2]>70).length>=2) continue;
-    out.push(c);
+  for(let i = 0; i < pool.length && out.length < n; i++){
+    const s = pool[i];
+    if(s.kind === 'edible' && s.days > 70
+       && out.filter(function(x){ return x.days > 70; }).length >= 2) continue;
+    out.push(s);
   }
-  if(!out.some(c=>c[2]<=35)){ const f = pool.find(c=>c[2]<=35); if(f){ out.pop(); out.unshift(f); } }
+  /* трек both обязан дать и то, и другое */
+  if(CHOICES.track === 'both'){
+    const need = ['house','edible'].filter(function(k){
+      return !out.some(function(s){ return s.kind === k; }); });
+    need.forEach(function(k){
+      const add = pool.find(function(s){ return s.kind === k; });
+      if(add){ out.pop(); out.unshift(add); }
+    });
+  }
+  /* съедобный трек обязан дать хотя бы одну быструю культуру */
+  if(CHOICES.track === 'edible' && !out.some(function(s){ return s.days <= 35; })){
+    const f = pool.find(function(s){ return s.days <= 35; });
+    if(f){ out.pop(); out.unshift(f); }
+  }
+  /* каждая заявленная цель обязана быть представлена, если по свету это возможно.
+     Иначе человек просит томаты, получает пять салатов и не понимает почему. */
+  g.forEach(function(tag){
+    if(out.some(function(s){ return s.tags.indexOf(tag) > -1; })) return;
+    const cand = pool.find(function(s){ return s.tags.indexOf(tag) > -1; });
+    if(!cand) return;
+    let victim = -1;
+    for(let i = out.length - 1; i >= 0; i--){
+      const covers = out[i].tags.filter(function(t){ return g.indexOf(t) > -1; });
+      const spare = covers.every(function(t){
+        return out.some(function(x, k){ return k !== i && x.tags.indexOf(t) > -1; }); });
+      if(spare){ victim = i; break; }
+    }
+    if(victim < 0 && out.length >= n) victim = out.length - 1;
+    if(victim >= 0) out.splice(victim, 1);
+    out.push(cand);
+  });
   return out;
 }
 const MONTH = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
-function dateAfter(days){ const d = new Date(2026,2,14); d.setDate(d.getDate()+days); return MONTH[d.getMonth()]+' '+d.getDate(); }
+function dateAfter(days){ const d = new Date(2026,2,14); d.setDate(d.getDate()+days);
+                          return MONTH[d.getMonth()]+' '+d.getDate(); }
+const QUOTE = {
+  house: ['Start with one plant that forgives you. A pothos will tell you it is thirsty and '
+        + 'come back from it — that is the whole lesson, and it costs eight dollars.',
+          'Placeholder name', 'Plant shop owner · sample quote'],
+  edible: ['Radish and leaf lettuce are what we hand every first-timer — they finish before '
+        + 'anyone has time to lose interest. The container sizes here are the ones we recommend.',
+          'Placeholder name', 'Extension master gardener · sample quote']
+};
 function renderPreview(){
-  const plan = buildPlan(); const first = Math.min.apply(null, plan.map(c=>c[2]));
+  const plan = buildPlan();
   const el = document.getElementById('planrows'); if(!el) return;
-  el.innerHTML = plan.map(c=>'<div class="prow"><div class="rw">'+ringSVG(0)+'<i>'+ICONS[c[1]]+'</i></div>'
-    +'<div class="nm"><b>'+c[0]+'</b><s>'+c[4]+' · '+c[2]+(c[3]!==c[2]?'–'+c[3]:'')+' days</s></div>'
-    +'<div class="rt">'+dateAfter(c[2])+'</div></div>').join('');
-  document.getElementById('planhead').innerHTML = plan.length+' crops.<br>First pick '+dateAfter(first)+'.';
+  const edible = plan.filter(function(s){ return s.kind === 'edible'; });
+  el.innerHTML = plan.map(function(s){
+    const right = s.kind === 'edible' ? dateAfter(s.days) : 'every ' + s.water + 'd';
+    return '<div class="prow"><div class="rw">' + ringSVG(0) + '<i>' + ICONS[s.icon] + '</i></div>'
+     + '<div class="nm"><b>' + s.name + '</b><s>' + spSub(s) + '</s></div>'
+     + '<div class="rt">' + right + '</div></div>';
+  }).join('');
+  let second = 'Care starts today.';
+  if(edible.length){
+    const first = Math.min.apply(null, edible.map(function(s){ return s.days; }));
+    second = (CHOICES.outdoor ? 'First pick ' : 'First cut ') + dateAfter(first) + '.';
+  }
+  document.getElementById('planhead').innerHTML =
+    plan.length + (plan.length === 1 ? ' plant.' : ' plants.') + '<br>' + second;
+  const mins = CHOICES.effort === 3 ? 10 : CHOICES.effort === 4 ? 20 : 30;
   document.getElementById('planmeta').textContent =
-    'Austin, TX · '+CHOICES.sun+' · '+CHOICES.space+' · about '+(CHOICES.effort===3?10:CHOICES.effort===4?20:30)+' min a week';
-  const got = new Set(plan.flatMap(c=>c[6]));
-  const asked = CHOICES.goals.length ? CHOICES.goals : ['fast'];
-  const kept = asked.filter(g=>got.has(g)), missed = asked.filter(g=>!got.has(g));
-  const list = a => a.map(x=>GOALWORD[x]||x).reduce((s,x,i,arr)=>
-      s + (i===0?'':(i===arr.length-1?' and ':', ')) + x, '');
-  const fast = plan.reduce((a,b)=>b[2]<a[2]?b:a);
-  let t = '<b>Why these:</b> you asked for ' + list(asked.length?asked:['fast'])
-        + ', and ' + CHOICES.sun + ' is what decides the rest. '
-        + fast[0] + ' is your fast win — ready in ' + fast[2] + ' days.';
+    (CHOICES.outdoor ? 'Austin, TX · ' : '') + CHOICES.sun + ' · ' + anA(CHOICES.space)
+    + ' · about ' + mins + ' min a week';
+  const q = QUOTE[CHOICES.track === 'edible' ? 'edible' : 'house'];
+  const qb = document.getElementById('planquote');
+  if(qb) qb.innerHTML = '<div class="qmark">“</div><p>' + q[0] + '</p>'
+    + '<div class="qwho"><div class="qav">' + (CHOICES.track === 'edible' ? 'MG' : 'PS')
+    + '</div><div><b>' + q[1] + '</b><s>' + q[2] + '</s></div></div>';
+
+  const got = {};
+  plan.forEach(function(s){ s.tags.forEach(function(t){ got[t] = 1; }); });
+  const asked = CHOICES.goals.length ? CHOICES.goals : (CHOICES.track === 'edible' ? ['fast'] : ['hardy']);
+  const kept = asked.filter(function(t){ return got[t]; });
+  const missed = asked.filter(function(t){ return !got[t]; });
+  const list = a => a.map(function(x){ return GOALWORD[x] || x; })
+      .reduce(function(s,x,i,arr){ return s + (i===0?'':(i===arr.length-1?' and ':', ')) + x; }, '');
+  let t = '<b>Why these:</b> you asked for ' + list(asked) + ', and ' + CHOICES.sun
+        + ' is what decides the rest. ';
+  const fast = edible.length ? edible.reduce(function(a,b){ return b.days < a.days ? b : a; }) : null;
+  const tough = plan.filter(function(s){ return s.kind === 'house'; })
+                    .sort(function(a,b){ return b.water - a.water; })[0];
+  t += fast ? fast.name + ' is your fast win — ready in ' + fast.days + ' days.'
+            : (tough ? tough.name + ' is the forgiving one — it only needs water every '
+                       + tough.water + ' days.' : '');
   if(missed.length){
-    const need = missed.map(m=>SUNNEED[m]).filter(Boolean)[0];
-    t += '<span class="warn">' + list(missed).replace(/^./,c=>c.toUpperCase())
-       + (need ? ' need ' + need + ' of direct sun. At your light they rarely finish, '
-               : ' need more light than you have, ')
-       + 'so we left them out and gave you ' + list(kept.length?kept:['a reliable harvest'])
-       + ' instead. You can add them any time.</span>';
+    const all = speciesPool();
+    const exists = tag => all.some(function(s){ return s.tags.indexOf(tag) > -1; });
+    const lit    = tag => all.some(function(s){ return s.tags.indexOf(tag) > -1 && fitsLight(s); });
+    const dark   = missed.filter(function(tag){ return exists(tag) && !lit(tag); });
+    const absent = missed.filter(function(tag){ return !exists(tag); });
+    const tight  = missed.filter(function(tag){
+      return dark.indexOf(tag) < 0 && absent.indexOf(tag) < 0; });
+    let w = '';
+    if(dark.length){
+      const need = dark.map(function(m){ return SUNNEED[m]; }).filter(Boolean)[0];
+      w += list(dark).replace(/^./, function(c){ return c.toUpperCase(); })
+         + (need ? ' need ' + need + ' of direct sun. At your light they rarely finish, so we left '
+                 : ' need more light than you have, so we left ')
+         + (dark.length > 1 ? 'them' : 'it') + ' out. ';
+    }
+    if(absent.length){
+      w += list(absent).replace(/^./, function(c){ return c.toUpperCase(); })
+         + (absent.length > 1 ? ' are' : ' is') + ' not something we grow '
+         + (CHOICES.outdoor ? 'in containers' : 'indoors') + ' yet. ';
+    }
+    if(tight.length){
+      w += list(tight).replace(/^./, function(c){ return c.toUpperCase(); })
+         + ' didn\u2019t fit in ' + plan.length + ' plants — ask for more time a week and '
+         + (tight.length > 1 ? 'they' : 'it') + ' come' + (tight.length > 1 ? '' : 's') + ' in. ';
+    }
+    w += 'You can add ' + (missed.length > 1 ? 'them' : 'it') + ' by hand any time.';
+    t += '<span class="warn">' + w + '</span>';
   }
   document.getElementById('planwhy').innerHTML = t;
 }
 
-/* ─────────── состояние: растения, фото, корзина добавления ─────────── */
+/* ═══════════ состояние: ОДНА форма растения {s, since, day, photos} ═══════════ */
 let MY_PLANTS = [], SELECTED = 0, PENDING = [], UNDO = null, UNDOT = null, IS_PRO = false;
-const PHOTOS = ['radish','leaves1','basil','leaves3','flowers'];
 const FREE_LIMIT = 3;
 const limit = () => IS_PRO ? 99 : FREE_LIMIT;
+const TODAY = 27;                                  // условный «сегодня» в днях от старта
 
-function crop(name){ return CROPS.find(c=>c[0]===name); }
-function mk(name, day, photos){ return {c:crop(name), day:day, photos:photos||[]}; }
+function mkPlant(id, since, day, photos){
+  const s = SP(id) || SPECIES[0];
+  return { s: s, since: since === undefined ? 0 : since,
+           day: day === undefined ? 0 : day, photos: photos || [] };
+}
 function seedPlants(){
-  MY_PLANTS = [mk('Radish',27,[{f:'radish',day:24},{f:'leaves1',day:11}]),
-               mk('Leaf lettuce',27,[{f:'leaves3',day:18}]),
-               mk('Basil',27,[{f:'basil',day:21}]), mk('Cherry tomato',9,[])];
+  MY_PLANTS = [ mkPlant('monstera', 4, 210, [{f:'leaves3', day:18}]),
+                mkPlant('snakeplant', 20, 430, []),
+                mkPlant('pothos', 9, 96, [{f:'leaves1', day:11}]),
+                mkPlant('peacelily', 2, 64, [{f:'flowers', day:21}]) ];
 }
-const pPct   = p => Math.min(100, Math.round(p.day / p.c[2] * 100));
-const pStage = p => { const r = p.day/p.c[2];
-  return r<0.1?'seed':r<0.35?'seedling':r<0.7?'growing':r<1?'nearly ready':'ready'; };
-const pEta   = p => { const d = p.c[2]-p.day; return d<=0 ? 'ready' : '~'+d+'d'; };
-const stageAt = (p,d) => { const r = d/p.c[2];
-  return r<0.1?'seed':r<0.35?'seedling':r<0.7?'growing':r<1?'nearly ready':'ready'; };
-const allPhotos = () => MY_PLANTS.flatMap(function(p){ return p.photos.map(function(x){
-  return {f:x.f, u:x.u, n:p.h[0], day:x.day, st:pState(p)[0]}; }); }).sort(function(a,b){ return b.day-a.day; });
-
-
-/* ─────────── домашние растения: состояние и здоровье ─────────── */
-const HOUSE = __HOUSE__;
-const hp = n => HOUSE.find(function(h){ return h[0] === n; });
-function mkh(name, sinceWater){
-  const h = hp(name);
-  return { h: h, since: sinceWater === undefined ? 0 : sinceWater, photos: [] };
+function seedMixed(){
+  MY_PLANTS = [ mkPlant('monstera', 4, 210, [{f:'leaves3', day:18}]),
+                mkPlant('pothos', 9, 96, []),
+                mkPlant('basil', 1, 34, [{f:'basil', day:21}]),
+                mkPlant('radish', 0, 27, [{f:'radish', day:24}]) ];
 }
-function seedHouse(){
-  MY_PLANTS = [ mkh('Monstera', 4), mkh('Snake plant', 20), mkh('Pothos', 9), mkh('Peace lily', 2) ];
-}
-const wDue   = p => p.h[2] - p.since;                       // дней до полива
-const wPct   = p => Math.max(0, Math.min(100, Math.round(p.since / p.h[2] * 100)));
+const isEdible = p => p.s.kind === 'edible';
+const cap = s => s.charAt(0).toUpperCase() + s.slice(1);
+const inDays = n => n <= 0 ? 'today' : n === 1 ? 'tomorrow' : 'in ' + n + ' days';
+const wDue = p => p.s.water - p.since;                              // дней до полива
+const wPct = p => Math.max(0, Math.min(100, Math.round(p.since / p.s.water * 100)));
+const hPct = p => !isEdible(p) ? 0 : Math.min(100, Math.round(p.day / p.s.days * 100));
+const hEta = p => { const d = p.s.days - p.day; return d <= 0 ? 'ready' : '~' + d + 'd'; };
+const hStage = p => { const r = p.day / p.s.days;
+  return r < 0.1 ? 'seed' : r < 0.35 ? 'seedling' : r < 0.7 ? 'growing'
+       : r < 1 ? 'nearly ready' : 'ready'; };
+const pPct = p => isEdible(p) ? hPct(p) : wPct(p);
+const pSub = p => isEdible(p) ? 'Day ' + p.day + ' · ' + hStage(p)
+                              : p.s.light + ' · every ' + p.s.water + 'd';
 function pState(p){
   const d = wDue(p);
-  if(d <= 0)  return ['Needs water', 'bad'];
-  if(d <= 2)  return ['Water soon',  'warn'];
+  if(d <= 0) return ['Needs water', 'bad'];
+  if(d <= 2) return ['Water soon',  'warn'];
+  if(isEdible(p) && hPct(p) >= 100) return ['Ready to pick', 'ok'];
   return ['Healthy', 'ok'];
 }
+const allPhotos = () => MY_PLANTS.flatMap(function(p){
+  return p.photos.map(function(x){
+    return {f:x.f, u:x.u, n:p.s.name, day:x.day, st:pState(p)[0]}; });
+}).sort(function(a,b){ return b.day - a.day; });
+
 function healthScore(){
   if(!MY_PLANTS.length) return 0;
   const sum = MY_PLANTS.reduce(function(a, p){
-    const over = Math.max(0, -wDue(p)) / p.h[2];            // насколько просрочен полив
+    const over = Math.max(0, -wDue(p)) / p.s.water;                 // насколько просрочен полив
     return a + Math.max(0, 1 - over * 1.6);
   }, 0);
   return Math.round(sum / MY_PLANTS.length * 100);
@@ -1133,9 +1300,9 @@ function ringBig(pct, sz){
 function plantCard(p, i){
   const st = pState(p);
   return '<div class="plcard" data-open="' + i + '">'
-   + '<div class="plcard-ph" style="background-image:url(img/' + p.h[1] + '.jpg)">'
+   + photoTile(p.s, 'plcard-ph')
    + '<span class="plcard-fav">' + ICONS._drop + '</span></div>'
-   + '<b>' + p.h[0] + '</b>'
+   + '<b>' + p.s.name + '</b>'
    + '<s class="st-' + st[1] + '">' + st[0] + '</s></div>';
 }
 function renderDashHome(){
@@ -1146,7 +1313,7 @@ function renderDashHome(){
     h.innerHTML = '';
     acc.innerHTML = '<div class="empty-hero">'
       + '<div class="eh-shot" style="background-image:url(img/hero-plants.jpg)"></div>'
-      + '<div class="eh-ov"><div class="eh-tx">'
+      + '<div class="eh-ov"><div>'
       + '<div class="eh-k">One plant is enough to start</div>'
       + '<div class="eh-h">Every room<br>feels better<br>with something<br>alive in it.</div></div>'
       + '<div class="btn b-lime" data-scan>Add your first plant</div>'
@@ -1161,7 +1328,7 @@ function renderDashHome(){
   h.innerHTML = 'Plant parent';
   acc.innerHTML =
      '<div class="score">'
-   + '<div class="score-ph" style="background-image:url(img/' + MY_PLANTS[0].h[1] + '.jpg)"></div>'
+   + '<div class="score-ph" style="' + photoStyle(MY_PLANTS[0].s) + '"></div>'
    + '<div class="score-in"><div class="score-top">' + ringBig(sc, 56)
    + '<span>' + ICONS._leaf + '</span></div>'
    + '<div class="score-n"><b>' + sc + '</b><s>/100</s></div>'
@@ -1172,26 +1339,86 @@ function renderDashHome(){
    + metricRow([['Soon', soon.length], ['Plants', MY_PLANTS.length]]) + '</div>'
    + '<div class="wg wg-lite"><div class="wg-top"><div class="num">'
    + Math.max(0, wDue(nextP)) + '<span>d</span></div>' + arc(wPct(nextP), 44, false) + '</div>'
-   + '<div class="lbl">' + (wDue(nextP) <= 0 ? nextP.h[0] + ' is thirsty' : 'Until ' + nextP.h[0].toLowerCase()) + '</div>'
-   + metricRow([['Light', nextP.h[3].split(' ')[0]], ['Humidity', nextP.h[4]]]) + '</div></div>'
+   + '<div class="lbl">' + (wDue(nextP) <= 0 ? nextP.s.name + ' is thirsty'
+                                             : 'Until ' + lc(nextP.s.name)) + '</div>'
+   + metricRow([['Light', nextP.s.light.split(' ')[0]],
+                [isEdible(nextP) ? 'Harvest' : 'Humidity',
+                 isEdible(nextP) ? hEta(nextP) : nextP.s.hum]]) + '</div></div>'
    + '<div class="sec-h"><span>My plants</span><i data-go="add-plant">Add</i></div>'
    + '<div class="prow-scroll">' + MY_PLANTS.map(plantCard).join('') + '</div>';
 }
 
-/* ─────────── HOME ─────────── */
-const WEEK_TASKS = [
-  ['Water the snake plant','1 min','Soil is dry all the way down — 20 days since the last drink.'],
-  ['Water the pothos','1 min',''],
-  ['Wipe monstera leaves','3 min',''],
-  ['Rotate the fiddle leaf fig','1 min',''],
-  ['Check peace lily humidity','2 min',''],
-  ['Feed everything once this month','4 min','']];
-const CARDS_SHOWN = 4;
-let DONE = [], WEEK_OPEN = true;
+/* ─────────── недельные задачи считаются из растений, а не захардкожены ─────────── */
+let DONE = {}, WEEK_OPEN = true;
+/* задача = [заголовок, время, пояснение, КЛЮЧ]. Ключ привязан к растению:
+   по тексту два одинаковых заголовка делили одну галочку. */
+function weekTasks(){
+  if(!MY_PLANTS.length) return [];
+  const out = [];
+  MY_PLANTS.forEach(function(p, i){
+    if(wDue(p) <= 0) out.push(['Water the ' + lc(p.s.name), '1 min',
+      p.since + ' days since the last drink — it wants one every ' + p.s.water + '.',
+      'water:' + i]);
+  });
+  MY_PLANTS.forEach(function(p, i){
+    if(isEdible(p) && hPct(p) >= 100)
+      out.push(['Pick from the ' + lc(p.s.name), '4 min',
+        'It is ready. Picking keeps it producing.', 'pick:' + i]);
+  });
+  const si = MY_PLANTS.findIndex(function(p){ return p.s.tags.indexOf('statement') > -1; });
+  if(si > -1) out.push(['Wipe the ' + lc(MY_PLANTS[si].s.name) + ' leaves', '3 min',
+    'Dust cuts the light it gets.', 'wipe:' + si]);
+  MY_PLANTS.forEach(function(p, i){
+    const d = wDue(p);
+    if(d > 0 && d <= 2) out.push(['Check the ' + lc(p.s.name) + ' — top soil dry?', '1 min', '',
+      'check:' + i]);
+  });
+  const ti = MY_PLANTS.findIndex(function(p){ return p.s.sun >= 2; });
+  if(ti > -1) out.push(['Rotate the ' + lc(MY_PLANTS[ti].s.name) + ' a quarter turn', '1 min',
+    'Keeps it growing even on all sides.', 'rotate:' + ti]);
+  out.push([MY_PLANTS.some(isEdible) ? 'Feed the edible pots once this month'
+                                     : 'Feed everything once this month', '4 min',
+    'Container soil runs out faster than a bed.', 'feed']);
+  return out.slice(0, 6);
+}
+const tkey = t => t[3] || t[0];
+let WEEK = [];
 function taskHTML(t){
   return '<div class="task" data-task><div class="box">'+ICONS._check2+'</div><div class="tt">'
     +'<div class="t">'+t[0]+'</div>'+(t[2]?'<div class="b">'+t[2]+'</div>':'')
     +'</div><div class="min">'+t[1]+'</div></div>';
+}
+function progHTML(){
+  const n = WEEK.filter(function(t){ return DONE[tkey(t)]; }).length, m = WEEK.length;
+  const pct = m ? Math.round(n / m * 100) : 0;
+  return '<div class="wk' + (WEEK_OPEN ? ' open' : '') + '">'
+    + '<div class="wk-h" data-progtoggle>'
+    + '<div class="wk-title">' + m + (m === 1 ? ' thing to do' : ' things to do') + '</div>'
+    + '<div class="wk-row"><span class="pb-n">' + n + ' of ' + m + '</span>'
+    + '<span class="pb-track"><i style="width:' + pct + '%"></i></span>'
+    + '<span class="pb-pct">' + pct + '%</span>'
+    + '<span class="pb-chev">' + ICONS._chevd + '</span></div></div>'
+    + (WEEK_OPEN ? '<div class="wk-list">' + WEEK.map(function(t, i){
+        const on = !!DONE[tkey(t)];
+        return '<div class="br-row" data-brtoggle="' + i + '">'
+          + '<span class="br-dot' + (on ? ' on' : '') + '">'
+          + (on ? ICONS._check2 : '') + '</span>'
+          + '<span class="br-t' + (on ? ' done' : '') + '">' + t[0]
+          + (t[2] && !on ? '<s>' + t[2] + '</s>' : '') + '</span>'
+          + '<span class="br-m">' + t[1] + '</span></div>';
+      }).join('') + '</div>' : '')
+    + '</div>';
+}
+function renderWeek(){
+  const pr = document.getElementById('homeprog'), tk = document.getElementById('hometasks');
+  if(!pr) return;
+  WEEK = weekTasks();
+  pr.innerHTML = progHTML();
+  if(tk) tk.innerHTML = '';
+}
+function checkWeekDone(){
+  if(WEEK.length && WEEK.every(function(t){ return DONE[tkey(t)]; }))
+    setTimeout(function(){ go('week-done'); }, 600);
 }
 function renderHome(){
   renderDashHome();
@@ -1202,23 +1429,30 @@ function renderHome(){
   renderWeek();
 }
 
-/* ─────────── PLANTS + удаление ─────────── */
+/* ─────────── удаление с Undo ─────────── */
 function removePlant(i){
+  if(!MY_PLANTS[i]) return;
   UNDO={p:MY_PLANTS[i], i:i}; MY_PLANTS.splice(i,1);
-  renderHome(); renderJournal();
+  if(SELECTED >= MY_PLANTS.length) SELECTED = Math.max(0, MY_PLANTS.length - 1);
+  renderAll();
   const t=document.getElementById('toast');
-  t.innerHTML='<span>'+UNDO.p.h[0]+' removed</span><b data-undo>Undo</b>';
+  t.innerHTML='<span>'+UNDO.p.s.name+' removed</span><b data-undo>Undo</b>';
   t.classList.add('on'); clearTimeout(UNDOT);
-  UNDOT=setTimeout(()=>{t.classList.remove('on'); UNDO=null;}, 4500);
+  UNDOT=setTimeout(function(){t.classList.remove('on'); UNDO=null;}, 4500);
 }
 function undoRemove(){
   if(!UNDO) return;
   MY_PLANTS.splice(UNDO.i,0,UNDO.p); UNDO=null;
   document.getElementById('toast').classList.remove('on');
-  renderHome(); renderJournal();
+  renderAll();
 }
 
-/* ─────────── PLANT DETAIL ─────────── */
+/* ─────────── карточка растения ─────────── */
+function toast(html, ms){
+  const t = document.getElementById('toast'); if(!t) return;
+  t.innerHTML = html; t.classList.add('on'); clearTimeout(UNDOT);
+  UNDOT = setTimeout(function(){ t.classList.remove('on'); }, ms || 3500);
+}
 function addPhotoBtn(label){
   return '<div class="btn-dash" data-addphoto>'+ICONS._plus
     +'<span>'+(label||'Add a photo')+'</span></div>';
@@ -1232,72 +1466,76 @@ function renderDetail(){
   const box = document.getElementById('pdetail'); if(!box) return;
   const p = MY_PLANTS[SELECTED];
   if(!p){ box.innerHTML = '<div class="note" style="margin-top:16px"><b>This plant is gone</b>'
-      + '<p>You removed it. Nothing is lost \u2014 add it again whenever you like.</p>'
+      + '<p>You removed it. Nothing is lost — add it again whenever you like.</p>'
       + '<div class="btn b-pri" data-go="add-plant">Add a plant</div></div>'; return; }
   const st = pState(p), d = wDue(p);
   box.innerHTML =
-     '<div style="height:220px;border-radius:var(--r-lg);background:url(img/' + p.h[1]
-   + '.jpg) center/cover;margin-top:8px"></div>'
+     photoTile(p.s, 'det-ph', 'margin-top:8px') + '</div>'
    + '<div style="display:flex;align-items:center;gap:12px;margin-top:16px">'
-   + '<div><div style="font-size:24px;font-weight:600;letter-spacing:-.02em">' + p.h[0] + '</div>'
-   + '<div style="font-size:13.5px;color:var(--muted);font-style:italic">' + p.h[5] + '</div></div>'
+   + '<div><div style="font-size:24px;font-weight:600;letter-spacing:-.02em">' + p.s.name + '</div>'
+   + (p.s.latin ? '<div style="font-size:13.5px;color:var(--muted);font-style:italic">'
+                  + p.s.latin + '</div>' : '')
+   + '</div>'
    + '<div style="flex:1"></div><span class="pill st-pill st-' + st[1] + '">' + st[0] + '</span></div>'
    + '<div class="wgrid" style="margin-top:12px">'
    + '<div class="wg wg-dark"><div class="wg-top"><div class="num">' + Math.max(0, d)
    + '<span>d</span></div>' + arc(wPct(p), 44, true) + '</div>'
    + '<div class="lbl">' + (d <= 0 ? 'Water it today' : 'Until next water') + '</div>'
-   + metricRow([['Every', p.h[2] + 'd'], ['Last', p.since + 'd ago']]) + '</div>'
-   + '<div class="wg wg-lite"><div class="wg-h"><b>Conditions</b></div>'
-   + metricRow([['Light', p.h[3]]]) + metricRow([['Humidity', p.h[4]]]) + '</div></div>'
+   + metricRow([['Every', p.s.water + 'd'], ['Last', p.since + 'd ago']]) + '</div>'
+   + (isEdible(p)
+      ? '<div class="wg wg-lite"><div class="wg-top"><div class="num">' + hPct(p)
+        + '<span>%</span></div>' + arc(hPct(p), 44, false) + '</div>'
+        + '<div class="lbl">' + (hPct(p) >= 100 ? 'Ready to pick' : 'To first pick') + '</div>'
+        + metricRow([['Day', p.day], ['Typical', p.s.days
+          + (p.s.daysMax !== p.s.days ? '–' + p.s.daysMax : '') + 'd']]) + '</div>'
+      : '<div class="wg wg-lite"><div class="wg-h"><b>Conditions</b></div>'
+        + metricRow([['Light', p.s.light]]) + metricRow([['Humidity', p.s.hum]]) + '</div>')
+   + '</div>'
    + '<div class="btn b-pri" data-water="' + SELECTED + '">Water it now</div>'
-   + '<div class="sl">Journal' + (p.photos.length ? ' \u00b7 ' + p.photos.length + ' photos' : '') + '</div>'
+   + (isEdible(p) && hPct(p) >= 100
+      ? '<div class="btn b-ghost" data-go="harvest">Pick it — first harvest</div>' : '')
+   + '<div class="sl">Journal' + (p.photos.length ? ' · ' + p.photos.length
+        + (p.photos.length === 1 ? ' photo' : ' photos') : '') + '</div>'
    + (p.photos.length
       ? '<div class="jgrid">' + p.photos.map(function(x){
-          return photoCard({ f:x.f, u:x.u, n:p.h[0], day:x.day, st:st[0] }); }).join('') + '</div>' + addPhotoBtn()
+          return photoCard({ f:x.f, u:x.u, n:p.s.name, day:x.day, st:st[0] }); }).join('') + '</div>' + addPhotoBtn()
       : addPhotoBtn('Take the first photo'))
    + '<div class="btn b-ghost" data-remove>Remove from my plants</div>';
 }
-/* ─────────── JOURNAL ─────────── */
-function renderJournal(){
-  const box=document.getElementById('journal'); if(!box) return;
-  const ph=allPhotos(); const lab=document.getElementById('jlab');
-  if(lab) lab.textContent = !ph.length ? 'Journal'
-    : (IS_PRO ? 'Journal · '+ph.length+' photos' : 'Journal · '+ph.length+' of 5 free photos');
-  if(!ph.length){
-    box.innerHTML='<div class="note"><b>Take one photo today</b>'
-      +'<p>In 30 days you&rsquo;ll want to see it. One shot a week is enough to build the whole timeline.</p>'
-      +addPhotoBtn('Take the first photo')+'</div>'; return;
-  }
-  box.innerHTML='<div class="jgrid">'+ph.map(photoCard).join('')+'</div>'+addPhotoBtn();
-}
 
+/* ─────────── Pro ─────────── */
 function buyPro(){
   IS_PRO = true;
   document.body.classList.add('is-pro');
-  renderAll(); renderLock(); renderSettingsPlan();
+  renderAll();
   const t=document.getElementById('toast');
-  t.innerHTML='<span>Pro unlocked — all 30 weeks are open</span><b data-unpro>Undo</b>';
+  t.innerHTML='<span>Pro unlocked — the full care plan is open</span><b data-unpro>Undo</b>';
   t.classList.add('on'); clearTimeout(UNDOT);
-  UNDOT=setTimeout(()=>t.classList.remove('on'), 5000);
+  UNDOT=setTimeout(function(){t.classList.remove('on')}, 5000);
   go(PW_FROM);
 }
 function dropPro(){
   IS_PRO = false; document.body.classList.remove('is-pro');
-  renderAll(); renderLock(); renderSettingsPlan();
+  renderAll();
   document.getElementById('toast').classList.remove('on');
 }
 function renderLock(){
   const box=document.getElementById('lockbody'); if(!box) return;
-  if(IS_PRO){
-    box.innerHTML='<div class="sl">This week</div>'
-      +taskHTML(['Thin the carrots','4 min','Crowded roots stay small.'])
-      +taskHTML(['Feed the tomato','3 min',''])
-      +taskHTML(['Sow the next round of beans','10 min',''])
-      +'<div class="note" style="margin-top:12px"><b>You have the whole season</b>'
-      +'<p>All 30 weeks are planned. Nothing is hidden any more.</p></div>';
+  if(!MY_PLANTS.length){
+    box.innerHTML='<div class="note" style="margin-top:16px"><b>Nothing is scheduled yet</b>'
+      +'<p>Add a plant and the weeks ahead fill themselves in — that is what Pro keeps open.</p>'
+      +'<div class="btn b-pri" data-go="add-plant">Add a plant</div></div>';
     return;
   }
-  box.innerHTML='<div class="sl">This week</div>'
+  if(IS_PRO){
+    const t = weekTasks();
+    box.innerHTML='<div class="sl">What they are</div>'
+      + t.slice(0,3).map(taskHTML).join('')
+      +'<div class="note" style="margin-top:12px"><b>You have the whole calendar</b>'
+      +'<p>Every week ahead is planned. Nothing is hidden any more.</p></div>';
+    return;
+  }
+  box.innerHTML='<div class="sl">What they are</div>'
     +'<div class="task"><div class="box"></div><div class="tt"><div class="blur" style="width:76%;margin-bottom:8px">'
     +'</div><div class="blur" style="width:52%"></div></div><div class="min">4 min</div></div>'
     +'<div class="task"><div class="box"></div><div class="tt"><div class="blur" style="width:60%"></div></div>'
@@ -1305,53 +1543,75 @@ function renderLock(){
     +'<div class="task"><div class="box"></div><div class="tt"><div class="blur" style="width:68%"></div></div>'
     +'<div class="min">10 min</div></div>'
     +'<div class="acc" style="margin-top:16px"><div class="row1"><span class="tag">Locked</span></div>'
-    +'<div class="big" style="font-size:24px;margin-top:16px">Pro unlocks<br>all 30 weeks</div>'
+    +'<div class="big" style="font-size:24px;margin-top:16px">Pro unlocks<br>the whole calendar</div>'
     +'<div class="sub">The dates and the workload are real — only the wording is hidden.</div>'
-    +'<div class="btn b-lime" data-go="paywall">Unlock full season</div></div>';
+    +'<div class="btn b-lime" data-go="paywall">Unlock the full plan</div></div>';
 }
 function renderSettingsPlan(){
   const el=document.getElementById('planbox'); if(!el) return;
   el.innerHTML = IS_PRO
-   ? '<div class="acc" style="margin-top:16px"><div class="row1"><span class="tag">Pro · season pass</span></div>'
+   ? '<div class="acc" style="margin-top:16px"><div class="row1"><span class="tag">Pro · full plan</span></div>'
      +'<div class="big" style="font-size:24px;margin-top:16px">Everything is open</div>'
-     +'<div class="sub">All 30 weeks, every crop, unlimited photos, up to 5 spaces. Renews Mar 14, 2027.</div>'
+     +'<div class="sub">Every week planned, unlimited plants and photos, up to 5 spaces. Renews Mar 14, 2027.</div>'
      +'<div class="btn" style="background:#17492F;color:#fff" data-unpro>Back to Free (demo)</div></div>'
    : '<div class="acc" style="margin-top:16px"><div class="row1"><span class="tag">Free plan</span></div>'
-     +'<div class="big" style="font-size:24px;margin-top:16px">1 space · 3 crops<br>this week only</div>'
+     +'<div class="big" style="font-size:24px;margin-top:16px">1 space · 3 plants<br>this week only</div>'
      +'<div class="btn b-lime" data-go="paywall">Compare with Pro</div></div>';
 }
+function renderSettingsSpace(){
+  const el = document.getElementById('spacebox'); if(!el) return;
+  const rows = [['Space', CHOICES.space], ['Light', CHOICES.sun]];
+  if(CHOICES.outdoor) rows.splice(1, 0, ['ZIP', (CHOICES.zip || '78704') + ' · Austin, TX']);
+  rows.push(['Time per week', (CHOICES.effort === 3 ? 10 : CHOICES.effort === 4 ? 20 : 30) + ' minutes']);
+  rows.push(['Growing', TRACKWORD[CHOICES.track]]);
+  el.innerHTML = '<div class="plist">' + rows.map(function(r){
+    return '<div class="pl"><div class="nm"><b>' + r[0] + '</b><s>' + r[1] + '</s></div>'
+         + ICONS._chev + '</div>'; }).join('') + '</div>';
+}
+const TRACKWORD = {house:'Houseplants', edible:'Edible crops', both:'Houseplants and edibles'};
 
-
-
-/* ─────────── скан растения: настоящее распознавание через PlantNet ─────────── */
-// латинское имя → наша культура. Ключи — род или вид, как их отдаёт PlantNet.
-const SPECIES = {
-  'Ocimum basilicum':'Basil', 'Ocimum':'Basil',
-  'Raphanus sativus':'Radish', 'Raphanus':'Radish',
-  'Lactuca sativa':'Leaf lettuce', 'Lactuca':'Leaf lettuce',
-  'Coriandrum sativum':'Cilantro', 'Coriandrum':'Cilantro',
-  'Petroselinum crispum':'Parsley', 'Petroselinum':'Parsley',
-  'Allium tuberosum':'Garlic chives', 'Allium schoenoprasum':'Garlic chives',
-  'Allium fistulosum':'Green onions', 'Allium cepa':'Green onions', 'Allium':'Green onions',
-  'Solanum lycopersicum':'Cherry tomato', 'Lycopersicon esculentum':'Cherry tomato',
-  'Solanum melongena':'Eggplant',
-  'Capsicum annuum':'Bell pepper', 'Capsicum':'Bell pepper',
-  'Cucumis sativus':'Cucumber', 'Cucumis':'Cucumber',
-  'Cucurbita pepo':'Summer squash', 'Cucurbita':'Summer squash',
-  'Beta vulgaris':'Swiss chard', 'Beta':'Beets',
-  'Daucus carota':'Carrots', 'Daucus':'Carrots',
-  'Brassica oleracea':'Kale', 'Brassica juncea':'Mustard greens',
-  'Brassica rapa':'Turnips', 'Brassica':'Kale',
-  'Phaseolus vulgaris':'Bush beans', 'Phaseolus':'Bush beans',
+/* ─────────── скан: настоящее распознавание через PlantNet ─────────── */
+// латинское имя → id вида. Ключи — род или вид, как их отдаёт PlantNet.
+const LATIN = {
+  'Monstera deliciosa':'monstera', 'Monstera':'monstera',
+  'Dracaena trifasciata':'snakeplant', 'Sansevieria trifasciata':'snakeplant',
+  'Epipremnum aureum':'pothos', 'Epipremnum':'pothos',
+  'Zamioculcas zamiifolia':'zzplant', 'Zamioculcas':'zzplant',
+  'Ficus lyrata':'fiddleleaf', 'Ficus':'fiddleleaf',
+  'Spathiphyllum wallisii':'peacelily', 'Spathiphyllum':'peacelily',
+  'Aloe vera':'aloe', 'Aloe':'aloe',
+  'Goeppertia orbifolia':'calathea', 'Goeppertia':'calathea', 'Calathea':'calathea',
+  'Ocimum basilicum':'basil', 'Ocimum':'basil',
+  'Raphanus sativus':'radish', 'Raphanus':'radish',
+  'Lactuca sativa':'lettuce', 'Lactuca':'lettuce',
+  'Coriandrum sativum':'cilantro', 'Coriandrum':'cilantro',
+  'Petroselinum crispum':'parsley', 'Petroselinum':'parsley',
+  'Allium tuberosum':'chives', 'Allium schoenoprasum':'chives',
+  'Allium fistulosum':'onions', 'Allium cepa':'onions', 'Allium':'onions',
+  'Solanum lycopersicum':'cherrytomato', 'Lycopersicon esculentum':'cherrytomato',
+  'Solanum melongena':'eggplant',
+  'Capsicum annuum':'pepper', 'Capsicum':'pepper',
+  'Cucumis sativus':'cucumber', 'Cucumis':'cucumber',
+  'Cucurbita pepo':'squash', 'Cucurbita':'squash',
+  'Beta vulgaris':'chard', 'Beta':'beets',
+  'Daucus carota':'carrots', 'Daucus':'carrots',
+  'Brassica oleracea':'kale', 'Brassica juncea':'mustard',
+  'Brassica rapa':'turnips', 'Brassica':'kale',
+  'Phaseolus vulgaris':'beans', 'Phaseolus':'beans',
 };
-function matchCrop(r){
-  const byLatin = SPECIES[r.latin] || SPECIES[r.genus];
-  if(byLatin) return crop(byLatin);
-  // подстраховка: совпадение по обиходному имени
-  const names = (r.common || []).map(function(n){ return n.toLowerCase(); });
-  for(let i = 0; i < CROPS.length; i++){
-    const n = CROPS[i][0].toLowerCase();
-    if(names.some(function(c){ return c.indexOf(n) > -1 || n.indexOf(c) > -1; })) return CROPS[i];
+function matchSpecies(r){
+  const byLatin = LATIN[r.latin] || LATIN[r.genus];
+  if(byLatin) return SP(byLatin);
+  // Подстраховка по обиходному имени. Только безопасное направление: обиходное имя
+  // целиком содержит наше. Обратное давало 'Pea' → Peace lily и '' → первый вид в списке.
+  const names = (r.common || [])
+    .map(function(n){ return (n || '').toLowerCase().trim(); })
+    .filter(function(n){ return n.length >= 4; });
+  for(let i = 0; i < SPECIES.length; i++){
+    const n = SPECIES[i].name.toLowerCase();
+    if(names.some(function(c){
+      return c === n || (c.indexOf(n) > -1 && c.length - n.length <= 12);
+    })) return SPECIES[i];
   }
   return null;
 }
@@ -1364,7 +1624,7 @@ function scanBusy(){
   document.getElementById('scanbody').innerHTML = scanShot()
     + '<div class="scan-ov"><div class="scan-frame"></div>'
     + '<div class="scan-foot"><div class="scan-dots"><i></i><i></i><i></i></div>'
-    + '<b>Looking at your plant\u2026</b>'
+    + '<b>Looking at your plant…</b>'
     + '<s>Sending the photo to PlantNet</s></div></div>';
 }
 function scanFoot(inner){
@@ -1385,9 +1645,9 @@ async function identify(file){
     scanFoot('<span class="pill" style="background:#3A3020;color:#F0C674;align-self:flex-start">'
       + 'Not connected</span>'
       + '<b style="margin-top:12px">Recognition is off</b>'
-      + '<s>No identification service is wired up yet, so we won\u2019t guess. '
-      + 'Pick the crop yourself \u2014 it takes one tap.</s>'
-      + scanManual('Choose from 21 crops'));
+      + '<s>No identification service is wired up yet, so we won’t guess. '
+      + 'Pick the plant yourself — it takes one tap.</s>'
+      + scanManual('Choose from ' + SPECIES.length + ' plants'));
     return;
   }
   try{
@@ -1397,34 +1657,34 @@ async function identify(file){
     const res = await fetch(url, { method:'POST', body: fd });
     const data = await res.json();
     if(data.error || !data.results || !data.results.length){
-      scanFoot('<b>No match</b><s>PlantNet didn\u2019t recognise this one. '
-        + 'Try a closer shot of a single leaf, or pick the crop yourself.</s>'
+      scanFoot('<b>No match</b><s>PlantNet didn’t recognise this one. '
+        + 'Try a closer shot of a single leaf, or pick the plant yourself.</s>'
         + scanRetry() + scanManual());
       return;
     }
     const top = data.results[0];
     const pct = Math.round((top.score || 0) * 100);
-    const c = matchCrop(top);
-    const latin = '<em>' + (top.latin || '\u2014') + '</em>';
+    const s = matchSpecies(top);
+    const latin = '<em>' + (top.latin || '—') + '</em>';
     const common = (top.common && top.common[0]) ? top.common[0] : '';
-    if(!c){
+    if(!s){
       scanFoot('<span class="pill" style="background:#3A3020;color:#F0C674;align-self:flex-start">'
         + pct + '% ' + (common || 'identified') + '</span>'
-        + '<b style="margin-top:12px">Not something we plan</b>'
-        + '<s>' + latin + ' isn\u2019t one of the 21 edible crops HOMEGROWN schedules. '
-        + 'You can still add a crop yourself.</s>' + scanRetry() + scanManual());
+        + '<b style="margin-top:12px">Not in our library</b>'
+        + '<s>' + latin + ' isn’t one of the ' + SPECIES.length
+        + ' plants HOMEGROWN knows how to care for. You can still add one yourself.</s>'
+        + scanRetry() + scanManual());
       return;
     }
     scanFoot('<span class="pill b-lime" style="align-self:flex-start">' + pct + '% match</span>'
-      + '<b style="margin-top:12px">' + c[0] + '</b>'
-      + '<s>' + latin + (common ? ' \u00b7 ' + common : '') + '<br>'
-      + c[2] + (c[3] !== c[2] ? '\u2013' + c[3] : '') + ' days \u00b7 ' + c[4]
-      + (c[5] > CHOICES.sunRank ? ' \u00b7 needs more sun than you have' : '') + '</s>'
-      + '<div class="btn b-lime" data-scanadd="' + c[0] + '">Add ' + c[0].toLowerCase()
-      + ' to my plan</div>' + scanManual('Not it \u2014 choose manually'));
+      + '<b style="margin-top:12px">' + s.name + '</b>'
+      + '<s>' + latin + (common ? ' · ' + common : '') + '<br>' + spSub(s)
+      + (fitsLight(s) ? '' : ' · needs more light than you have') + '</s>'
+      + '<div class="btn b-lime" data-scanadd="' + s.id + '">Add ' + lc(s.name)
+      + ' to my plants</div>' + scanManual('Not it — choose manually'));
   }catch(err){
-    scanFoot('<b>Couldn\u2019t reach the service</b>'
-      + '<s>Check the connection and try again \u2014 the photo is still here.</s>'
+    scanFoot('<b>Couldn’t reach the service</b>'
+      + '<s>Check the connection and try again — the photo is still here.</s>'
       + scanRetry() + scanManual());
   }
 }
@@ -1434,7 +1694,7 @@ function startScan(file){
   go('scan'); scanBusy();
   identify(file);
 }
-/* ─────────── камера: снимок с устройства попадает в журнал ─────────── */
+/* ─────────── камера ─────────── */
 let CAM_TARGET = null, CAM_MODE = 'photo';
 function openCamera(target, mode){
   CAM_MODE = mode || 'photo';
@@ -1450,46 +1710,15 @@ function attachShot(file){
   p.photos.unshift({u: URL.createObjectURL(file), day: TODAY});
   renderAll();
   const t=document.getElementById('toast');
-  t.innerHTML='<span>Photo added to '+p.h[0]+'</span><b data-gogrowth>See journal</b>';
+  t.innerHTML='<span>Photo added to '+p.s.name+'</span><b data-gogrowth>See journal</b>';
   t.classList.add('on'); clearTimeout(UNDOT);
-  UNDOT=setTimeout(()=>t.classList.remove('on'), 4000);
+  UNDOT=setTimeout(function(){t.classList.remove('on')}, 4000);
 }
 
-
-
-/* ─────────── прогресс-пилюля с раскрывающимся чеклистом ─────────── */
-function progHTML(){
-  const n = DONE.filter(Boolean).length, m = WEEK_TASKS.length;
-  const pct = m ? Math.round(n / m * 100) : 0;
-  return '<div class="wk' + (WEEK_OPEN ? ' open' : '') + '">'
-    + '<div class="wk-h" data-progtoggle>'
-    + '<div class="wk-title">' + m + ' things to do</div>'
-    + '<div class="wk-row"><span class="pb-n">' + n + ' of ' + m + '</span>'
-    + '<span class="pb-track"><i style="width:' + pct + '%"></i></span>'
-    + '<span class="pb-pct">' + pct + '%</span>'
-    + '<span class="pb-chev">' + ICONS._chevd + '</span></div></div>'
-    + (WEEK_OPEN ? '<div class="wk-list">' + WEEK_TASKS.map(function(t, i){
-        return '<div class="br-row" data-brtoggle="' + i + '">'
-          + '<span class="br-dot' + (DONE[i] ? ' on' : '') + '">'
-          + (DONE[i] ? ICONS._check2 : '') + '</span>'
-          + '<span class="br-t' + (DONE[i] ? ' done' : '') + '">' + t[0]
-          + (t[2] && !DONE[i] ? '<s>' + t[2] + '</s>' : '') + '</span>'
-          + '<span class="br-m">' + t[1] + '</span></div>';
-      }).join('') + '</div>' : '')
-    + '</div>';
-}
-function renderWeek(){
-  const pr = document.getElementById('homeprog'), tk = document.getElementById('hometasks');
-  if(!pr) return;
-  pr.innerHTML = progHTML();
-  if(tk) tk.innerHTML = '';
-
-}
-
-/* ─────────── виджет-сетка дашборда (по референсу с карточками) ─────────── */
+/* ─────────── виджет-сетка дашборда ─────────── */
 const MON = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
-const SOW = new Date(2026, 2, 14);                       // 14 марта — день посева
-function dayOffset(d){ const x = new Date(SOW); x.setDate(x.getDate() + d); return x; }
+const START = new Date(2026, 2, 14);
+function dayOffset(d){ const x = new Date(START); x.setDate(x.getDate() + d); return x; }
 function arc(pct, sz, dark){
   const sw = 5, r = (sz - sw) / 2, c = 2 * Math.PI * r, off = c * (1 - Math.min(100, pct) / 100);
   return '<svg width="' + sz + '" height="' + sz + '" viewBox="0 0 ' + sz + ' ' + sz + '">'
@@ -1500,23 +1729,28 @@ function arc(pct, sz, dark){
    + ' stroke-dasharray="' + c.toFixed(1) + '" stroke-dashoffset="' + off.toFixed(1) + '"'
    + ' transform="rotate(-90 ' + sz/2 + ' ' + sz/2 + ')"/></svg>';
 }
-function metricRow(items, dark){
+function metricRow(items){
   return '<div class="mrow">' + items.map(function(m){
     return '<div><s>' + m[0] + '</s><b>' + m[1] + '</b></div>';
   }).join('') + '</div>';
 }
-/* ─────────── GROWTH: дашборд + карточки культур с их фото ─────────── */
-function seasonStats(){
+function careStats(){
   const due = MY_PLANTS.filter(function(p){ return wDue(p) <= 0; });
+  let waterings = 0;
+  MY_PLANTS.forEach(function(p){ waterings += Math.floor((p.day - p.since) / p.s.water) + 1; });
   return { plants: MY_PLANTS.length, due: due.length, photos: allPhotos().length,
-           score: healthScore(), healthy: MY_PLANTS.filter(function(p){ return wDue(p) > 2; }).length };
+           score: healthScore(), waterings: Math.max(0, waterings),
+           soon: MY_PLANTS.filter(function(p){ const d = wDue(p); return d > 0 && d <= 2; }).length,
+           edible: MY_PLANTS.filter(isEdible).length,
+           ready: MY_PLANTS.filter(function(p){ return isEdible(p) && hPct(p) >= 100; }).length,
+           oldest: MY_PLANTS.reduce(function(a,p){ return Math.max(a, p.day); }, 0),
+           healthy: MY_PLANTS.filter(function(p){ return wDue(p) > 2; }).length };
 }
-const TODAY = 27;                                    // условный «сегодня» в днях от старта
 function calWidget(){
   // отмечаем дни, когда растения поливали, и дни со снимками
   const marks = {};
   MY_PLANTS.forEach(function(p){
-    for(let d = TODAY - p.since; d > 0; d -= p.h[2]) marks[d] = 'water';
+    for(let d = TODAY - p.since; d > 0; d -= p.s.water) marks[d] = 'water';
     p.photos.forEach(function(x){ if(!marks[x.day]) marks[x.day] = 'photo'; });
   });
   let cells = '';
@@ -1526,13 +1760,13 @@ function calWidget(){
            + dayOffset(d).getDate() + '</i>';
   }
   return '<div class="wg wg-dark span2"><div class="wg-h"><b>Care calendar</b>'
-    + '<s>' + MON[SOW.getMonth()] + ' \u2013 ' + MON[dayOffset(34).getMonth()] + '</s></div>'
+    + '<s>' + MON[START.getMonth()] + ' – ' + MON[dayOffset(34).getMonth()] + '</s></div>'
     + '<div class="cal">' + cells + '</div>'
     + '<div class="callg"><span><i class="m-water"></i>watered</span>'
     + '<span><i class="m-photo"></i>photo</span></div></div>';
 }
-function seasonWidgets(){
-  const st = seasonStats();
+function careWidgets(){
+  const st = careStats();
   return '<div class="wgrid">' + calWidget()
    + '<div class="wg wg-lite span2"><div class="wg-h"><b>Plant health</b><s>' + st.score + ' of 100</s></div>'
    + '<div class="pb-track" style="margin-top:12px;height:10px"><i style="width:' + st.score + '%"></i></div>'
@@ -1540,76 +1774,329 @@ function seasonWidgets(){
 }
 function renderDash(){
   const el = document.getElementById('dash'); if(!el) return;
-  const st = seasonStats();
-  const sub = document.getElementById('seasonsub');
-  if(sub) sub.textContent = MY_PLANTS.length ? st.plants + ' plants in your care' : 'No plants yet';
+  const st = careStats();
+  const sub = document.getElementById('caresub');
+  if(sub) sub.textContent = MY_PLANTS.length
+    ? st.plants + (st.plants === 1 ? ' plant in your care' : ' plants in your care')
+    : 'No plants yet';
   if(!MY_PLANTS.length){
     el.innerHTML = '<div class="note" style="margin-top:16px"><b>Nothing to show yet</b>'
-      + '<p>Add a plant and this page starts keeping its history \u2014 waterings, photos, how it changed.</p>'
+      + '<p>Add a plant and this page starts keeping its history — waterings, photos, how it changed.</p>'
       + '<div class="btn b-pri" data-go="add-plant">Add a plant</div></div>';
     return;
   }
   const v = verdict(st.score);
-  el.innerHTML = '<div class="acc dash"><div class="row1"><span class="tag">Plant parent</span></div>'
+  el.innerHTML = '<div class="acc"><div class="row1"><span class="tag">Plant parent</span></div>'
     + '<div class="lbl">Health score</div><div class="huge">' + st.score + '</div>'
-    + '<div class="sub">' + v[0] + ' \u2014 ' + v[1].toLowerCase() + '. '
+    + '<div class="sub">' + v[0] + ' — ' + v[1].toLowerCase() + '. '
     + st.photos + (st.photos === 1 ? ' photo' : ' photos') + ' in the journal.</div>'
-    + '<div class="duo"><div class="cell"><s>Plants</s><b>' + st.plants + '</b></div>'
-    + '<div class="cell"><s>Thirsty</s><b>' + st.due + '</b></div>'
-    + '<div class="cell"><s>Healthy</s><b>' + st.healthy + '</b></div></div></div>'
-    + seasonWidgets();
+    + '<div class="duo"><div class="cell"><s>Thirsty</s><b>' + st.due + '</b></div>'
+    + '<div class="cell"><s>Soon</s><b>' + st.soon + '</b></div>'
+    + '<div class="cell"><s>Fine</s><b>' + st.healthy + '</b></div></div></div>'
+    + careWidgets();
 }
-function cropCard(p, i){
-  const st = pState(p), d = wDue(p);
+function plantRow(p, i){
+  const st = pState(p);
   const strip = p.photos.length
     ? '<div class="cstrip">' + p.photos.slice(0,4).map(function(x){
         return '<div style="background-image:url(' + phUrl(x) + ')"></div>'; }).join('')
       + (p.photos.length > 4 ? '<div class="cmore">+' + (p.photos.length - 4) + '</div>' : '') + '</div>'
-    : '<div class="cempty" data-shoot="' + i + '">' + ICONS._cam + '<span>No photos yet \u2014 take one</span></div>';
+    : '<div class="cempty" data-shoot="' + i + '">' + ICONS._cam + '<span>No photos yet — take one</span></div>';
   return '<div class="ccard"><div class="chead" data-open="' + i + '">'
-    + '<div class="cthumb" style="background-image:url(img/' + p.h[1] + '.jpg)"></div>'
-    + '<div class="nm"><b>' + p.h[0] + '</b><s class="st-' + st[1] + '">' + st[0]
+    + photoTile(p.s, 'cthumb') + '</div>'
+    + '<div class="nm"><b>' + p.s.name + '</b><s class="st-' + st[1] + '">' + st[0]
     + '</s></div>' + ICONS._chev + '</div>' + strip + '</div>';
 }
-function renderCropCards(){
-  const el = document.getElementById('cropcards'); if(!el) return;
+function renderPlantCards(){
+  const el = document.getElementById('plantcards'); if(!el) return;
   if(!MY_PLANTS.length){ el.innerHTML = ''; return; }
   const thirsty = [], fine = [];
   MY_PLANTS.forEach(function(p, i){ (wDue(p) <= 2 ? thirsty : fine).push([p, i]); });
   let h = '';
   if(thirsty.length) h += '<div class="sl">Needs attention</div>'
-                          + thirsty.map(function(x){ return cropCard(x[0], x[1]); }).join('');
+                          + thirsty.map(function(x){ return plantRow(x[0], x[1]); }).join('');
   if(fine.length)    h += '<div class="sl">Doing fine</div>'
-                          + fine.map(function(x){ return cropCard(x[0], x[1]); }).join('');
+                          + fine.map(function(x){ return plantRow(x[0], x[1]); }).join('');
   h += addPhotoBtn();
   el.innerHTML = h;
 }
-function checkWeekDone(){
-  if(DONE.filter(Boolean).length === WEEK_TASKS.length) setTimeout(function(){{ go('week-done'); }}, 600);
+
+/* ─────────── экраны-моменты: milestone, recap, покупки ─────────── */
+function renderMilestone(){
+  const box = document.getElementById('milebody'); if(!box) return;
+  const ready = MY_PLANTS.filter(function(p){ return isEdible(p) && hPct(p) >= 100; })[0];
+  const p = ready || MY_PLANTS.slice().sort(function(a,b){ return b.day - a.day; })[0];
+  if(!p){
+    box.innerHTML = '<div class="mile-tx"><span class="pill b-lime">Nothing yet</span>'
+      + '<div class="cap-f mile-h">Add a plant<br>and this fills up.</div>'
+      + '<div class="mile-s">Every first — a new leaf, a first pick — lands here.</div>'
+      + '<div class="btn b-lime" data-go="add-plant">Add a plant</div></div>';
+    return;
+  }
+  const pic = p.photos[0] ? phUrl(p.photos[0]) : (p.s.img ? 'img/' + p.s.img + '.jpg' : null);
+  const shot = pic
+    ? '<div class="shot" style="background-image:url(' + pic + ');height:58%"></div>'
+      + '<div class="scrim mile-scrim"></div>'
+    : '<div class="shot" style="height:58%;' + photoStyle(p.s) + '"></div>'
+      + '<div class="scrim mile-scrim"></div>';
+  const edible = isEdible(p) && hPct(p) >= 100;
+  const head = edible ? 'First harvest.' : 'It is thriving.';
+  const pill = edible ? 'Day ' + p.day : p.s.name;
+  const sub = edible
+    ? 'You grew this ' + inOn() + CHOICES.space + '. ' + p.s.name
+      + ' is ready — pick it and it keeps producing.'
+    : p.s.name + ' has been with you ' + p.day + ' days and '
+      + careStats().waterings + ' waterings. That is the whole trick: showing up.';
+  box.innerHTML = shot
+    + '<div class="mile-ov">'
+    + '<div class="xbtn" style="align-self:flex-end" data-go="growth">' + ICONS._x2 + '</div>'
+    + '<div style="flex:1"></div>'
+    + '<span class="pill b-lime" style="align-self:flex-start">' + pill + '</span>'
+    + '<div class="cap-f mile-h">' + head + '</div>'
+    + '<div class="mile-s">' + sub + '</div>'
+    + '<div class="btn b-lime" data-addphoto>Add a photo</div>'
+    + '<div class="btn" style="background:#1B3527;color:#fff" data-go="growth">Back to my plants</div>'
+    + '</div>';
 }
-function renderAll(){ renderHome(); renderDetail(); renderJournal();
-                      try{ renderDash(); renderCropCards(); }catch(e){}
-                      try{ renderLock(); renderSettingsPlan(); }catch(e){} }
+function renderRecap(){
+  const box = document.getElementById('recapbody'); if(!box) return;
+  const st = careStats();
+  const outdoor = CHOICES.outdoor && st.edible;
+  const pic = allPhotos()[0];
+  const head = outdoor ? st.ready + (st.ready === 1 ? ' harvest.' : ' harvests.') + '<br>'
+                         + st.oldest + ' days.'
+                       : st.waterings + ' waterings.<br>' + st.plants
+                         + (st.plants === 1 ? ' plant.' : ' plants.');
+  const tag = outdoor ? 'SEASON 2026 · AUSTIN, TX' : 'YOUR YEAR · YEAR-ROUND';
+  const names = MY_PLANTS.map(function(p){ return p.s.name; });
+  const list = names.length > 1
+    ? names.slice(0, -1).join(', ') + ' and ' + names[names.length - 1]
+    : (names[0] || 'Nothing yet');
+  const sub = outdoor
+    ? list + ' all made it to the table. Next season starts in the fall window.'
+    : list + ' are all still alive — that is the whole scoreboard. '
+      + st.photos + (st.photos === 1 ? ' photo shows' : ' photos show') + ' how they changed.';
+  box.innerHTML = '<div class="glow"></div>'
+    + '<div class="xbtn" style="align-self:flex-end" data-go="growth">' + ICONS._x2 + '</div>'
+    + '<div class="recap-in">'
+    + (pic ? '<div class="recap-ph" style="background-image:url(' + phUrl(pic) + ')"></div>'
+           : '<div class="recap-ph" style="' + photoStyle(MY_PLANTS[0] ? MY_PLANTS[0].s : SPECIES[0]) + '"></div>')
+    + '<span class="pill b-lime" style="align-self:flex-start;margin-top:20px">' + tag + '</span>'
+    + '<div class="cap-f recap-h">' + head + '</div>'
+    + '<div class="recap-s">' + sub + '</div></div>'
+    + '<div class="btn b-lime" data-go="paywall">'
+    + (outdoor ? 'Plan next season now' : 'Keep the whole calendar') + '</div>'
+    + '<div class="btn" style="background:#1B3527;color:#fff" data-go="growth">Download recap</div>';
+}
+const POTPRICE = {'6 inch':6, '8 inch':8, '10 inch':12, '12 inch':16, 'tray':4,
+  '1 pint':3, '1 quart':4, '0.5 gal':5, '1 gal':7, '2 gal':10, '3 gal':13, '5 gal':18};
+function renderShopping(){
+  const box = document.getElementById('shopbody'); if(!box) return;
+  const plan = MY_PLANTS.length ? MY_PLANTS.map(function(p){ return p.s; }) : buildPlan();
+  const edible = plan.filter(function(s){ return s.kind === 'edible'; });
+  const pots = {};
+  plan.forEach(function(s){ const k = s.pot || 'pot'; pots[k] = (pots[k] || 0) + 1; });
+  const items = [];
+  Object.keys(pots).forEach(function(k){
+    const who = plan.filter(function(s){ return (s.pot || 'pot') === k; })
+                    .map(function(s){ return lc(s.name); });
+    items.push([(k === 'tray' ? 'Seed tray' : 'Pot — ' + k) + (pots[k] > 1 ? ' ×' + pots[k] : ''),
+      (POTPRICE[k] || 8) * pots[k],
+      'For ' + (who.length > 1 ? who.slice(0,-1).join(', ') + ' and ' + who[who.length-1]
+                               : who[0]) + '.']);
+  });
+  items.push(['Saucers ×' + plan.length, 2 * plan.length, 'Keeps water off the floor.']);
+  items.push(['Potting mix, 1 cu ft', 12, 'Not garden soil — too much clay for a pot.']);
+  items.push(['Watering can, 1 gal', 11, '']);
+  items.push(['Liquid fertilizer', 9, 'Container soil runs out in about six weeks.']);
+  if(edible.length) items.push(['Seed — ' + edible.map(function(s){ return lc(s.name); }).join(', '),
+    3 * edible.length, '']);
+  const total = items.reduce(function(a, x){ return a + x[1]; }, 0);
+  const sub = document.getElementById('shopsum');
+  if(sub) sub.textContent = 'Everything for ' + plan.length
+    + (plan.length === 1 ? ' plant' : ' plants') + ' · about $' + total;
+  box.innerHTML = '<div class="sl">Pots and soil</div>'
+    + items.slice(0, items.length - (edible.length ? 1 : 0)).map(function(x){
+        return taskHTML([x[0], '~$' + x[1], x[2]]); }).join('')
+    + (edible.length ? '<div class="sl">Seed</div>'
+        + taskHTML([items[items.length-1][0], '~$' + items[items.length-1][1], '']) : '')
+    + '<div class="btn b-ghost" data-go="paywall">Printable PDF — Pro</div>';
+}
+function renderWeekEmpty(){
+  const w = document.getElementById('wkplants'); if(!w) return;
+  const note = document.getElementById('wkemptynote');
+  const future = MY_PLANTS.filter(function(p){ return wDue(p) > 0; })
+    .sort(function(a,b){ return wDue(a) - wDue(b); });
+  const nextP = future[0];
+  if(note) note.innerHTML = !MY_PLANTS.length
+    ? '<b>Nothing to do yet</b><p>Add a plant and the week fills itself in.</p>'
+    : nextP
+    ? '<b>Just water and watch</b><p>Everything is on schedule. The next real job is '
+      + (isEdible(nextP) && hPct(nextP) >= 100 ? 'picking the ' : 'watering the ')
+      + lc(nextP.s.name) + ' ' + inDays(wDue(nextP)) + ' — '
+      + 'we’ll put it on that week’s card.</p>'
+    : '<b>Everything is thirsty at once</b><p>Water them today and the week clears itself. '
+      + 'After that the schedule spreads them out again.</p>';
+  w.innerHTML = MY_PLANTS.length
+    ? '<div class="plist">' + MY_PLANTS.map(function(p, i){
+        return '<div class="pl" data-open="' + i + '"><div class="rw">' + ringSVG(pPct(p))
+         + '<i>' + ICONS[p.s.icon] + '</i></div>'
+         + '<div class="nm"><b>' + p.s.name + '</b><s>' + pSub(p) + '</s></div>'
+         + '<div class="eta">' + (isEdible(p) ? hEta(p)
+              : (wDue(p) <= 0 ? 'water' : '~' + wDue(p) + 'd')) + '</div></div>';
+      }).join('') + '</div>'
+    : '';
+}
+function renderBack(){
+  const box = document.getElementById('backtasks'); if(!box) return;
+  const t = weekTasks().slice(0, 2);
+  box.innerHTML = t.length ? t.map(taskHTML).join('')
+    : '<div class="note"><b>Nothing is waiting</b><p>Your plants held out fine.</p></div>';
+  const ln = document.getElementById('longnote');
+  if(ln){
+    const dry = MY_PLANTS.filter(function(p){ return wDue(p) <= 0; }).map(function(p){ return lc(p.s.name); });
+    ln.textContent = dry.length
+      ? 'The ' + dry.join(' and ') + ' may have dropped a leaf while you were away. '
+        + 'If it did, that’s normal — water deeply once and it comes back.'
+      : 'Nothing dried out completely. Water once, and the schedule picks up from today.';
+  }
+}
+function renderWeekDone(){
+  const box = document.getElementById('donebody'); if(!box) return;
+  const st = careStats();
+  const tasks = weekTasks().length;
+  const nextP = MY_PLANTS.slice().sort(function(a,b){ return wDue(a) - wDue(b); })[0];
+  const line = nextP
+    ? (isEdible(nextP) && hPct(nextP) < 100
+        ? 'Your ' + lc(nextP.s.name) + ' is ' + (nextP.s.days - nextP.day) + ' days out.'
+        : cap(lc(nextP.s.name)) + ' needs water ' + inDays(wDue(nextP)) + '.')
+    : 'Add a plant and next week fills itself in.';
+  box.innerHTML = '<div class="glow"></div>'
+    + '<div class="xbtn" style="align-self:flex-end" data-go="home">' + ICONS._x2 + '</div>'
+    + '<div class="recap-in">'
+    + '<div class="recap-ph" style="background-image:url(img/hero-plants.jpg)"></div>'
+    + '<span class="pill b-lime" style="align-self:flex-start;margin-top:20px">Week complete</span>'
+    + '<div class="done-h">Everything<br><span style="color:var(--lime)">on time.</span></div>'
+    + '<div class="recap-s">' + line + ' Pro maps every week ahead so you never wonder what’s next.</div>'
+    + '<div class="sg2"><div class="stat"><b style="color:var(--lime)">' + st.waterings
+    + '</b><s>waterings logged</s></div>'
+    + '<div class="stat"><b>' + tasks + '/' + tasks + '</b><s>tasks this week</s></div></div></div>'
+    + '<div class="btn b-lime" data-go="paywall">See the whole calendar</div>'
+    + '<div class="btn" style="background:#1B3527;color:#fff" data-go="home">Not now</div>';
+}
+function renderSave(){
+  const el = document.getElementById('savepill'); if(!el) return;
+  const plan = buildPlan();
+  el.textContent = plan.length + (plan.length === 1 ? ' PLANT' : ' PLANTS') + ' · '
+    + (CHOICES.outdoor ? '30 WEEKS' : 'YEAR-ROUND');
+}
+
+/* ─────────── онбординг: варианты рендерятся из трека ─────────── */
+const SPACES = {
+  house: [['Living room','The usual spot — bright but not direct','q2i'],
+          ['Bedroom','Low light, steady temperature','q2i'],
+          ['Kitchen','Warm, humid, good for most things','q2i'],
+          ['Bathroom','High humidity, often low light','q2i'],
+          ['Home office','Desk-side, artificial light too','q2i'],
+          ['Windowsill','The brightest shelf you have','q2i']],
+  edible: [['Patio',null,'q2'], ['Deck',null,'q2'], ['Porch',null,'q2'],
+           ['Backyard',null,'q2'], ['Raised bed',null,'q2'],
+           ['Apartment balcony',null,'q2'],
+           ['Windowsill / indoors','Herbs and greens, year-round','q2i']],
+  both: [['Living room','Plants inside, herbs on the sill','q2i'],
+         ['Kitchen','Warm and humid — herbs do well','q2i'],
+         ['Windowsill','The brightest shelf you have','q2i'],
+         ['Patio','Pots outside, plants inside','q2'],
+         ['Balcony','Containers out, greenery in','q2'],
+         ['Backyard','Beds outside, plants inside','q2']]
+};
+const GOALS = {
+  house: [['Hard to kill','hardy'], ['Low light room','lowlight'], ['A big statement plant','statement'],
+          ['Flowers','flowers'], ['Trailing and hanging','trailing'], ['Cleaner air','air'],
+          ['Kid-friendly project','kids']],
+  edible: [['Salads and greens','salads'], ['Fresh herbs','herbs'], ['Fast first harvest','fast'],
+           ['Tomatoes','tomatoes'], ['Peppers','peppers'], ['Beans and peas','beans'],
+           ['Roots: radish, carrot','roots'], ['Kid-friendly project','kids']],
+  both: [['Hard to kill','hardy'], ['Fresh herbs','herbs'], ['Salads and greens','salads'],
+         ['A big statement plant','statement'], ['Fast first harvest','fast'],
+         ['Flowers','flowers'], ['Cleaner air','air'], ['Kid-friendly project','kids']]
+};
+const Q4TITLE = {house:'What are you after?', edible:'What do you want to eat?',
+                 both:'What are you after?'};
+function optHTML(label, sub, next, multi){
+  const s = sub ? '<s>' + sub + '</s>' : '';
+  const attr = multi ? ' data-multi' : ' data-single data-next="' + next + '"';
+  return '<div class="opt"' + attr + '><div>' + label + s + '</div>'
+    + '<div class="opt-tick">' + ICONS._checkw + '</div></div>';
+}
+function renderQ1(){
+  const box = document.getElementById('q1opts'); if(!box) return;
+  box.innerHTML = (SPACES[CHOICES.track] || SPACES.both).map(function(o){
+    return optHTML(o[0], o[1], o[2], false); }).join('');
+  const h = document.getElementById('q1head');
+  if(h) h.textContent = CHOICES.track === 'edible' ? 'Where will you grow?' : 'Where will it live?';
+}
+function renderQ4(){
+  const box = document.getElementById('q4opts'); if(!box) return;
+  box.innerHTML = (GOALS[CHOICES.track] || GOALS.both).map(function(o){
+    return optHTML(o[0], null, null, true); }).join('');
+  const h = document.getElementById('q4head');
+  if(h) h.textContent = Q4TITLE[CHOICES.track] || Q4TITLE.both;
+}
+function renderQ5(){
+  const box = document.getElementById('q5opts'); if(!box) return;
+  const many = CHOICES.track === 'edible' ? 'a real garden' : 'a real collection';
+  box.innerHTML =
+      optHTML('About 10 minutes', 'Keep it very simple · 3 plants', 'preview', false)
+    + optHTML('About 20 minutes', 'I can do a bit more · 4 plants', 'preview', false)
+    + optHTML('30+ minutes', 'I want ' + many + ' · 5–6 plants', 'preview', false);
+}
+
+function renderAll(){
+  renderHome(); renderDetail();
+  try{ renderDash(); renderPlantCards(); }catch(e){}
+  try{ renderLock(); renderSettingsPlan(); renderSettingsSpace(); }catch(e){}
+}
 
 const SUNLABEL = {
- '3\u20135 hours':'3\u20135 hours of sun', '6\u20138 hours':'6\u20138 hours of sun',
- '8+ hours':'8+ hours of sun', 'Not sure yet':'a safe 3\u20135 hours until you check',
+ '3–5 hours':'3–5 hours of sun', '6–8 hours':'6–8 hours of sun',
+ '8+ hours':'8+ hours of sun', 'Not sure yet':'a safe 3–5 hours until you check',
  'South':'a south-facing window', 'East or West':'an east or west window',
  'North':'a north window', 'Not sure':'a cautious low-light start'};
 const GOALWORD = {salads:'salads', herbs:'herbs', fast:'a fast first harvest',
- tomatoes:'tomatoes', peppers:'peppers', beans:'beans', roots:'root crops', kids:'a kid project'};
-const SUNNEED = {tomatoes:'6\u20138 hours', peppers:'6\u20138 hours', beans:'6\u20138 hours'};
+ tomatoes:'tomatoes', peppers:'peppers', beans:'beans', roots:'root crops', kids:'a kid project',
+ hardy:'something hard to kill', lowlight:'plants for a dim room', statement:'a statement plant',
+ flowers:'flowers', trailing:'trailing greenery', air:'cleaner air', petsafe:'pet-safe plants',
+ useful:'a plant that earns its keep'};
+const SUNNEED = {tomatoes:'6–8 hours', peppers:'6–8 hours', beans:'6–8 hours'};
 const SUNRANK = {'3–5 hours':1,'6–8 hours':2,'8+ hours':3,'Not sure yet':1,
                  'South':2,'East or West':1,'North':1,'Not sure':1};
-const GOALTAG = {'Salads & greens':'salads','Fresh herbs':'herbs','Fast first harvest':'fast',
-                 'Tomatoes':'tomatoes','Peppers':'peppers','Beans & peas':'beans',
-                 'Roots: radish, carrot':'roots','Kid-friendly project':'kids'};
+const TRACKOF = {'Houseplants':'house', 'Something to eat':'edible', 'Both':'both'};
+function goalTag(label){
+  const all = GOALS.house.concat(GOALS.edible, GOALS.both);
+  const hit = all.find(function(o){ return o[0] === label; });
+  return hit ? hit[1] : null;
+}
+function isOutdoorSpace(label){
+  return ['Patio','Deck','Porch','Backyard','Raised bed','Apartment balcony','Balcony']
+    .indexOf(label) > -1;
+}
 function recordChoice(scr, label){
-  if(scr==='s-q1'){ CHOICES.space = label.toLowerCase().indexOf('windowsill')>-1 ? 'a windowsill' : 'a '+label.toLowerCase();
-                    CHOICES.indoor = label.indexOf('Windowsill')>-1; }
-  if(scr==='s-q3'||scr==='s-q2i'){ CHOICES.sun = SUNLABEL[label] || 'your light';
-                    CHOICES.sunRank = SUNRANK[label]||1; }
-  if(scr==='s-q5'){ CHOICES.effort = label.indexOf('10')>-1?3:label.indexOf('20')>-1?4:5; }
+  if(scr === 's-q0'){
+    CHOICES.track = TRACKOF[label] || 'house';
+    CHOICES.goals = [];
+    renderQ1(); renderQ4(); renderQ5();
+  }
+  if(scr === 's-q1'){
+    CHOICES.outdoor = isOutdoorSpace(label);
+    CHOICES.space = label.indexOf('Windowsill') > -1 ? 'windowsill' : label.toLowerCase();
+  }
+  if(scr === 's-q3' || scr === 's-q2i'){
+    CHOICES.sun = SUNLABEL[label] || 'your light';
+    CHOICES.sunRank = SUNRANK[label] || 1;
+  }
+  if(scr === 's-q5'){ CHOICES.effort = label.indexOf('10') > -1 ? 3
+                                     : label.indexOf('20') > -1 ? 4 : 5; }
 }
 '''
 
@@ -1632,100 +2119,152 @@ ICON_JS['_checkg'] = ic('check', 'var(--bright)', 17, '3')
 ICON_JS['_x'] = ic('x', '#6E7A73', 17, '2.4')
 ICON_JS['_cam'] = ic('camera', 'var(--primary)', 22, '2')
 ICON_JS['_cam2'] = ic('camera', 'var(--primary)', 26, '1.9')
+ICON_JS['_checkw'] = ic('check', '#fff', 14, '3')
+ICON_JS['_x2'] = ic('x', '#CFE0D4', 20, '2')
+# крупные глифы для плитки-заглушки, когда настоящей фотографии вида нет
+for _n in sorted({x['icon'] for x in PLANTS}):
+    ICON_JS['_big_' + _n] = ic(_n, 'rgba(180,244,97,.42)', 64)
 
 
 # ═════════════════════════════ ДОКУМЕНТ ФЛОУ
 FLOWS = [
- ("1 · Первый заход", "От лендинга до первой отмеченной задачи. Цель — 90 секунд и пять вопросов.", [
+ ("1 · Первый заход", "От лендинга до первой отмеченной задачи. Цель — 90 секунд и шесть вопросов.", [
   ("Landing", "Фото на весь экран, один заголовок, одна кнопка.",
    "Ничего не считает. Ждёт тапа.",
-   "Q1", "Логина нет — в спеке он на лендинге не предусмотрен, возврат идёт по ссылке из письма. "
-         "Никаких попапов и cookie-модалок поверх первого экрана."),
-  ("Q1 · Space", "Восемь пространств. Ни одно не выбрано заранее.",
-   "Пишет space.type. От него зависят объём контейнера, предупреждения о дренаже и набор культур.",
-   "Q2 · либо Q3-indoor, если выбран Windowsill",
-   "Windowsill — единственная развилка онбординга. Она уводит в трек без сезона."),
-  ("Q2 · ZIP", "Пустое поле-плейсхолдер, Continue выключен.",
-   "После ввода резолвит ZIP в climate_profile: даты заморозков, длина сезона, зона USDA. "
+   "Q0", "Обещание — про растения вообще: «Keep every plant alive and growing». "
+         "Логина нет, возврат идёт по ссылке из письма. Никаких попапов поверх первого экрана."),
+  ("Q0 · Track", "Три варианта: Houseplants / Something to eat / Both.",
+   "Пишет track. От него зависят варианты в Q1 и Q4, состав библиотеки и то, "
+   "спрашиваем ли мы вообще ZIP.",
+   "Q1", "Это единственная развилка, которая делит продукт. Раньше её не было: продукт "
+         "начинался как «выращивай съедобное», и половина экранов до сих пор помнила ту эпоху."),
+  ("Q1 · Space", "Варианты рендерятся из трека: комнаты для комнатных, площадки для съедобных.",
+   "Пишет space и флаг outdoor. Уличное место — единственная причина спрашивать ZIP: "
+   "комнатному растению заморозки не нужны.",
+   "Q2 если outdoor, иначе Q2-indoor",
+   "Windowsill остаётся внутри: подоконник — это indoor с ритмом среза, а не сезон."),
+  ("Q2 · ZIP", "Пустое поле-плейсхолдер, Continue выключен. Только на уличном треке.",
+   "Резолвит ZIP в climate_profile: даты заморозков, длина сезона, зона USDA. "
    "Показывает результат карточкой — подтверждение, что система что-то узнала.",
    "Q3", "ZIP не найден → выбор штата и ближайшего города. Онбординг не блокируем никогда."),
-  ("Q3 · Sun", "Четыре варианта светового бюджета.",
-   "Пишет sun_bucket — главный фильтр качества плана. Плодовым нужно 6-8 ч, листовым хватает 3-5.",
-   "Q4", "«Not sure» → назначаем 3-5 как безопасный вариант и добавляем задачу Sun check в первую неделю."),
-  ("Q3-indoor · Window", "Сторона окна вместо часов солнца.",
-   "South → ранг 2, East/West и North → ранг 1. Ложится в тот же sun_bucket, движок не переписывается.",
-   "Q4", "Новый экран, которого нет в спеке. Следствие усиления indoor-трека."),
-  ("Q4 · Goals", "Мультивыбор, максимум три. Ничего не выбрано заранее.",
-   "Пишет plan.goals. При достижении лимита остальные гаснут, а не исчезают.",
-   "Q5", "Если цель конфликтует со светом — не отказываем, а честно объясняем на Plan Preview."),
-  ("Q5 · Effort", "Три уровня усилия.",
-   "Пишет effort_level: 3 / 4 / 5-6 культур и 3 / 5 / 7 задач в неделю. "
-   "Интерфейс всё равно показывает максимум 5, остальное под «+2 more».",
-   "Plan Preview", "Вопросов об опыте садоводства нет — они не нужны движку и увеличивают отвал."),
-  ("Plan Preview", "План собран: культуры, контейнеры, дата первого сбора, блок «почему».",
-   "Прогоняет мини-движок: фильтр по свету → скоринг по целям → лимиты состава "
-   "(минимум одна культура до 35 дней, максимум две дольше 70).",
-   "Save Plan", "Ключевое решение продукта: план показывается ДО регистрации. "
-                "Эндпоинт /api/onboarding/preview работает без авторизации."),
-  ("Save Plan", "Фото на весь экран, Google или email.",
+  ("Q3 · Sun", "Четыре варианта светового бюджета в часах. Только на уличном треке.",
+   "Пишет sunRank — главный фильтр качества плана. Плодовым нужно 6-8 ч, листовым хватает 3-5.",
+   "Q4", "«Not sure» → ранг 1 как безопасный вариант плюс задача Sun check в первую неделю."),
+  ("Q2-indoor · Light", "Сторона окна вместо часов солнца. Весь indoor, и комнатные и подоконник.",
+   "South → ранг 2, East/West и North → ранг 1. Ложится в тот же sunRank, движок один.",
+   "Q4", "Экрана нет в спеке. Следствие того, что продукт стал в первую очередь домашним."),
+  ("Q4 · Goals", "Мультивыбор, максимум три. Варианты из трека.",
+   "Комнатным предлагаем hard to kill / low light / statement / flowers, "
+   "съедобным — salads / herbs / tomatoes / roots. Пишет plan.goals.",
+   "Q5", "При достижении лимита остальные гаснут, а не исчезают."),
+  ("Q5 · Effort", "Три уровня усилия: 3 / 4 / 5-6 растений.",
+   "Пишет effort. Интерфейс всё равно показывает максимум 5 задач в неделю.",
+   "Plan Preview", "Вопросов об опыте нет — они не нужны движку и увеличивают отвал."),
+  ("Plan Preview", "План собран: растения, интервалы, дата первого сбора и блок «почему».",
+   "Мини-движок: фильтр по треку и месту → фильтр по свету → скоринг по целям → "
+   "гарантии состава. Гарантий три: хотя бы одна быстрая культура на съедобном треке, "
+   "хотя бы по одному растению каждого вида на треке both и "
+   "хотя бы одно растение под каждую заявленную цель, если свет её пропускает.",
+   "Save Plan", "Ключевое решение: план показывается ДО регистрации. "
+                "Блок «почему» различает три причины отказа — не хватает света, "
+                "у нас такого нет, не влезло в размер плана — и не валит всё на свет."),
+  ("Save Plan", "Фото на весь экран, Google или email. Пилюля считается из плана.",
    "Создаёт User, привязывает план. Пароля нет — magic link.",
    "Paywall", "Регистрация только после того, как ценность показана."),
-  ("Paywall", "Тёмный экран, Season pass предвыбран, триал без карты.",
+  ("Paywall", "Тёмный экран, Year pass предвыбран, триал без карты.",
    "Ничего не блокирует. Закрывается в тот экран, откуда пришёл.",
    "Home", "⚠ Показ сразу после регистрации — решение заказчика. Спека §10.4 это запрещает "
            "(never_before_first_task = true). Риск: отвал до первой ценности."),
  ]),
  ("2 · Недельный цикл", "То, ради чего продукт существует. 80% времени пользователя.", [
-  ("Home · пусто", "Акцентный блок зовёт добавить растение. Ниже — единственная задача: купить контейнеры.",
+  ("Home · пусто", "Фото-герой на весь блок: «Every room feels better with something alive in it». "
+   "Две дороги — скан камерой и библиотека.",
    "MY_PLANTS пуст. Экран знает это и меняется целиком.",
-   "Add a plant", "Пустой экран не должен быть пустым: он продаёт ближайшее будущее."),
-  ("Add a plant", "Поиск по 21 культуре, группы «быстрые» и «долгие», внизу — то, чему не хватает света.",
-   "Фильтрует по sun_bucket. Выбранное копится в корзине, счётчик растёт. "
-   "Кнопка пишет, сколько именно добавится.",
-   "Home", "Добавил одно — появится одно. Неподходящие культуры показаны и погашены, а не спрятаны."),
-  ("Home · есть растения", "Тот же акцентный блок, внутри растения с кольцами. Ниже — задачи недели.",
-   "Кольцо = день / days_to_harvest_min. Стадия считается детерминированно, а не со слов пользователя.",
-   "Plant detail · Week complete", "Задачи текущей недели всегда бесплатны — это ядро обещания."),
+   "Scan или Add a plant", "Пустой экран не должен быть пустым: он продаёт ближайшее будущее."),
+  ("Add a plant", "Поиск по 29 видам: 8 комнатных и 21 съедобная культура. Один справочник.",
+   "Показывает подмножество под трек и место. Комнатные группируются по требовательности, "
+   "съедобные — по скорости отдачи. Тем, чему не хватает света, отдельный блок внизу.",
+   "Home", "Добавил одно — появится одно. Неподходящее показано и погашено, а не спрятано. "
+           "Раньше этот экран не открывался вообще: он читал поле съедобной модели у "
+           "комнатного растения и падал."),
+  ("Home · есть растения", "Health score с фото, два виджета, горизонтальный список растений, "
+   "ниже — раскрывающийся чеклист недели.",
+   "Score считается по просрочке полива. Задачи собираются из MY_PLANTS: полив по просрочке, "
+   "сбор для созревших, протирка листьев для крупных, поворот для светолюбивых, подкормка раз в месяц.",
+   "Plant detail · Week complete", "Задачи текущей недели всегда бесплатны — это ядро обещания. "
+   "Список задач раньше был захардкожен под четыре конкретных растения и врал, "
+   "как только состав менялся."),
   ("Отметка задачи", "Один тап, без подтверждения. Прогресс-бар двигается.",
-   "task.status = done → пересчёт стадии → обновление streak → проверка OFF-05.",
-   "Week complete, если отмечены все", "Просроченная задача не красная и не имеет жёсткого дедлайна."),
-  ("Week complete", "Тёмный экран с фото, стрик, предложение Pro.",
-   "success_modal. Частота — не чаще раза в 7 дней.",
+   "Отметка живёт по названию задачи, а не по индексу: список пересобирается при каждом "
+   "изменении состава, и индексы бы разъехались.",
+   "Week complete, если отмечены все", "Просроченная задача не красная и без жёсткого дедлайна."),
+  ("Week complete", "Тёмный экран с фото, счётчик поливов, предложение Pro.",
+   "success_modal. Частота — не чаще раза в 7 дней. Строка «что дальше» берётся из растений.",
    "Paywall или Home", "Оффер привязан к моменту успеха, а не к блокировке."),
+  ("Week · пусто", "«Nothing needed this week» плюс список растений с их сроками.",
+   "Считает ближайшую задачу и называет её словами: «watering the pothos tomorrow».",
+   "Plant detail", "§18. Пустая неделя — подтверждение, что всё идёт по плану, а не сломанный экран."),
+  ("Week · возврат", "«Most of it doesn\u2019t matter now» и две задачи, которые ещё имеют смысл.",
+   "Задачи берутся из настоящих растений, а не из текста.",
+   "Home", "§6.4 Продукт никогда не показывает список из двадцати просроченных задач."),
+  ("Week · долгий пропуск", "Предложение пересобрать план. Нижняя строка называет растения, "
+   "которые реально пересохли.",
+   "Пересчёт предлагается, но не делается автоматически. Выполненное и журнал сохраняются.",
+   "Home", "§19.1 №7."),
  ]),
- ("3 · Растения", "Управление составом плана.", [
-  ("Plants", "Список с кольцами. У каждой строки крестик.",
-   "Рендерится из MY_PLANTS. Показывает, сколько из трёх бесплатных слотов занято.",
-   "Plant detail", "Удаление доступно всегда — растения гибнут, это часть процесса."),
-  ("Удаление", "Крестик убирает строку, снизу всплывает «Undo» на 4.5 секунды.",
-   "Растение удаляется из состояния, но хранится в буфере отмены вместе с позицией.",
-   "остаётся на Plants", "Провал не должен быть страшным. §23.1 запрещает обвинять пользователя."),
-  ("Plant detail", "Фото, кольцо, полоса «типичный диапазон», timeline, история задач.",
-   "Полоса строится из days_to_harvest_min/max, точка — фактический день.",
-   "Harvest, если созрело", "Нет фото → вместо пустых серых квадратов стоит плитка «Add a photo»."),
+ ("3 · Растения", "Управление составом и карточка вида.", [
+  ("Plant detail", "Фото, латинское имя, статус, два виджета, журнал, удаление.",
+   "Второй виджет зависит от вида: комнатному — свет и влажность, съедобному — процент "
+   "до сбора и типичный диапазон дней.",
+   "Milestone, если созрело", "Если у вида нет настоящей фотографии, стоит плитка с иконкой. "
+   "Выдумывать ассет нельзя, а битая картинка — артефакт."),
+  ("Удаление", "Кнопка внизу карточки, снизу всплывает Undo на 4.5 секунды.",
+   "Растение удаляется из состояния, но хранится в буфере отмены вместе с позицией. "
+   "SELECTED подтягивается, чтобы не указывать в пустоту.",
+   "Home", "Провал не должен быть страшным. §23.1 запрещает обвинять пользователя."),
+  ("Scan a plant", "Камера, рамка, ответ с процентом совпадения.",
+   "Реальный PlantNet через воркер-прокси, ключ в клиент не попадает. Латинское имя "
+   "маппится на 29 видов справочника, включая комнатные.",
+   "Home", "Воркер не развёрнут → экран честно пишет «Recognition is off» и не угадывает. "
+           "Добавление после скана раньше создавало объект чужой формы и ломало весь рендер."),
  ]),
- ("4 · Урожай и сезон", "Пик удержания и главный источник органики.", [
-  ("Harvest Moment", "Тёмный экран, настоящее фото, «First harvest. Day 31».",
-   "Создаёт Harvest, помечает is_first_of_plan, проверяет OFF-06.",
-   "Growth", "Единственный момент, когда пользователь получает физическое доказательство."),
-  ("Growth · дашборд", "Счётчик сезона в акцентном блоке: сборы, дни, культуры, стрик. Ниже журнал.",
-   "Считает по §9.4. Эти же четыре цифры в конце сезона становятся Season Recap.",
-   "Paywall при 6-м фото", "Нет фото → блок «Take one photo today», а не пустая сетка."),
+ ("4 · История ухода", "Пик удержания и главный источник органики.", [
+  ("Growth · дашборд", "Health score крупной цифрой, календарь ухода, полоса здоровья, "
+   "карточки растений со своими снимками.",
+   "Календарь отмечает дни поливов и дни со снимками. Карточки делятся на «нужно внимание» и "
+   "«всё хорошо» по сроку полива.",
+   "Plant detail", "Раньше здесь были две сущности про одно и то же — список и отдельная "
+                   "сетка фото, хотя каждое фото и так принадлежит растению."),
+  ("Milestone", "Тёмный экран с настоящим фото из журнала.",
+   "Для съедобных это «First harvest. Day 31», для комнатных — «It is thriving» с числом "
+   "дней и поливов. Один экран, две формулировки.",
+   "Growth", "Единственный момент, когда человек получает физическое доказательство."),
+  ("Recap", "Итог: сборы и дни на улице, поливы и растения внутри.",
+   "На уличном треке триггер today ≥ first_frost. Для комнатных сезон не кончается никогда, "
+   "поэтому итог считается в поливах и снимках.",
+   "Paywall", "Экран пришёл из съедобной эпохи и считал «14 harvests, 187 days» "
+              "независимо от того, что у человека росло."),
+  ("Shopping list", "Горшки по размеру каждого вида, поддоны, грунт, лейка, удобрение.",
+   "Собирается из плана, сумма считается. Строка семян появляется только если в плане "
+   "есть съедобное.",
+   "Paywall", "Free — список на экране, Pro — печатный PDF. Ценность видна до покупки."),
  ]),
- ("5 · Indoor", "Ветка, которая закрывает сезонность.", [
-  ("Indoor · Home", "«Season ends: never». Ритм — срез каждую неделю.",
-   "Нет first_frost, нет horizon_weeks. Вместо дней до урожая — счётчик срезов и время до следующего.",
-   "тот же цикл", "Нужны поля cut_count и regrow_days, которых в спеке нет."),
+ ("5 · Подоконник", "Съедобный трек внутри дома. Ветка, которая закрывает сезонность.", [
+  ("Windowsill · Home", "«Season ends: never». Ритм — срез каждую неделю.",
+   "Нет first_frost и horizon_weeks. Вместо дней до урожая — счётчик срезов и время до следующего.",
+   "тот же цикл", "Все четыре вида есть в справочнике с флагом sill. Экран показательный, "
+                  "содержимое статичное."),
  ]),
  ("6 · Точки оффера", "Видно часто, давления нет.", [
-  ("Баннер над навигацией", "Лаймовая полоса, не перекрывает контент, не требует закрытия.",
-   "persistent_line. Видна всегда.",
+  ("Баннер над навигацией", "Лаймовая полоса «Unlock the full care plan», не перекрывает "
+   "контент, не требует закрытия.",
+   "persistent_line. Видна всегда, кроме Pro.",
    "Paywall", "Около 90% всех показов оффера приходится на неперекрывающие форматы."),
-  ("Soft-lock недели +2", "Задачи размыты, но количество и даты видны.",
+  ("Soft-lock двух недель", "Задачи размыты, но количество и время видны.",
    "Показывает, что за платой стоит реальный контент, а не пустота.",
-   "Paywall", "Это не стена. §10.3."),
-  ("Лимит культур", "Четвёртая культура упирается в блок «That\u2019s the free limit».",
-   "Не отказ: культура добавляется визуально и помечается is_premium.",
+   "Paywall", "Это не стена. §10.3. Обещание — «весь календарь ухода», а не «30 недель сезона»."),
+  ("Лимит растений", "Четвёртое растение упирается в блок «That\u2019s the free limit».",
+   "Не отказ: выбор остаётся в корзине, блок объясняет, что даёт Pro.",
    "Paywall", "Мы не блокируем то, что человек уже начал."),
   ("Anti-annoyance", "Если модалку показывать нельзя, оффер деградирует в inline, а не исчезает.",
    "max 1 модалка в 7 дней, 2 закрытия подряд → только inline, 5 → только баннер и Settings.",
@@ -1734,17 +2273,19 @@ FLOWS = [
 ]
 
 # ═════════════════════════════ СБОРКА
-GROUPS = ['Онбординг', 'Home', 'Plants', 'Growth', 'Деньги', 'Система', 'Indoor']
-HOME_NEW_GONE = True
+GROUPS = ['Онбординг', 'Home', 'Plants', 'Growth', 'Деньги', 'Система', 'Windowsill']
 FLOW = """
-<b>Основной путь.</b> <code>landing</code> → пять вопросов → <code>preview</code> (план виден без регистрации)
-→ <code>save</code> → <code>home-new</code> → добавил растение → <code>home</code> → чекает задачи →
-<code>week-done</code> → <code>paywall</code><br>
-<b>Ветка indoor.</b> В <code>q1</code> выбор «Windowsill» уводит в <code>q2i</code> — вопрос о стороне окна вместо
-часов солнца. Дальше тот же поток, но конца сезона нет.<br>
-<b>Ветка урожая.</b> <code>plant</code> → «Harvest it» → <code>harvest</code> → <code>growth</code>.<br>
-<b>Ветки оффера.</b> <code>week-lock</code> (soft-lock недели +2), <code>add-plant</code> (лимит культур),
-журнал на 6-м фото, <code>week-done</code> — все ведут в <code>paywall</code>, и все закрываются в <code>home</code>.
+<b>Основной путь.</b> <code>landing</code> → <code>q0</code> (что растим) → четыре-пять вопросов →
+<code>preview</code> (план виден без регистрации) → <code>save</code> → <code>paywall</code> →
+<code>home</code> → добавил растение → чекает задачи → <code>week-done</code><br>
+<b>Развилка трека.</b> <code>q0</code> делит продукт: комнатные, съедобные или и то и другое. От трека
+зависят варианты в <code>q1</code> и <code>q4</code>, состав библиотеки и то, спрашиваем ли ZIP.<br>
+<b>Развилка места.</b> Уличное место в <code>q1</code> → <code>q2</code> (ZIP) → <code>q3</code> (часы солнца).
+Комната или подоконник → <code>q2i</code> (сторона окна), ZIP не спрашиваем вообще.<br>
+<b>Ветка момента.</b> <code>plant</code> → созрело → <code>harvest</code> (milestone) → <code>growth</code>;
+конец года → <code>season-end</code> (recap).<br>
+<b>Ветки оффера.</b> <code>week-lock</code> (soft-lock двух недель), <code>add-plant</code> (лимит трёх растений),
+<code>week-done</code> — все ведут в <code>paywall</code>, и все закрываются туда, откуда пришли.
 """
 TOKENS = [('--ground', '#F2F4F0', 'Ground'), ('--surface', '#FFFFFF', 'Surface'),
           ('--ink', '#0B1F14', 'Ink · 17.2:1'), ('--muted', '#5C6660', 'Muted · 6.0:1'),
@@ -1757,7 +2298,8 @@ notes = {s['id']: (s['title'], s['note']) for s in SCR}
 
 idx = ('<div class="grp"><div class="gt">Состояние данных</div><div class="chips">'
        '<button class="chip" data-demo="empty">Сбросить — новый юзер</button>'
-       '<button class="chip" data-demo="seed">Заполнить — 4 растения</button></div></div>')
+       '<button class="chip" data-demo="seed">4 комнатных</button>'
+       '<button class="chip" data-demo="mixed">Смешанный набор — 2 + 2</button></div></div>')
 for g in GROUPS:
     items = [s for s in SCR if s['group'] == g]
     if not items: continue
@@ -1769,8 +2311,8 @@ toks = '<div class="tok">' + ''.join(
     for v, hx, lbl in TOKENS) + '</div>'
 
 import json
-JS_SRC = JS_SRC.replace('__HOUSE__', json.dumps(HOUSEPLANTS, ensure_ascii=False))
-JS_EXTRA = JS_SRC.replace('__ICONS__', json.dumps(ICON_JS, ensure_ascii=False)).replace('__CROPS__', json.dumps(CROPS, ensure_ascii=False))
+JS_EXTRA = (JS_SRC.replace('__ICONS__', json.dumps(ICON_JS, ensure_ascii=False))
+                  .replace('__SPECIES__', json.dumps(PLANTS, ensure_ascii=False)))
 HTML = f'''<!doctype html><html lang="ru"><head><meta charset="utf-8">
 <title>HOMEGROWN — прототип</title>
 <style>{CSS}</style></head><body>
@@ -1799,6 +2341,16 @@ HTML = f'''<!doctype html><html lang="ru"><head><meta charset="utf-8">
 {JS_EXTRA}
 const NOTES = {json.dumps(notes, ensure_ascii=False)};
 let PW_FROM = 'home';
+const ONB = ['q0','q1','q2','q3','q2i','q4','q5'];
+const STEPS = {{outdoor:['q0','q1','q2','q3','q4','q5'], indoor:['q0','q1','q2i','q4','q5']}};
+function renderPg(id){{
+  const path = CHOICES.outdoor ? STEPS.outdoor : STEPS.indoor;
+  const k = path.indexOf(id); if(k < 0) return;
+  document.querySelectorAll('#s-'+id+' [data-pg]').forEach(function(el){{
+    el.innerHTML = path.map(function(_, i){{
+      return '<i class="'+(i <= k ? 'on' : '')+'"></i>'; }}).join('');
+  }});
+}}
 function go(id){{
   const el = document.getElementById('s-'+id); if(!el) return;
   if(id==='paywall'){{ const cur=document.querySelector('.screen.on');
@@ -1806,19 +2358,25 @@ function go(id){{
     if(PW_FROM==='paywall') PW_FROM='home'; }}
   document.querySelectorAll('.screen.on').forEach(s=>s.classList.remove('on'));
   resetScreen(id);
+  if(id==='q1') renderQ1();
+  if(id==='q4') renderQ4();
+  if(id==='q5') renderQ5();
+  if(ONB.indexOf(id)>-1) renderPg(id);
   if(id==='preview') try{{ renderPreview(); }}catch(e){{}}
-  if(id==='add-plant'){{ const q=document.getElementById('cropq'); if(q){{q.value='';
-      q.parentElement.classList.remove('has');}} PENDING=[]; renderCrops(''); }}
+  if(id==='save') renderSave();
+  if(id==='add-plant'){{ const q=document.getElementById('spq'); if(q){{q.value='';
+      q.parentElement.classList.remove('has');}} PENDING=[]; renderLibrary(''); }}
   if(id==='home') renderHome();
-  if(id==='week-empty'){{ const w=document.getElementById('wkplants');
-    if(w) w.innerHTML='<div class="plist">'+MY_PLANTS.map((p,i)=>
-      '<div class="pl" data-open="'+i+'"><div class="rw">'+ringSVG(pPct(p))+'<i>'+ICONS[p.c[1]]+'</i></div>'
-      +'<div class="nm"><b>'+p.c[0]+'</b><s>Day '+p.day+' &middot; '+pStage(p)+'</s></div>'
-      +'<div class="eta">'+pEta(p)+'</div></div>').join('')+'</div>'; }}
+  if(id==='week-empty') renderWeekEmpty();
+  if(id==='week-back'||id==='week-long') renderBack();
+  if(id==='week-done') renderWeekDone();
   if(id==='plant') renderDetail();
-  if(id==='growth'){{ renderDash(); renderCropCards(); }}
+  if(id==='growth'){{ renderDash(); renderPlantCards(); }}
+  if(id==='harvest') renderMilestone();
+  if(id==='season-end') renderRecap();
+  if(id==='shopping') renderShopping();
   if(id==='week-lock') renderLock();
-  if(id==='settings') renderSettingsPlan();
+  if(id==='settings'){{ renderSettingsPlan(); renderSettingsSpace(); }}
   el.classList.add('on'); el.querySelectorAll('.bd').forEach(b=>b.scrollTop=0);
   el.querySelectorAll('.dark,.overlay').forEach(b=>b.scrollTop=0);
   document.querySelectorAll('.chip').forEach(c=>c.classList.toggle('act', c.dataset.go===id));
@@ -1828,18 +2386,18 @@ function go(id){{
   document.getElementById('scr-note').innerHTML = n[1];
   history.replaceState(null,'','#'+id);
 }}
-const MAXG = 3, MAXP = 3;
+const MAXG = 3;
 function resetScreen(id){{
   const el = document.getElementById('s-'+id); if(!el) return;
   el.querySelectorAll('.opt').forEach(o=>o.classList.remove('sel','dim'));
-  el.querySelectorAll('.pl').forEach(o=>o.classList.remove('added','locked'));
+  el.querySelectorAll('.pl').forEach(o=>o.classList.remove('locked'));
   el.querySelectorAll('[data-cta]').forEach(b=>b.classList.add('off'));
   const z = el.querySelector('[data-zip]');
   if(z){{ z.textContent='— — — — —'; z.classList.add('ph');
           el.querySelector('[data-zipres]').style.display='none'; }}
   const c = el.querySelector('[data-count]'); if(c) c.textContent='nothing selected yet';
   const h = el.querySelector('[data-hint]'); if(h) h.textContent='Pick at least one.';
-  const ac = el.querySelector('[data-addcount]'); if(ac) ac.textContent='0 of 3 chosen';
+  const ac = el.querySelector('[data-addcount]'); if(ac) ac.textContent='nothing selected yet';
   const lm = el.querySelector('[data-limit]'); if(lm) lm.style.display='none';
 }}
 function syncMulti(wrap){{
@@ -1853,13 +2411,14 @@ function syncMulti(wrap){{
       : (n>=MAXG ? 'That&rsquo;s three. Tap one again to swap it out.' : 'You can pick '+(MAXG-n)+' more.');
   const b = scr.querySelector('[data-cta]'); if(b) b.classList.toggle('off', n===0);
 }}
+const optLabel = o => o.querySelector('div').childNodes[0].textContent.trim();
 document.addEventListener('click', e=>{{
   const single = e.target.closest('[data-single]');
   if(single){{
     single.parentElement.querySelectorAll('.opt').forEach(o=>o.classList.remove('sel'));
     single.classList.add('sel');
-    try{{ recordChoice(single.closest('.screen').id, single.querySelector('div').childNodes[0].textContent.trim()); }}catch(e){{}}
-    const nx = single.dataset.next;
+    try{{ recordChoice(single.closest('.screen').id, optLabel(single)); }}catch(err){{}}
+    let nx = single.dataset.next;
     if(nx && nx!=='None') setTimeout(()=>go(nx), 300);
     return;
   }}
@@ -1870,38 +2429,41 @@ document.addEventListener('click', e=>{{
     else if(wrap.querySelectorAll('.opt.sel').length < MAXG) multi.classList.add('sel');
     syncMulti(wrap);
     CHOICES.goals = Array.from(wrap.querySelectorAll('.opt.sel'))
-      .map(o=>GOALTAG[o.querySelector('div').childNodes[0].textContent.trim()]).filter(Boolean);
+      .map(o=>goalTag(optLabel(o))).filter(Boolean);
     return;
   }}
   const zip = e.target.closest('[data-zip]');
   if(zip){{
-    zip.textContent='78704'; zip.classList.remove('ph');
+    zip.textContent='78704'; zip.classList.remove('ph'); CHOICES.zip='78704';
     const scr = zip.closest('.screen');
     scr.querySelector('[data-zipres]').style.display='block';
     scr.querySelector('[data-cta]').classList.remove('off'); return;
   }}
   const t = e.target.closest('[data-task]');
-  if(t){{ t.classList.toggle('done'); sync(t.closest('.bd')); return; }}
+  if(t){{ t.classList.toggle('done'); return; }}
   const seg = e.target.closest('[data-seg]');
   if(seg){{ seg.parentElement.querySelectorAll('div').forEach(d=>d.classList.remove('on'));
            seg.classList.add('on'); price(seg); return; }}
-  const pick = e.target.closest('[data-pick]');
-  if(pick){{ pick.parentElement.querySelectorAll('.opt').forEach(o=>o.classList.remove('sel'));
-            pick.classList.add('sel'); return; }}
   if(e.target.closest('[data-scan]')){{ openCamera(null, 'scan'); return; }}
   const sa = e.target.closest('[data-scanadd]');
-  if(sa){{ MY_PLANTS.push(mk(sa.dataset.scanadd, 0, SCAN_URL ? [{{u: SCAN_URL, day: 0}}] : []));
-           SCAN_URL = null; renderAll(); go('home'); return; }}
+  if(sa){{ const id = sa.dataset.scanadd;
+    const k = MY_PLANTS.findIndex(function(p){{ return p.s.id === id; }});
+    if(k > -1){{ SELECTED = k; SCAN_URL = null; renderAll(); go('plant');
+      toast('<span>You already keep a ' + lc(MY_PLANTS[k].s.name) + ' \u2014 here it is</span>');
+      return; }}
+    if(!IS_PRO && MY_PLANTS.length >= FREE_LIMIT){{ SCAN_URL = null; go('paywall'); return; }}
+    MY_PLANTS.push(mkPlant(id, 0, 0, SCAN_URL ? [{{u: SCAN_URL, day: 0}}] : []));
+    SCAN_URL = null; SELECTED = MY_PLANTS.length-1; renderAll(); go('home'); return; }}
   if(e.target.closest('[data-progtoggle]')){{ WEEK_OPEN = !WEEK_OPEN; renderWeek(); return; }}
   const br = e.target.closest('[data-brtoggle]');
-  if(br){{ const i = +br.dataset.brtoggle; DONE[i] = !DONE[i]; renderWeek(); checkWeekDone(); return; }}
-  const wt = e.target.closest('[data-wtask]');
-  if(wt){{ const i = +wt.dataset.wtask; DONE[i] = !DONE[i]; renderWeek(); checkWeekDone(); return; }}
+  if(br){{ const t2 = WEEK[+br.dataset.brtoggle]; if(!t2) return;
+           const k = tkey(t2); DONE[k] = !DONE[k]; renderWeek(); checkWeekDone(); return; }}
   const wa = e.target.closest('[data-water]');
   if(wa){{ const p = MY_PLANTS[+wa.dataset.water]; if(p){{ p.since = 0; renderAll();
-    const t=document.getElementById('toast');
-    t.innerHTML='<span>'+p.h[0]+' watered</span><b data-gogrowth>See journal</b>';
-    t.classList.add('on'); clearTimeout(UNDOT); UNDOT=setTimeout(function(){{t.classList.remove('on')}},3000); }}
+    const t3=document.getElementById('toast');
+    t3.innerHTML='<span>'+p.s.name+' watered</span><b data-gogrowth>See journal</b>';
+    t3.classList.add('on'); clearTimeout(UNDOT);
+    UNDOT=setTimeout(function(){{t3.classList.remove('on')}},3000); }}
     return; }}
   if(e.target.closest('[data-addphoto]')){{ openCamera(); return; }}
   const sh = e.target.closest('[data-shoot]');
@@ -1914,60 +2476,55 @@ document.addEventListener('click', e=>{{
   if(tg){{ const on = tg.classList.toggle('on');
            tg.setAttribute('aria-checked', on ? 'true' : 'false'); return; }}
   if(e.target.closest('[data-undo]')){{ undoRemove(); return; }}
-  const del = e.target.closest('[data-del]');
-  if(del){{ removePlant(+del.dataset.del); return; }}
   if(e.target.closest('[data-remove]')){{ removePlant(SELECTED); go('home'); return; }}
   const op = e.target.closest('[data-open]');
   if(op){{ SELECTED = +op.dataset.open; renderDetail(); go('plant'); return; }}
   const ad = e.target.closest('[data-add]');
-  if(ad){{ const n = ad.dataset.crop; const k = PENDING.indexOf(n);
+  if(ad){{ const n = ad.dataset.sp; const k = PENDING.indexOf(n);
     if(k>-1) PENDING.splice(k,1);
     else if(MY_PLANTS.length+PENDING.length < limit()) PENDING.push(n);
-    else {{ const lim=document.querySelector('#s-add-plant [data-limit]'); if(lim) lim.style.display='block'; return; }}
-    renderCrops(document.getElementById('cropq').value); return; }}
+    else {{ const lim=document.querySelector('#s-add-plant [data-limit]');
+            if(lim) lim.style.display='block'; return; }}
+    const q=document.getElementById('spq'); renderLibrary(q?q.value:''); return; }}
   const cta = e.target.closest('#s-add-plant [data-cta]');
   if(cta && !cta.classList.contains('off')){{
-    PENDING.forEach(n=>MY_PLANTS.push(mk(n, 0, []))); PENDING=[]; renderAll(); go('home'); return; }}
+    PENDING.forEach(n=>MY_PLANTS.push(mkPlant(n, 0, 0, [])));
+    PENDING=[]; renderAll(); go('home'); return; }}
   if(e.target.closest('[data-pw-exit]')){{ go(PW_FROM); return; }}
   const g = e.target.closest('[data-go]');
   if(g){{ go(g.dataset.go); }}
 }});
-function sync(bd){{
-  if(!bd) return;
-  const all = bd.querySelectorAll('[data-task]'), done = bd.querySelectorAll('[data-task].done');
-  const bar = bd.querySelector('.bar i'), pct = bd.querySelector('.pct');
-  if(bar) bar.style.width = (all.length? done.length/all.length*100:0)+'%';
-  if(pct) pct.textContent = done.length+' of '+all.length+' done';
-  if(all.length && done.length===all.length && bd.closest('#s-home')) setTimeout(()=>go('week-done'), 550);
-}}
 function price(seg){{
   const card = seg.closest('.dark').querySelector('.pcard');
-  const yearly = seg.textContent.indexOf('Season')>-1;
+  if(!card) return;
+  const yearly = seg.textContent.indexOf('Year')>-1;
   card.querySelector('.pr').innerHTML = yearly
     ? '$29<span style="font-size:15px;font-weight:500;color:#A9BCB0"> / year</span>'
     : '$4.99<span style="font-size:15px;font-weight:500;color:#A9BCB0"> / month</span>';
   card.querySelector('.pn').textContent = yearly
-    ? 'Cheaper than one tray of seedlings. Covers a full season, start to frost.'
-    : 'Month to month. A season runs about seven of these.';
+    ? 'Cheaper than one dead fiddle leaf fig. Covers every plant, all year.'
+    : 'Month to month. A year runs about seven of these.';
   card.querySelector('.pill').style.display = yearly ? '' : 'none';
 }}
 document.addEventListener('input', e=>{{
-  if(e.target.id==='cropq'){{ e.target.parentElement.classList.toggle('has', !!e.target.value);
-                              renderCrops(e.target.value); }}
+  if(e.target.id==='spq'){{ e.target.parentElement.classList.toggle('has', !!e.target.value);
+                            renderLibrary(e.target.value); }}
 }});
 document.addEventListener('click', e=>{{
-  if(e.target.closest('#cropx')){{ const q=document.getElementById('cropq');
-    q.value=''; q.parentElement.classList.remove('has'); renderCrops(''); q.focus(); }}
+  if(e.target.closest('#spx')){{ const q=document.getElementById('spq');
+    q.value=''; q.parentElement.classList.remove('has'); renderLibrary(''); q.focus(); }}
 }});
 document.addEventListener('click', e=>{{
   const d = e.target.closest('[data-demo]');
-  if(d){{ if(d.dataset.demo==='empty') MY_PLANTS=[]; else seedHouse();
-          PENDING=[]; SELECTED=0; renderAll(); go('home'); }}
+  if(d){{ if(d.dataset.demo==='empty') MY_PLANTS=[];
+          else if(d.dataset.demo==='mixed'){{ seedMixed(); CHOICES.track='both'; }}
+          else {{ seedPlants(); CHOICES.track='house'; }}
+          PENDING=[]; SELECTED=0; DONE={{}}; renderAll(); go('home'); }}
 }});
 (function(){{ const c=document.getElementById('cam');
   if(c) c.addEventListener('change', function(){{ attachShot(c.files && c.files[0]); }});
 }})();
-seedHouse(); renderAll(); renderLock(); renderSettingsPlan();
+seedPlants(); renderAll();
 document.addEventListener('keydown', e=>{{
   if((e.key===' '||e.key==='Enter') && e.target.classList && e.target.classList.contains('tgl')){{
     e.preventDefault(); e.target.click(); }}
@@ -2182,11 +2739,13 @@ tr.nt td:last-child:before{{content:"↳ ";color:var(--muted)}}
 </style></head><body>
 <div class="top">HOMEGROWN · пользовательский флоу · {len(SCR)} экранов</div>
 <h1>Что будет и как будет</h1>
-<div class="intro">Каждый шаг разложен на четыре вещи: что человек видит, что в этот момент делает система,
-куда его ведёт дальше и что важно не сломать. Стрелкой отмечены пометки — правила из продуктовой спеки
-и места, где я от неё отступил.</div>
+<div class="intro">Продукт — про растения в целом: комнатные и съедобные это виды одного домена,
+а не два разных приложения. Каждый шаг разложен на четыре вещи: что человек видит, что в этот момент
+делает система, куда его ведёт дальше и что важно не сломать. Стрелкой отмечены пометки — правила из
+продуктовой спеки и места, где я от неё отступил.</div>
 <div class="legend">
-  <div class="lg"><b>Развилка</b>Windowsill в Q1 уводит в indoor-трек: другой вопрос о свете, план без конца сезона.</div>
+  <div class="lg"><b>Развилка трека</b>Q0 делит продукт на комнатные, съедобные и оба. От него зависят вопросы, библиотека и нужен ли ZIP.</div>
+  <div class="lg"><b>Развилка места</b>ZIP и заморозки спрашиваем только на улице. Внутри сезон не кончается никогда.</div>
   <div class="lg"><b>Единственный запрет</b>Ничего не блокируем из того, что человек уже начал делать.</div>
   <div class="lg"><b>Отступление от спеки</b>Пэйволл сразу после регистрации — против §10.4. Помечено ⚠ в таблице.</div>
 </div>

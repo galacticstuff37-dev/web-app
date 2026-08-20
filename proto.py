@@ -837,8 +837,8 @@ screen('add-plant',
 
 screen('week-lock',
  f'{sb()}{hd(back="home")}<div class="bd">'
- '<div class="greet">Two weeks from now &middot; Apr 11&ndash;17</div>'
- '<div class="h1">Three tasks<br><span class="m">already planned.</span></div>'
+ '<div class="greet" id="lockwhen">&nbsp;</div>'
+ '<div class="h1" id="lockhead">Tasks<br><span class="m">already planned.</span></div>'
  '<div id="lockbody"></div>'
  '</div>' + nav('Week'),
  'Soft-lock', '<b>Даты и объём видны</b>, скрыты только формулировки — §10.3. Это не стена. '
@@ -934,7 +934,7 @@ screen('shopping',
 # ═════════════════════════════ 5. ДЕНЬГИ
 FEATS = ['Every week planned, not just this one', 'Every plant in the library, no cap of three',
          'Printable shopping list as PDF', 'Unlimited journal photos + yearly recap',
-         'Up to 5 rooms or spaces']
+         'Export your whole care history']
 screen('paywall',
  '<div class="dark"><div class="glow"></div><div class="glow b"></div>'
  '<div style="display:flex;justify-content:space-between;align-items:center;position:relative">'
@@ -1695,8 +1695,20 @@ function dropPro(){
   renderAll();
   document.getElementById('toast').classList.remove('on');
 }
+const WORDNUM = ['No','One','Two','Three','Four','Five','Six'];
 function renderLock(){
   const box=document.getElementById('lockbody'); if(!box) return;
+  /* окно «через две недели» считалось из захардкоженных дат Apr 11–17,
+     не связанных с TODAY. Теперь от сегодня. */
+  const a = dayOffset(TODAY + 14), b = dayOffset(TODAY + 20);
+  const when = document.getElementById('lockwhen');
+  if(when) when.textContent = 'Two weeks from now · ' + MON[a.getMonth()] + ' ' + a.getDate()
+    + '–' + (a.getMonth() === b.getMonth() ? b.getDate()
+            : MON[b.getMonth()] + ' ' + b.getDate());
+  const head = document.getElementById('lockhead');
+  const cnt = Math.min(3, weekTasks().length);
+  if(head) head.innerHTML = (WORDNUM[cnt] || cnt) + (cnt === 1 ? ' task' : ' tasks')
+    + '<br><span class="m">already planned.</span>';
   if(!MY_PLANTS.length){
     box.innerHTML='<div class="note" style="margin-top:16px"><b>Nothing is scheduled yet</b>'
       +'<p>Add a plant and the weeks ahead fill themselves in — that is what Pro keeps open.</p>'
@@ -1781,7 +1793,7 @@ function renderSettingsPlan(){
    ? '<div class="acc" style="margin-top:16px">' + shot
      + '<div class="row1"><span class="tag">Pro · full plan</span></div>'
      + '<div class="big" style="font-size:var(--t-24);margin-top:12px">Everything is open</div>'
-     + '<div class="sub">Every week planned, unlimited plants and photos, up to 5 spaces. '
+     + '<div class="sub">Every week planned, unlimited plants and photos, full export. '
      + 'Renews Mar 14, 2027.</div>'
      + '<div class="btn" style="background:#17492F;color:#fff" data-unpro>Back to Free (demo)</div></div>'
    : '<div class="acc" style="margin-top:16px">' + shot
@@ -2127,7 +2139,9 @@ function calWidget(){
   // отмечаем дни, когда растения поливали, и дни со снимками
   const marks = {};
   MY_PLANTS.forEach(function(p){
-    for(let d = TODAY - p.since; d > 0; d -= p.s.water) marks[d] = 'water';
+    /* растение существует p.day дней, раньше этого его не поливали */
+    const born = Math.max(0, TODAY - p.day);
+    for(let d = TODAY - p.since; d > born; d -= p.s.water) marks[d] = 'water';
     p.photos.forEach(function(x){ if(!marks[x.day]) marks[x.day] = 'photo'; });
   });
   let cells = '';
@@ -2359,11 +2373,12 @@ function renderWeekDone(){
     + '<div class="btn b-lime" data-go="paywall">See the whole calendar</div>'
     + '<div class="btn" style="background:#1B3527;color:#fff" data-go="home">Not now</div>';
 }
+const seasonWeeks = () => Math.round(zipInfo().season / 7);
 function renderSave(){
   const el = document.getElementById('savepill'); if(!el) return;
   const plan = buildPlan();
   el.textContent = plan.length + (plan.length === 1 ? ' PLANT' : ' PLANTS') + ' · '
-    + (CHOICES.outdoor ? '30 WEEKS' : 'YEAR-ROUND');
+    + (CHOICES.outdoor ? seasonWeeks() + ' WEEKS' : 'YEAR-ROUND');
 }
 
 /* ─────────── онбординг: варианты рендерятся из трека ─────────── */

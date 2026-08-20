@@ -34,9 +34,12 @@ eggplant.jpg     photo-1639428134238-b548770d4b77  an eggplant on a wooden surfa
 chives.jpg       photo-1763221126413-5e7bbad876f6  close-up of fresh garlic chives
 pepper.jpg       photo-1786992618263-dfd20f1d1e78  a red bell pepper growing on a plant
 
-БЕЗ ФОТО (осознанно): Mustard greens — Unsplash по запросу отдаёт цветущее
-жёлтое поле, а в продукте это листовая культура на 35 день, до цветения.
-Подписывать цветы горчичной зеленью было бы неправдой. Остаётся плитка с иконкой.
+mustard.jpg      photo-1644261863177-5b45b44e3790  a close up of a green leafy plant
+                 — единственный результат поиска «brassica juncea»; на странице
+                 фото теги mustard, mustard plant, mustard greens, green vegetable.
+                 Проверено на странице автора, а не по одному alt.
+
+БЕЗ ФОТО: не осталось. Все 29 видов справочника с настоящим снимком.
 
 hero-farm.jpg  photo-1729009511314-e6b01cdb7bfd  a woman holding a basket full of vegetables
                — Landing и Save Plan, full-bleed. Unsplash License.

@@ -307,6 +307,8 @@ body.is-pro .ofr{display:none}
 .tgl.on{background:var(--bright)}
 .tgl.on i{left:24px}
 .is-hidden{display:none}
+.screen.onb .nav{display:none}
+.screen.onb .ofr{display:none}
 .searchrow{display:flex;gap:8px;align-items:center;margin-top:16px}
 .search{display:flex;align-items:center;gap:8px;background:var(--surface);border-radius:var(--r-lg);
         padding:0 16px;height:52px;flex:1;min-width:0}
@@ -316,6 +318,14 @@ body.is-pro .ofr{display:none}
 .scanhint{font-size:var(--t-13);color:var(--muted);margin-top:10px;line-height:1.4}
 .scanhint b{color:var(--primary);font-weight:600;cursor:pointer;
         padding:6px 4px;margin:-6px -4px;border-radius:var(--r-xs)}
+/* снимок со скана ждёт, пока человек выберет вид */
+.scanwait{display:flex;gap:12px;align-items:center;background:var(--surface);
+        border-radius:var(--r-lg);padding:10px;margin-top:12px}
+.sw-ph{width:56px;height:56px;flex:none;border-radius:var(--r-md);background-size:cover;
+        background-position:center;background-color:#DDE3DC}
+.sw-tx b{display:block;font-size:var(--t-15);font-weight:600}
+.sw-tx s{display:block;font-size:var(--t-13);color:var(--muted);text-decoration:none;
+        margin-top:2px;line-height:1.35}
 .search input{flex:1;border:0;outline:0;background:transparent;font:500 var(--t-16) 'Inter Tight',sans-serif;
         color:var(--ink);min-width:0}
 .search input::placeholder{color:#9EA8A2;font-weight:400}
@@ -333,6 +343,10 @@ body.is-pro .ofr{display:none}
 .eh-h{font-family:Caprasimo,Georgia,serif;font-weight:400;font-size:var(--t-31);line-height:1.04;color:#fff;margin-top:8px}
 .eh-alt{text-align:center;font-size:var(--t-14);font-weight:600;color:#DCE7DE;margin-top:4px;
      cursor:pointer;padding:14px 8px;border-radius:var(--r-xs)}
+.tlink2{font-size:var(--t-14);color:var(--muted);text-align:center;font-weight:600;
+     cursor:pointer;padding:12px 8px;min-height:44px;display:flex;align-items:center;
+     justify-content:center;border-radius:var(--r-xs)}
+.tlink2:active{color:var(--ink-2)}
 .tlink{font-size:var(--t-14);color:#fff;text-align:center;margin-top:8px;cursor:pointer;
      font-weight:600;padding:14px 8px;border-radius:var(--r-xs);min-height:44px;
      display:flex;align-items:center;justify-content:center}
@@ -678,23 +692,38 @@ screen('landing',
  '<div style="font-size:var(--t-16);line-height:1.5;margin-top:16px;color:#DCE7DE">'
  'Radishes in a pot, basil on the sill, a monstera in the corner. Tell us what you have and '
  'how much light it gets &mdash; we&rsquo;ll tell you exactly what it needs this week.</div>'
- '<div class="btn b-lime" style="margin-top:24px" data-go="q0">Build my free plan</div>'
+ '<div class="btn b-lime" style="margin-top:24px" data-go="q0">Get started free</div>'
  '<div style="font-size:var(--t-13);color:#C3D2C7;text-align:center;margin-top:12px">No card. Takes 90 seconds.</div></div>',
  'Landing', 'Фото на весь экран, лайм-кнопка. Никаких попапов и логина — §4.2. '
  'Обещание больше не про еду: продукт про растения в целом.', 'Онбординг')
 
 screen('q0',
  f'{sb()}{hd(back="landing")}<div class="bd">'
+ '<div class="h1" style="margin-top:16px">Where are you<br>starting from?</div>'
+ '<div style="font-size:var(--t-14);color:var(--muted);margin-top:4px">'
+ 'Two very different jobs, so we ask different things.</div>'
+ '<div class="pg" data-pg></div>'
+ '<div style="margin-top:16px">' +
+ opt('I already have plants', 'Get them on a care schedule', next='add-plant') +
+ opt('I want to start growing', 'Tell me what to plant and buy', next='qwhat') + '</div></div>',
+ 'Q0 · Старт', 'Развилка, которой раньше не было. Приложение — трекер ухода, а онбординг строил '
+ '<b>план посадки</b>: человеку с готовой монстерой пять вопросов про то, что сажать, были '
+ 'бесполезны. Теперь «уже есть» ведёт сразу в библиотеку со сканом, а «хочу начать» — в план. '
+ 'Обе ветки сходятся на Home. Начало онбординга <b>обнуляет MY_PLANTS</b>: демо-набор больше '
+ 'не притворяется твоими растениями.', 'Онбординг')
+
+screen('qwhat',
+ f'{sb()}{hd(back="q0")}<div class="bd">'
  '<div class="h1" style="margin-top:16px">What are you growing?</div>'
- '<div style="font-size:var(--t-14);color:var(--muted);margin-top:4px">This decides everything else we ask.</div>'
+ '<div style="font-size:var(--t-14);color:var(--muted);margin-top:4px">'
+ 'This decides the rest of the questions.</div>'
  '<div class="pg" data-pg></div>'
  '<div style="margin-top:16px">' +
  opt('Something to eat', 'Radishes, greens, tomatoes in pots', next='q1') +
  opt('Houseplants', 'Monstera, pothos, snake plant', next='q1') +
  opt('Both', 'Something edible, plants inside too', next='q1') + '</div></div>',
- 'Q0 · Track', 'Развилка продукта. <b>house</b> — только декоративные, <b>edible</b> — только съедобные, '
- '<b>both</b> — и то и другое. От трека зависят варианты в Q1 и Q4, состав библиотеки и '
- 'спрашиваем ли вообще ZIP.', 'Онбординг')
+ 'Q1 · Track', 'Тот же вопрос, что был первым, но теперь его видит только ветка «хочу начать». '
+ 'Кто уже держит растения, трек не выбирает — он выводится из того, что человек занёс.', 'Онбординг')
 
 screen('q1',
  f'{sb()}{hd(back="q0")}<div class="bd">'
@@ -776,7 +805,8 @@ screen('preview',
  '<div class="acc"><div class="row1"><span class="tag">Your plan</span></div>'
  '<div class="plants" id="planrows"></div>'
  '<div class="accwhy" id="planwhy"></div></div>'
- '</div>' + foot('<div class="btn b-pri" data-go="save">Start this week&rsquo;s care</div>')
+ '</div>' + foot('<div class="btn b-pri" data-planadd>Add these plants</div>'
+ '<div class="tlink2" data-planskip>I&rsquo;ll pick my own</div>')
  + ofr('See the whole calendar', '$29/yr'),
  'Plan Preview', '⚠ Цитата — <b>плейсхолдер</b>: настоящий отзыв надо получить у реального человека '
  'с его согласия, выдумывать его нельзя. Момент ценности. <b>План до регистрации</b> — §4.8. '
@@ -825,6 +855,7 @@ screen('add-plant',
  'data-scan>' + ic('camera', '#fff', 22) + '</div></div>'
  '<div class="scanhint">Don&rsquo;t know what it is? '
  '<b role="button" tabindex="0" data-scan>Point the camera at it</b></div>'
+ '<div id="scanwait"></div>'
  '<div id="splist"></div>'
  '<div class="note is-hidden" data-limit style="margin:12px 0 4px"><b>That&rsquo;s the free limit</b>'
  '<p>Free plans keep 3 plants. Pro keeps everything your light and space allow &mdash; '
@@ -1060,7 +1091,7 @@ PLANTS = [
     days=30,days_max=35,pot='0.5 gal',sun=1,tags=('salads','fast'),sill=True),
  sp('chard','Swiss chard','edible','leaf','Beta vulgaris',2,'3\u20135 h sun','\u2014','chard',
     days=30,days_max=40,pot='0.5 gal',sun=1,tags=('salads',)),
- sp('mustard','Mustard greens','edible','leaf','Brassica juncea',2,'3\u20135 h sun','\u2014',None,
+ sp('mustard','Mustard greens','edible','leaf','Brassica juncea',2,'3\u20135 h sun','\u2014','mustard',
     days=35,days_max=40,pot='0.5 gal',sun=1,tags=('salads',),sill=True),
  sp('microgreens','Microgreens','edible','grains','',1,'3\u20135 h sun','\u2014','microgreens',
     days=10,days_max=14,pot='tray',sun=1,tags=('fast','herbs','kids'),sill=True),
@@ -1108,6 +1139,9 @@ const ICONS = __ICONS__;
 const SPECIES = __SPECIES__;
 const RING_TRACK = '#DDE3DC', RING_ON = '#22A559';
 /* track: house | edible | both. outdoor решает, спрашиваем ли ZIP и есть ли конец сезона. */
+/* Какой веткой онбординга идёт человек: 'own' — уже есть растения,
+   'plan' — начинает с нуля. null — онбординг не идёт. */
+let ONB_MODE = null;
 /* съедобное — основной трек продукта. Комнатные остаются полноценной ветвью. */
 const CHOICES = {track:'edible', space:'patio', outdoor:true,
                  sun:'6–8 hours of sun', sunRank:2, goals:[], effort:4, zip:'78704'};
@@ -1121,6 +1155,8 @@ const lc      = s  => s.charAt(0).toLowerCase() + s.slice(1);
 
 /* какие виды вообще уместны при выбранном треке и месте */
 function speciesPool(){
+  /* В ветке «уже есть» трек ещё не известен — показываем всё, что знаем. */
+  if(ONB_MODE === 'own') return SPECIES.slice();
   return SPECIES.filter(function(s){
     if(CHOICES.track === 'house'  && s.kind !== 'house')  return false;
     if(CHOICES.track === 'edible' && s.kind !== 'edible') return false;
@@ -1187,12 +1223,28 @@ function renderLibrary(q){
   const cnt = document.querySelector('[data-addcount]');
   if(cnt) cnt.textContent = PENDING.length ? PENDING.length + ' selected' : 'nothing selected';
   const cta = document.querySelector('#s-add-plant [data-cta]');
-  if(cta){ cta.classList.toggle('off', !PENDING.length);
-           cta.textContent = PENDING.length ? 'Add ' + PENDING.length + ' to my plants' : 'Add to my plants'; }
+  if(cta){
+    if(ONB_MODE === 'own'){
+      /* в онбординге пустой выбор не тупик: можно пройти дальше и добавить позже */
+      cta.classList.remove('off');
+      cta.textContent = PENDING.length ? 'Add ' + PENDING.length + ' and continue' : 'Skip for now';
+    } else {
+      cta.classList.toggle('off', !PENDING.length);
+      cta.textContent = PENDING.length ? 'Add ' + PENDING.length + ' to my plants' : 'Add to my plants';
+    }
+  }
   const lim = document.querySelector('#s-add-plant [data-limit]');
   if(lim) lim.style.display = !IS_PRO && (MY_PLANTS.length + PENDING.length) >= FREE_LIMIT ? 'block' : 'none';
   const sub = document.getElementById('libsub');
-  if(sub) sub.textContent = LIBNOTE[CHOICES.track] || LIBNOTE.both;
+  if(sub) sub.textContent = ONB_MODE === 'own'
+    ? 'Everything we know how to look after'
+    : (LIBNOTE[CHOICES.track] || LIBNOTE.both);
+  const sh = document.getElementById('scanwait');
+  if(sh) sh.innerHTML = SCAN_KEEP
+    ? '<div class="scanwait"><div class="sw-ph" style="background-image:url(' + SCAN_KEEP + ')"></div>'
+      + '<div class="sw-tx"><b>Your photo is waiting</b>'
+      + '<s>Pick what it is and the shot goes into its journal.</s></div></div>'
+    : '';
 
   const pool = speciesPool();
   const m = s => !q || s.name.toLowerCase().indexOf(q) > -1
@@ -1211,9 +1263,12 @@ function renderLibrary(q){
   let h = '';
   const house = lit.filter(function(s){ return s.kind === 'house'; });
   const edible = lit.filter(function(s){ return s.kind === 'edible'; });
-  if(CHOICES.track === 'both'){
+  if(ONB_MODE === 'own' || CHOICES.track === 'both'){
+    /* трек ещё не выбран или выбраны оба — показываем обе группы,
+       иначе половина справочника не попадала ни в одну секцию */
     h += sect('Houseplants', house);
-    h += sect(CHOICES.outdoor ? 'Edible — container crops' : 'Edible — windowsill crops', edible);
+    h += sect(ONB_MODE === 'own' ? 'Edible'
+              : (CHOICES.outdoor ? 'Edible — container crops' : 'Edible — windowsill crops'), edible);
   } else if(CHOICES.track === 'house'){
     h += sect('Hard to kill', house.filter(function(s){ return s.water >= 12; }));
     h += sect('A bit more attention', house.filter(function(s){ return s.water < 12; }));
@@ -1309,6 +1364,12 @@ function renderPreview(){
   }
   document.getElementById('planhead').innerHTML =
     plan.length + (plan.length === 1 ? ' plant.' : ' plants.') + '<br>' + second;
+  const add = document.querySelector('#s-preview [data-planadd]');
+  if(add){
+    const room = Math.min(plan.length, limit());
+    add.textContent = 'Add ' + (room === plan.length ? 'these ' + room : 'the first ' + room)
+      + (room === 1 ? ' plant' : ' plants');
+  }
   const mins = CHOICES.effort === 3 ? 10 : CHOICES.effort === 4 ? 20 : 30;
   document.getElementById('planmeta').textContent =
     (CHOICES.outdoor ? zipInfo().city + ' · ' : '') + CHOICES.sun + ' · ' + anA(CHOICES.space)
@@ -2005,6 +2066,8 @@ function matchSpecies(r){
   return null;
 }
 let SCAN_URL = null, SCAN_FILE = null;
+/* снимок, ждущий, пока человек выберет вид в библиотеке */
+let SCAN_KEEP = null;
 function scanShot(){
   return SCAN_URL ? '<div class="scan-shot" style="background-image:url(' + SCAN_URL + ')"></div>'
                   : '<div class="scan-shot"></div>';
@@ -2022,7 +2085,9 @@ function scanFoot(inner){
     + '<div class="scan-foot">' + inner + '</div></div>';
 }
 function scanManual(label){
-  return '<div class="btn" style="background:#1B3527;color:#fff" data-go="add-plant">'
+  /* data-scanpick, а не data-go: снимок надо донести до библиотеки,
+     чтобы он стал первой фотографией растения */
+  return '<div class="btn" style="background:#1B3527;color:#fff" data-scanpick>'
     + (label || 'Choose manually') + '</div>';
 }
 function scanRetry(){
@@ -2031,12 +2096,14 @@ function scanRetry(){
 async function identify(file){
   const url = window.HG_SCAN_ENDPOINT;
   if(!url){
-    scanFoot('<span class="pill" style="background:#3A3020;color:#F0C674;align-self:flex-start">'
-      + 'Not connected</span>'
-      + '<b style="margin-top:12px">Recognition is off</b>'
-      + '<s>No identification service is wired up yet, so we won’t guess. '
-      + 'Pick the plant yourself — it takes one tap.</s>'
-      + scanManual('Choose from ' + SPECIES.length + ' plants'));
+    /* Распознавание не подключено. Не выдумываем ответ и не делаем вид, что
+       это ошибка: снимок сделан, дальше человек выбирает вид сам, а фото
+       уезжает в журнал вместе с растением. */
+    scanFoot('<span class="pill b-lime" style="align-self:flex-start">Photo saved</span>'
+      + '<b style="margin-top:12px">Which one is it?</b>'
+      + '<s>Automatic recognition is not switched on, so we won’t guess at your plant. '
+      + 'Pick it from the library and this photo becomes its first journal shot.</s>'
+      + scanManual('Pick from ' + SPECIES.length + ' plants'));
     return;
   }
   try{
@@ -2047,7 +2114,7 @@ async function identify(file){
     const data = await res.json();
     if(data.error || !data.results || !data.results.length){
       scanFoot('<b>No match</b><s>PlantNet didn’t recognise this one. '
-        + 'Try a closer shot of a single leaf, or pick the plant yourself.</s>'
+        + 'Try a closer shot of a single leaf, or pick it yourself — the photo stays.</s>'
         + scanRetry() + scanManual());
       return;
     }
@@ -2374,9 +2441,24 @@ function renderWeekDone(){
     + '<div class="btn" style="background:#1B3527;color:#fff" data-go="home">Not now</div>';
 }
 const seasonWeeks = () => Math.round(zipInfo().season / 7);
+/* План — предложение. Раньше он строился, показывался и молча выбрасывался:
+   после save→paywall на Home лежал демо-набор, а не то, что человек видел. */
+function applyPlan(){
+  const plan = buildPlan();
+  const room = limit();
+  const take = plan.slice(0, room), held = plan.slice(room);
+  MY_PLANTS = take.map(function(sp){ return mkPlant(sp.id, 0, 0, []); });
+  ONB_MODE = null;
+  renderAll();
+  toast(held.length
+    ? '<span>Added ' + take.length + '. Pro also keeps '
+      + held.map(function(x){ return lc(x.name); }).join(' and ') + '</span>'
+    : '<span>Added ' + take.length + (take.length === 1 ? ' plant' : ' plants') + '</span>', 4500);
+  go('save');
+}
 function renderSave(){
   const el = document.getElementById('savepill'); if(!el) return;
-  const plan = buildPlan();
+  const plan = MY_PLANTS.length ? MY_PLANTS : buildPlan();
   el.textContent = plan.length + (plan.length === 1 ? ' PLANT' : ' PLANTS') + ' · '
     + (CHOICES.outdoor ? seasonWeeks() + ' WEEKS' : 'YEAR-ROUND');
 }
@@ -2471,9 +2553,31 @@ function isOutdoorSpace(label){
   return ['Patio','Deck','Porch','Backyard','Raised bed','Apartment balcony','Balcony']
     .indexOf(label) > -1;
 }
+/* Трек ветки «уже есть» не спрашивается — он виден по тому, что занесли. */
+function trackFromPlants(){
+  const h = MY_PLANTS.some(function(p){ return p.s.kind === 'house'; });
+  const e = MY_PLANTS.some(isEdible);
+  return h && e ? 'both' : e ? 'edible' : h ? 'house' : CHOICES.track;
+}
+/* Куда ведёт ответ. Ветка «уже есть» заканчивается на Home, а не на плане. */
+function onbNext(scr, staticNext){
+  if(ONB_MODE === 'own' && (scr === 's-q3' || scr === 's-q2i')){
+    CHOICES.track = trackFromPlants();
+    ONB_MODE = null;
+    return 'home';
+  }
+  return staticNext;
+}
 function recordChoice(scr, label){
   if(scr === 's-q0'){
-    CHOICES.track = TRACKOF[label] || 'house';
+    ONB_MODE = label.indexOf('already have') > -1 ? 'own' : 'plan';
+    /* онбординг начинается с чистого листа: демо-набор не должен
+       притворяться растениями, которые человек занёс сам */
+    MY_PLANTS = []; PENDING = []; SELECTED = 0; DONE = {}; SCAN_KEEP = null;
+    renderAll();
+  }
+  if(scr === 's-qwhat'){
+    CHOICES.track = TRACKOF[label] || 'edible';
     CHOICES.goals = [];
     renderQ1(); renderQ4(); renderQ5();
   }
@@ -2519,53 +2623,55 @@ for _n in sorted({x['icon'] for x in PLANTS}):
 
 # ═════════════════════════════ ДОКУМЕНТ ФЛОУ
 FLOWS = [
- ("1 · Первый заход", "От лендинга до первой отмеченной задачи. Цель — 90 секунд и шесть вопросов.", [
-  ("Landing", "Фото на весь экран, один заголовок, одна кнопка.",
+ ("1 · Первый заход", "Развилка на входе: приложение — трекер ухода, а не только планировщик посадки.", [
+  ("Landing", "Фото фермера на весь экран, один заголовок, одна кнопка.",
    "Ничего не считает. Ждёт тапа.",
-   "Q0", "Обещание — про растения вообще: «Keep every plant alive and growing». "
-         "Логина нет, возврат идёт по ссылке из письма. Никаких попапов поверх первого экрана."),
-  ("Q0 · Track", "Три варианта: Houseplants / Something to eat / Both.",
-   "Пишет track. От него зависят варианты в Q1 и Q4, состав библиотеки и то, "
-   "спрашиваем ли мы вообще ZIP.",
-   "Q1", "Это единственная развилка, которая делит продукт. Раньше её не было: продукт "
-         "начинался как «выращивай съедобное», и половина экранов до сих пор помнила ту эпоху."),
-  ("Q1 · Space", "Варианты рендерятся из трека: комнаты для комнатных, площадки для съедобных.",
-   "Пишет space и флаг outdoor. Уличное место — единственная причина спрашивать ZIP: "
-   "комнатному растению заморозки не нужны.",
-   "Q2 если outdoor, иначе Q2-indoor",
-   "Windowsill остаётся внутри: подоконник — это indoor с ритмом среза, а не сезон."),
-  ("Q2 · ZIP", "Пустое поле-плейсхолдер, Continue выключен. Только на уличном треке.",
-   "Резолвит ZIP в climate_profile: даты заморозков, длина сезона, зона USDA. "
-   "Показывает результат карточкой — подтверждение, что система что-то узнала.",
-   "Q3", "ZIP не найден → выбор штата и ближайшего города. Онбординг не блокируем никогда."),
-  ("Q3 · Sun", "Четыре варианта светового бюджета в часах. Только на уличном треке.",
-   "Пишет sunRank — главный фильтр качества плана. Плодовым нужно 6-8 ч, листовым хватает 3-5.",
-   "Q4", "«Not sure» → ранг 1 как безопасный вариант плюс задача Sun check в первую неделю."),
-  ("Q2-indoor · Light", "Сторона окна вместо часов солнца. Весь indoor, и комнатные и подоконник.",
-   "South → ранг 2, East/West и North → ранг 1. Ложится в тот же sunRank, движок один.",
-   "Q4", "Экрана нет в спеке. Следствие того, что продукт стал в первую очередь домашним."),
+   "Q0", "Обещание про растения в целом, но ведёт съедобным: это основной трек."),
+  ("Q0 · Старт", "«Уже есть растения» или «Хочу начать выращивать».",
+   "Пишет ONB_MODE и ОБНУЛЯЕТ MY_PLANTS: онбординг начинается с чистого листа, "
+   "демо-набор больше не притворяется твоими растениями.",
+   "Add a plant или Q1 · Track",
+   "Развилки не было. Онбординг строил план посадки, а весь интерфейс после него "
+   "построен под уход. Человеку с готовой монстерой пять вопросов про то, что сажать, "
+   "были бесполезны."),
+  ("Ветка «уже есть» · библиотека", "Тот же экран Add a plant, но без таб-бара, "
+   "с заголовком «What do you have?» и кнопкой «Skip for now».",
+   "Показывает ВСЕ 29 видов: трек ещё не известен. Кнопка активна и на пустом выборе — "
+   "пустой выбор не тупик.",
+   "Q1 · Space", "Трек не спрашивается: он выводится из того, что человек занёс. "
+   "Только комнатные → house, только съедобные → edible, и то и то → both."),
+  ("Q1 · Track", "Три варианта: съедобное, комнатные, оба. Только для ветки «хочу начать».",
+   "Пишет track. От него зависят варианты в Q1, Q4 и состав библиотеки.",
+   "Q1 · Space", "Раньше это был первый вопрос для всех."),
+  ("Q1 · Space", "Варианты из трека: комнаты для комнатных, площадки для съедобных.",
+   "Пишет space и флаг outdoor. Уличное место — единственная причина спрашивать ZIP.",
+   "Q2 если outdoor, иначе Q2-indoor", "Windowsill остаётся внутри."),
+  ("Q2 · ZIP", "Пустое поле, Continue выключен. Только на уличном треке.",
+   "Резолвит ZIP в climate_profile: зона, дата последних заморозков, длина сезона. "
+   "Четыре города с типичными справочными значениями.",
+   "Q3", "Раньше карточка климата всегда говорила Austin независимо от ZIP."),
+  ("Q3 · Sun / Q2-indoor · Light", "Часы солнца снаружи, сторона окна внутри.",
+   "Пишет sunRank — главный фильтр качества плана.",
+   "Q4, а в ветке «уже есть» сразу Home",
+   "Ветка «уже есть» здесь заканчивается: свет и место — всё, что нужно для ухода."),
   ("Q4 · Goals", "Мультивыбор, максимум три. Варианты из трека.",
-   "Комнатным предлагаем hard to kill / low light / statement / flowers, "
-   "съедобным — salads / herbs / tomatoes / roots. Пишет plan.goals.",
-   "Q5", "При достижении лимита остальные гаснут, а не исчезают."),
-  ("Q5 · Effort", "Три уровня усилия: 3 / 4 / 5-6 растений.",
-   "Пишет effort. Интерфейс всё равно показывает максимум 5 задач в неделю.",
-   "Plan Preview", "Вопросов об опыте нет — они не нужны движку и увеличивают отвал."),
-  ("Plan Preview", "План собран: растения, интервалы, дата первого сбора и блок «почему».",
+   "Пишет plan.goals.", "Q5", "При лимите остальные гаснут, а не исчезают."),
+  ("Q5 · Effort", "Три уровня: 3 / 4 / 5-6 растений.",
+   "Пишет effort — размер плана.", "Plan Preview", "Вопросов об опыте нет."),
+  ("Plan Preview", "План с фотографиями видов, дата первого сбора, блок «почему». "
+   "Две кнопки: «Add the first N plants» и «I&rsquo;ll pick my own».",
    "Мини-движок: фильтр по треку и месту → фильтр по свету → скоринг по целям → "
-   "гарантии состава. Гарантий три: хотя бы одна быстрая культура на съедобном треке, "
-   "хотя бы по одному растению каждого вида на треке both и "
-   "хотя бы одно растение под каждую заявленную цель, если свет её пропускает.",
-   "Save Plan", "Ключевое решение: план показывается ДО регистрации. "
-                "Блок «почему» различает три причины отказа — не хватает света, "
-                "у нас такого нет, не влезло в размер плана — и не валит всё на свет."),
-  ("Save Plan", "Фото на весь экран, Google или email. Пилюля считается из плана.",
+   "гарантии состава. Кнопка ПРИМЕНЯЕТ план, соблюдая бесплатный лимит, и говорит, "
+   "что именно осталось за платой.",
+   "Save Plan", "Раньше план строился, показывался и молча выбрасывался: после "
+   "save→paywall на Home лежал демо-набор, а не то, что человек только что видел."),
+  ("Save Plan", "Фото на весь экран, Google или email. Пилюля считается из того, "
+   "что реально добавлено.",
    "Создаёт User, привязывает план. Пароля нет — magic link.",
-   "Paywall", "Регистрация только после того, как ценность показана."),
+   "Paywall", "Регистрация после показанной ценности."),
   ("Paywall", "Тёмный экран, Year pass предвыбран, триал без карты.",
-   "Ничего не блокирует. Закрывается в тот экран, откуда пришёл.",
-   "Home", "⚠ Показ сразу после регистрации — решение заказчика. Спека §10.4 это запрещает "
-           "(never_before_first_task = true). Риск: отвал до первой ценности."),
+   "Ничего не блокирует. После покупки ведёт в календарь — туда, что обещала кнопка.",
+   "Week-lock", "⚠ Показ сразу после регистрации — решение заказчика, против §10.4."),
  ]),
  ("2 · Недельный цикл", "То, ради чего продукт существует. 80% времени пользователя.", [
   ("Home · пусто", "Фото-герой на весь блок: «Every room feels better with something alive in it». "
@@ -2733,10 +2839,14 @@ HTML = f'''<!doctype html><html lang="ru"><head><meta charset="utf-8">
 {JS_EXTRA}
 const NOTES = {json.dumps(notes, ensure_ascii=False)};
 let PW_FROM = 'home';
-const ONB = ['q0','q1','q2','q3','q2i','q4','q5'];
-const STEPS = {{outdoor:['q0','q1','q2','q3','q4','q5'], indoor:['q0','q1','q2i','q4','q5']}};
+const ONB = ['q0','qwhat','q1','q2','q3','q2i','q4','q5'];
+const STEPS = {{plan_out:['q0','qwhat','q1','q2','q3','q4','q5'],
+               plan_in:['q0','qwhat','q1','q2i','q4','q5'],
+               own_out:['q0','add-plant','q1','q2','q3'],
+               own_in:['q0','add-plant','q1','q2i']}};
 function renderPg(id){{
-  const path = CHOICES.outdoor ? STEPS.outdoor : STEPS.indoor;
+  const key = (ONB_MODE === 'own' ? 'own_' : 'plan_') + (CHOICES.outdoor ? 'out' : 'in');
+  const path = STEPS[key];
   const k = path.indexOf(id); if(k < 0) return;
   document.querySelectorAll('#s-'+id+' [data-pg]').forEach(function(el){{
     el.innerHTML = path.map(function(_, i){{
@@ -2757,7 +2867,14 @@ function go(id){{
   if(id==='preview') try{{ renderPreview(); }}catch(e){{}}
   if(id==='save') renderSave();
   if(id==='add-plant'){{ const q=document.getElementById('spq'); if(q){{q.value='';
-      q.parentElement.classList.remove('has');}} PENDING=[]; renderLibrary(''); }}
+      q.parentElement.classList.remove('has');}} PENDING=[]; renderLibrary('');
+    /* в онбординге экран ведёт себя иначе: назад к развилке, без таб-бара */
+    el.classList.toggle('onb', ONB_MODE === 'own');
+    const bk = el.querySelector('.back');
+    if(bk) bk.dataset.go = ONB_MODE === 'own' ? 'q0' : 'home';
+    const h = el.querySelector('.h1');
+    if(h) h.textContent = ONB_MODE === 'own' ? 'What do you have?' : 'Add a plant';
+  }}
   if(id==='home') renderHome();
   if(id==='week-empty') renderWeekEmpty();
   if(id==='week-back'||id==='week-long') renderBack();
@@ -2814,7 +2931,7 @@ document.addEventListener('click', e=>{{
       o.classList.remove('sel'); o.setAttribute('aria-checked','false'); }});
     single.classList.add('sel'); single.setAttribute('aria-checked','true');
     try{{ recordChoice(single.closest('.screen').id, optLabel(single)); }}catch(err){{}}
-    let nx = single.dataset.next;
+    let nx = onbNext(single.closest('.screen').id, single.dataset.next);
     if(nx && nx!=='None') setTimeout(()=>go(nx), 300);
     return;
   }}
@@ -2850,6 +2967,8 @@ document.addEventListener('click', e=>{{
            seg.classList.add('on'); seg.setAttribute('aria-checked','true');
            price(seg); return; }}
   if(e.target.closest('[data-scan]')){{ openCamera(null, 'scan'); return; }}
+  if(e.target.closest('[data-scanpick]')){{ SCAN_KEEP = SCAN_URL; SCAN_URL = null;
+    go('add-plant'); return; }}
   const sa = e.target.closest('[data-scanadd]');
   if(sa){{ const id = sa.dataset.scanadd;
     const k = MY_PLANTS.findIndex(function(p){{ return p.s.id === id; }});
@@ -2903,8 +3022,25 @@ document.addEventListener('click', e=>{{
     const q=document.getElementById('spq'); renderLibrary(q?q.value:''); return; }}
   const cta = e.target.closest('#s-add-plant [data-cta]');
   if(cta && !cta.classList.contains('off')){{
-    PENDING.forEach(n=>MY_PLANTS.push(mkPlant(n, 0, 0, [])));
+    if(ONB_MODE === 'own'){{
+      PENDING.forEach(function(n, i){{
+        const ph = (i === 0 && SCAN_KEEP) ? [{{u: SCAN_KEEP, day: TODAY}}] : [];
+        MY_PLANTS.push(mkPlant(n, 0, 0, ph));
+      }});
+      SCAN_KEEP = null; PENDING = [];
+      CHOICES.track = trackFromPlants();
+      renderAll(); go('q1'); return;
+    }}
+    PENDING.forEach(function(n, i){{
+      /* снимок со скана прикрепляем к первому добавленному виду */
+      const ph = (i === 0 && SCAN_KEEP) ? [{{u: SCAN_KEEP, day: TODAY}}] : [];
+      MY_PLANTS.push(mkPlant(n, 0, 0, ph));
+    }});
+    if(SCAN_KEEP){{ toast('<span>Your photo is in the journal</span>'); SCAN_KEEP = null; }}
     PENDING=[]; renderAll(); go('home'); return; }}
+  if(e.target.closest('[data-planadd]')){{ applyPlan(); return; }}
+  if(e.target.closest('[data-planskip]')){{
+    MY_PLANTS = []; ONB_MODE = null; renderAll(); go('save'); return; }}
   if(e.target.closest('[data-pw-exit]')){{ go(PW_FROM); return; }}
   const g = e.target.closest('[data-go]');
   if(g){{ go(g.dataset.go); }}

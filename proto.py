@@ -152,7 +152,7 @@ h1,h2,h3{font-weight:600;letter-spacing:-.015em}
 /* ───── ACCENT BLOCK (референс 1) */
 .acc{border-radius:var(--r-lg);padding:20px;margin-top:16px;color:#fff;position:relative;overflow:hidden;
      background:linear-gradient(150deg,#17683C 0%,#0F3A24 52%,#0B1F14 100%)}
-.acc:after{content:"";position:absolute;width:232px;height:232px;right:-88px;top:-112px;border-radius:50%;
+.acc:after{content:"";pointer-events:none;position:absolute;width:232px;height:232px;right:-88px;top:-112px;border-radius:50%;
      background:radial-gradient(circle,rgba(180,244,97,.30),rgba(180,244,97,0) 70%)}
 .acc .row1{display:flex;justify-content:space-between;align-items:center;position:relative}
 .addtop{display:flex;align-items:center;gap:4px;height:36px;padding:0 16px;border-radius:999px;
@@ -380,6 +380,22 @@ body.is-pro .ofr{display:none}
 .overlay{position:absolute;inset:0;display:flex;flex-direction:column;padding:24px 24px;color:#fff}
 
 /* ───── тёмный экран (paywall / harvest) */
+.scan-shot{position:absolute;inset:0;background:#0B1F14 center/cover no-repeat}
+.scan-ov{position:absolute;inset:0;display:flex;flex-direction:column;padding:24px 20px;
+     padding-top:calc(24px + env(safe-area-inset-top))}
+.scan-frame{flex:1;border-radius:28px;box-shadow:inset 0 0 0 3px rgba(180,244,97,.7);margin-bottom:16px;
+     position:relative;animation:scanpulse 1.2s ease-in-out infinite}
+.scan-frame.ok{box-shadow:inset 0 0 0 3px var(--lime);animation:none}
+@keyframes scanpulse{0%,100%{box-shadow:inset 0 0 0 3px rgba(180,244,97,.35)}
+     50%{box-shadow:inset 0 0 0 3px rgba(180,244,97,.9)}}
+.scan-foot{background:var(--deepest);border-radius:28px;padding:20px;color:#fff;flex:none}
+.scan-foot b{display:block;font-family:Caprasimo,Georgia,serif;font-weight:400;font-size:28px;line-height:1.05}
+.scan-foot s{display:block;font-size:14.5px;color:#A9BCB0;text-decoration:none;margin-top:8px;line-height:1.4}
+.scan-dots{display:flex;gap:6px;margin-bottom:12px}
+.scan-dots i{width:8px;height:8px;border-radius:50%;background:var(--lime);opacity:.35;
+     animation:dot 1s infinite}
+.scan-dots i:nth-child(2){animation-delay:.15s}.scan-dots i:nth-child(3){animation-delay:.3s}
+@keyframes dot{0%,100%{opacity:.35}50%{opacity:1}}
 .dark{position:absolute;inset:0;background:var(--deepest);padding:24px 24px;display:flex;flex-direction:column;color:#fff;overflow-y:auto;scrollbar-width:none}
 .dark::-webkit-scrollbar{display:none}
 .glow{position:absolute;width:420px;height:420px;left:-60px;top:-152px;border-radius:50%;
@@ -725,6 +741,13 @@ screen('season-end',
  'Для indoor-трека это состояние <b>не наступает никогда</b>.', 'Home')
 
 # ═════════════════════════════ 3. PLANTS
+screen('scan',
+ '<div class="dark" style="padding:0">'
+ '<div id="scanbody"></div></div>',
+ 'Scan a plant', 'Кнопка Add открывает камеру и «узнаёт» растение. '
+ '⚠ Распознавание в прототипе <b>заглушка</b>: настоящее определение вида требует модели или внешнего API, '
+ 'выдумывать точность нельзя. Поэтому есть выход «Not it» — руками через поиск.', 'Plants')
+
 screen('plants',
  f'{sb()}{hd()}<div class="bd">'
  '<div class="h1" style="margin-top:16px">Your plants</div>'
@@ -1060,7 +1083,7 @@ function renderHome(){
   g.textContent='Good morning · Mar 28 – Apr 3';
   h.innerHTML='Week 3';
   acc.innerHTML='<div class="acc"><div class="row1"><span class="tag">Your plants &middot; '+n+'</span>'
-    +'<div class="addtop" data-go="add-plant">'+ICONS._plusd+'<span>Add</span></div></div>'
+    +'<div class="addtop" data-scan>'+ICONS._plusd+'<span>Add</span></div></div>'
     +'<div class="plants">'+MY_PLANTS.map((p,i)=>
        '<div class="prow" data-open="'+i+'"><div class="rw">'+ringSVG(pPct(p),38,true)+'<i>'+ICONS[p.c[1]]+'</i></div>'
       +'<div class="nm"><b>'+p.c[0]+'</b><s>Day '+p.day+' &middot; '+pStage(p)+'</s></div>'
@@ -1219,14 +1242,53 @@ function renderSettingsPlan(){
 }
 
 
+
+/* ─────────── скан растения (распознавание — заглушка) ─────────── */
+let SCAN_URL = null, SCAN_T = null;
+function renderScan(state, guess){
+  const el = document.getElementById('scanbody'); if(!el) return;
+  const shot = SCAN_URL
+    ? '<div class="scan-shot" style="background-image:url(' + SCAN_URL + ')"></div>'
+    : '<div class="scan-shot"></div>';
+  if(state === 'busy'){
+    el.innerHTML = shot + '<div class="scan-ov"><div class="scan-frame"></div>'
+      + '<div class="scan-foot"><div class="scan-dots"><i></i><i></i><i></i></div>'
+      + '<b>Looking at your plant\u2026</b>'
+      + '<s>Matching leaf shape against the 21 crops we grow</s></div></div>';
+    return;
+  }
+  el.innerHTML = shot + '<div class="scan-ov"><div class="scan-frame ok"></div>'
+    + '<div class="scan-foot">'
+    + '<span class="pill b-lime" style="align-self:flex-start">Best match</span>'
+    + '<b style="margin-top:12px">' + guess[0] + '</b>'
+    + '<s>' + guess[2] + (guess[3] !== guess[2] ? '\u2013' + guess[3] : '') + ' days &middot; '
+    + guess[4] + ' &middot; fits your light</s>'
+    + '<div class="btn b-lime" data-scanadd="' + guess[0] + '">Add ' + guess[0].toLowerCase() + ' to my plan</div>'
+    + '<div class="btn" style="background:#1B3527;color:#fff" data-go="add-plant">Not it &mdash; choose manually</div>'
+    + '</div></div>';
+}
+function startScan(file){
+  SCAN_URL = file ? URL.createObjectURL(file) : null;
+  go('scan'); renderScan('busy');
+  clearTimeout(SCAN_T);
+  SCAN_T = setTimeout(function(){
+    const pool = CROPS.filter(function(c){ return c[5] <= CHOICES.sunRank
+      && !MY_PLANTS.some(function(p){ return p.c[0] === c[0]; }); });
+    const guess = pool.length ? pool[0] : CROPS[0];
+    renderScan('done', guess);
+  }, 1600);
+}
+
 /* ─────────── камера: снимок с устройства попадает в журнал ─────────── */
-let CAM_TARGET = null;
-function openCamera(target){
+let CAM_TARGET = null, CAM_MODE = 'photo';
+function openCamera(target, mode){
+  CAM_MODE = mode || 'photo';
   CAM_TARGET = (target===undefined || target===null) ? SELECTED : target;
   const el = document.getElementById('cam');
   if(el){ el.value=''; el.click(); }
 }
 function attachShot(file){
+  if(CAM_MODE === 'scan'){ startScan(file); return; }
   if(!file || !MY_PLANTS.length) return;
   const i = (CAM_TARGET!==null && MY_PLANTS[CAM_TARGET]) ? CAM_TARGET : 0;
   const p = MY_PLANTS[i];
@@ -1699,6 +1761,10 @@ document.addEventListener('click', e=>{{
   const pick = e.target.closest('[data-pick]');
   if(pick){{ pick.parentElement.querySelectorAll('.opt').forEach(o=>o.classList.remove('sel'));
             pick.classList.add('sel'); return; }}
+  if(e.target.closest('[data-scan]')){{ openCamera(null, 'scan'); return; }}
+  const sa = e.target.closest('[data-scanadd]');
+  if(sa){{ MY_PLANTS.push(mk(sa.dataset.scanadd, 0, SCAN_URL ? [{{u: SCAN_URL, day: 0}}] : []));
+           SCAN_URL = null; renderAll(); go('home'); return; }}
   if(e.target.closest('[data-progtoggle]')){{ WEEK_OPEN = !WEEK_OPEN; renderWeek(); return; }}
   const br = e.target.closest('[data-brtoggle]');
   if(br){{ const i = +br.dataset.brtoggle; DONE[i] = !DONE[i]; renderWeek(); checkWeekDone(); return; }}

@@ -309,6 +309,39 @@ body.is-pro .ofr{display:none}
 .pl.added .addbtn svg:first-child,.pl.added .addbtn svg:last-child{display:none}
 .pl.added .addbtn svg:last-child{display:block}
 .pl.have{opacity:.55}
+.empty-hero{position:relative;border-radius:28px;overflow:hidden;height:560px;margin-top:8px}
+.eh-shot{position:absolute;inset:0;background-size:cover;background-position:center}
+.eh-ov{position:absolute;inset:0;display:flex;flex-direction:column;justify-content:flex-end;padding:24px;
+      background:linear-gradient(180deg,rgba(11,31,20,.10) 0%,rgba(11,31,20,.20) 40%,rgba(11,31,20,.88) 100%)}
+.eh-k{font-size:13px;font-weight:600;color:var(--lime);letter-spacing:-.02em}
+.eh-h{font-family:Caprasimo,Georgia,serif;font-weight:400;font-size:34px;line-height:1.04;color:#fff;margin-top:8px}
+.eh-alt{text-align:center;font-size:14px;font-weight:600;color:#DCE7DE;margin-top:12px;cursor:pointer}
+.score{position:relative;border-radius:28px;overflow:hidden;margin-top:8px;min-height:200px;
+      background:linear-gradient(120deg,#17683C 0%,#0F3A24 55%,#0B1F14 100%)}
+.score-ph{position:absolute;right:-8px;top:0;bottom:0;width:52%;background-size:cover;
+      background-position:center;
+      mask-image:linear-gradient(90deg,transparent 0,#000 38%);
+      -webkit-mask-image:linear-gradient(90deg,transparent 0,#000 38%)}
+.score-in{position:relative;padding:20px;width:62%}
+.score-top{display:flex;align-items:center;justify-content:center;width:56px;height:56px;position:relative}
+.score-top span{position:absolute;inset:0;display:flex;align-items:center;justify-content:center}
+.score-n{display:flex;align-items:baseline;gap:2px;margin-top:12px;color:#fff}
+.score-n b{font-family:Caprasimo,Georgia,serif;font-weight:400;font-size:42px;line-height:1}
+.score-n s{font-size:17px;text-decoration:none;color:#A9BCB0}
+.score-v{font-size:16px;font-weight:700;color:var(--lime);margin-top:8px;letter-spacing:-.02em}
+.score-s{font-size:14.5px;color:#C2D3C8;line-height:1.35;margin-top:2px}
+.sec-h{display:flex;align-items:baseline;justify-content:space-between;margin:20px 0 10px}
+.sec-h span{font-size:17px;font-weight:600;letter-spacing:-.02em}
+.sec-h i{font-style:normal;font-size:14px;font-weight:600;color:var(--primary);cursor:pointer}
+.prow-scroll{display:flex;gap:10px;overflow-x:auto;scrollbar-width:none;margin:0 -20px;padding:0 20px 4px}
+.prow-scroll::-webkit-scrollbar{display:none}
+.plcard{width:132px;flex:none;background:var(--surface);border-radius:20px;padding:8px;cursor:pointer}
+.plcard-ph{aspect-ratio:1;border-radius:14px;background-size:cover;background-position:center;position:relative}
+.plcard-fav{position:absolute;right:6px;top:6px;width:26px;height:26px;border-radius:50%;
+      background:rgba(11,31,20,.55);display:flex;align-items:center;justify-content:center}
+.plcard b{display:block;font-size:14.5px;font-weight:600;margin:8px 4px 0;letter-spacing:-.02em;line-height:1.2}
+.plcard s{display:block;font-size:12.5px;text-decoration:none;margin:3px 4px 4px;font-weight:600}
+.st-ok{color:var(--primary)}.st-warn{color:#B8860B}.st-bad{color:#C2410C}
 .wgrid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px}
 .wg{border-radius:20px;padding:16px;min-width:0}
 .wg.span2{grid-column:1 / -1}
@@ -348,6 +381,10 @@ body.is-pro .ofr{display:none}
 .chead .nm s{display:block;font-size:13px;color:var(--muted);text-decoration:none;margin-top:2px}
 .cstrip{display:flex;gap:4px;margin-top:8px}
 .cstrip>div{flex:0 0 calc(25% - 3px);aspect-ratio:1;border-radius:12px;background-size:cover;background-position:center;background-color:#DDE3DC}
+.cthumb{width:44px;height:44px;border-radius:14px;background-size:cover;background-position:center;flex:none}
+.st-pill{background:#EAF5EE}
+.st-pill.st-warn{background:#FDF3E0}.st-pill.st-bad{background:#FDEBE2}
+.cal i.m-water{background:#2E5C3A;color:#fff}
 .cmore{display:flex;align-items:center;justify-content:center;background:#E8EDE6!important;
        color:var(--muted);font-size:14px;font-weight:700}
 .cempty{display:flex;align-items:center;gap:8px;margin-top:8px;padding:12px;border-radius:12px;
@@ -463,8 +500,8 @@ def sb():
     return ('<div class="sb"><span>9:41</span><span style="letter-spacing:.06em">' +
             ic('sun', 'var(--ink)', 15, '2') + '</span></div>')
 
-NAVI = [('Week', 'calendar-days', 'home'), ('Plants', 'sprout', 'plants'),
-        ('Growth', 'camera', 'growth'), ('Settings', 'settings-2', 'settings')]
+NAVI = [('Week', 'calendar-days', 'home'), ('Growth', 'camera', 'growth'),
+        ('Settings', 'settings-2', 'settings')]
 def nav(active='Week', badge=False):
     out = []
     for name, icon, target in NAVI:
@@ -673,7 +710,7 @@ screen('add-plant',
  '<p>Free plans grow 3 crops. Pro grows everything your light and space allow &mdash; '
  'and keeps the schedule for all of them.</p>'
  '<div class="btn b-pri" data-go="paywall">Unlock &mdash; $29/yr</div></div>'
- '</div>' + foot('<div class="btn b-pri off" data-cta data-go="home">Add to my plan</div>') + nav('Plants'),
+ '</div>' + foot('<div class="btn b-pri off" data-cta data-go="home">Add to my plan</div>') + nav('Week'),
  'Add a plant', 'Культуры сгруппированы по скорости отдачи. Неподходящие <b>показаны, но погашены</b> — '
  'честнее, чем спрятать. OFF-04 стоит внизу как soft-lock.', 'Home')
 
@@ -750,30 +787,22 @@ screen('scan',
  'воркер-прокси (ключ в клиент не попадает). Латинское имя маппится на наши 21 культуру; процент — '
  'настоящий score от API. Состояния: не подключено, нет совпадения, не наша культура, нет сети.', 'Plants')
 
-screen('plants',
- f'{sb()}{hd()}<div class="bd">'
- '<div class="h1" style="margin-top:16px">Your plants</div>'
- '<div style="font-size:14px;color:var(--muted);margin-top:4px" id="plantsmeta">&nbsp;</div>'
- '<div id="plantlist"></div>'
- '<div class="btn b-ghost" data-go="add-plant" style="margin-top:16px">Add a plant</div>'
- '</div>' + ofr() + nav('Plants'),
- 'Plants', 'Список из состояния. У каждой строки — крестик удаления с <b>Undo</b>: '
- 'удаление не должно быть страшным, растения гибнут и пересеваются (§19.1 №8).', 'Plants')
-
 screen('plant',
- f'{sb()}{hd(back="plants")}<div class="bd" id="pdetail"></div>' + nav('Plants'),
- 'Plant detail', 'Карточка выбранного растения. Если фото ещё нет — <b>плитка «Add a photo»</b>, '
+ f'{sb()}{hd(back="home")}<div class="bd" id="pdetail"></div>' + nav('Plants'),
+ 'Plant detail', 'Таб Plants убран — он дублировал Home и Growth. Растение открывается из блока '
+ 'растений на Week и из карточек культур в Growth, удаление живёт здесь кнопкой «Remove from my plan». '
+ 'Карточка выбранного растения. Если фото ещё нет — <b>плитка «Add a photo»</b>, '
  'а не пустые серые квадраты. Внизу — удаление с подтверждением через Undo.', 'Plants')
 
 # ═════════════════════════════ 4. GROWTH
 screen('growth',
  f'{sb()}{hd()}<div class="bd">'
- '<div class="h1">Your season</div>'
+ '<div class="h1">Your plants</div>'
  '<div style="font-size:14px;color:var(--muted);margin-top:4px" id="seasonsub">&nbsp;</div>'
  '<div id="dash"></div>'
  '<div id="cropcards"></div>'
  '</div>' + ofr('Keep every photo', '$29/yr') + nav('Growth'),
- 'Growth', 'Пересобрано: раньше здесь были <b>две сущности про одно и то же</b> — список культур и '
+ 'Growth', 'Домашние растения: история ухода. Пересобрано: раньше здесь были <b>две сущности про одно и то же</b> — список культур и '
  'отдельная сетка фото, хотя каждое фото и так принадлежит культуре. Теперь один дашборд сезона '
  'и карточки культур, у каждой свои снимки и своя статистика. Тап по карточке ведёт в растение, '
  'где лежит полный таймлайн и полоса «типичный диапазон».', 'Growth')
@@ -823,7 +852,7 @@ screen('paywall',
  'Grow the whole<br><span style="color:var(--lime)">season, planned.</span></div>'
  '<div style="font-size:14.5px;color:#A9BCB0;margin-top:8px">7 days free. Cancel anytime.</div></div>'
  '<div class="seg"><div class="on" data-seg>Season pass</div><div data-seg>Monthly</div></div>'
- '<div class="pcard"><div style="display:flex;justify-content:space-between;align-items:flex-start">'
+ '<div class="plcard"><div style="display:flex;justify-content:space-between;align-items:flex-start">'
  '<div><div class="pr">$29<span style="font-size:15px;font-weight:500;color:#A9BCB0"> / year</span></div>'
  '<div class="pn">Cheaper than one tray of seedlings. Covers a full season, start to frost.</div></div>'
  '<span class="pill b-lime">Best</span></div>'
@@ -925,6 +954,20 @@ CROPS = [
  ('Garlic chives','plant',84,84,'0.5 gal',1,['herbs']),
  ('Bell pepper','pepper',110,120,'2 gal',2,['peppers']),
 ]
+
+# ── библиотека домашних растений: интервал полива и свет — стандартные
+#    справочные диапазоны, не выдуманные
+HOUSEPLANTS = [
+ ('Monstera',        'monstera',   9, 'Bright indirect', 'Medium', 'Ocimum'),
+ ('Snake plant',     'snakeplant',18, 'Low to bright',   'Low',    'Dracaena'),
+ ('Pothos',          'pothos',     8, 'Low to bright',   'Medium', 'Epipremnum'),
+ ('ZZ plant',        'zzplant',   18, 'Low light',       'Low',    'Zamioculcas'),
+ ('Fiddle leaf fig', 'fiddleleaf', 9, 'Bright indirect', 'Medium', 'Ficus'),
+ ('Peace lily',      'peacelily',  6, 'Medium indirect', 'High',   'Spathiphyllum'),
+ ('Aloe vera',       'aloe',      18, 'Bright direct',   'Low',    'Aloe'),
+ ('Calathea',        'calathea',   6, 'Medium indirect', 'High',   'Goeppertia'),
+]
+
 ICONSET = sorted({c[1] for c in CROPS} | {'plant','orange','pepper','flower','potted-plant','basket'})
 
 JS_SRC = r'''
@@ -1043,17 +1086,106 @@ const pStage = p => { const r = p.day/p.c[2];
 const pEta   = p => { const d = p.c[2]-p.day; return d<=0 ? 'ready' : '~'+d+'d'; };
 const stageAt = (p,d) => { const r = d/p.c[2];
   return r<0.1?'seed':r<0.35?'seedling':r<0.7?'growing':r<1?'nearly ready':'ready'; };
-const allPhotos = () => MY_PLANTS.flatMap(p=>p.photos.map(x=>
-  ({f:x.f, u:x.u, n:p.c[0], day:x.day, st:stageAt(p,x.day)}))).sort((a,b)=>b.day-a.day);
+const allPhotos = () => MY_PLANTS.flatMap(function(p){ return p.photos.map(function(x){
+  return {f:x.f, u:x.u, n:p.h[0], day:x.day, st:pState(p)[0]}; }); }).sort(function(a,b){ return b.day-a.day; });
+
+
+/* ─────────── домашние растения: состояние и здоровье ─────────── */
+const HOUSE = __HOUSE__;
+const hp = n => HOUSE.find(function(h){ return h[0] === n; });
+function mkh(name, sinceWater){
+  const h = hp(name);
+  return { h: h, since: sinceWater === undefined ? 0 : sinceWater, photos: [] };
+}
+function seedHouse(){
+  MY_PLANTS = [ mkh('Monstera', 4), mkh('Snake plant', 20), mkh('Pothos', 9), mkh('Peace lily', 2) ];
+}
+const wDue   = p => p.h[2] - p.since;                       // дней до полива
+const wPct   = p => Math.max(0, Math.min(100, Math.round(p.since / p.h[2] * 100)));
+function pState(p){
+  const d = wDue(p);
+  if(d <= 0)  return ['Needs water', 'bad'];
+  if(d <= 2)  return ['Water soon',  'warn'];
+  return ['Healthy', 'ok'];
+}
+function healthScore(){
+  if(!MY_PLANTS.length) return 0;
+  const sum = MY_PLANTS.reduce(function(a, p){
+    const over = Math.max(0, -wDue(p)) / p.h[2];            // насколько просрочен полив
+    return a + Math.max(0, 1 - over * 1.6);
+  }, 0);
+  return Math.round(sum / MY_PLANTS.length * 100);
+}
+function verdict(sc){
+  if(sc >= 90) return ['Great', 'Your plants are doing amazing'];
+  if(sc >= 70) return ['Good', 'One or two need a drink'];
+  if(sc >= 45) return ['Needs care', 'Some plants are thirsty'];
+  return ['Struggling', 'Several plants are overdue'];
+}
+function ringBig(pct, sz){
+  const sw = 6, r = (sz - sw) / 2, c = 2 * Math.PI * r, off = c * (1 - pct / 100);
+  return '<svg width="' + sz + '" height="' + sz + '" viewBox="0 0 ' + sz + ' ' + sz + '">'
+   + '<circle cx="' + sz/2 + '" cy="' + sz/2 + '" r="' + r + '" fill="none" stroke="rgba(255,255,255,.16)" stroke-width="' + sw + '"/>'
+   + '<circle cx="' + sz/2 + '" cy="' + sz/2 + '" r="' + r + '" fill="none" stroke="var(--lime)" stroke-width="' + sw + '"'
+   + ' stroke-linecap="round" stroke-dasharray="' + c.toFixed(1) + '" stroke-dashoffset="' + off.toFixed(1) + '"'
+   + ' transform="rotate(-90 ' + sz/2 + ' ' + sz/2 + ')"/></svg>';
+}
+function plantCard(p, i){
+  const st = pState(p);
+  return '<div class="plcard" data-open="' + i + '">'
+   + '<div class="plcard-ph" style="background-image:url(img/' + p.h[1] + '.jpg)">'
+   + '<span class="plcard-fav">' + ICONS._drop + '</span></div>'
+   + '<b>' + p.h[0] + '</b>'
+   + '<s class="st-' + st[1] + '">' + st[0] + '</s></div>';
+}
+function renderDashHome(){
+  const acc = document.getElementById('homeacc'); if(!acc) return;
+  const g = document.getElementById('homegreet'), h = document.getElementById('homeh1');
+  if(!MY_PLANTS.length){
+    g.textContent = '';
+    h.innerHTML = '';
+    acc.innerHTML = '<div class="empty-hero">'
+      + '<div class="eh-shot" style="background-image:url(img/hero-plants.jpg)"></div>'
+      + '<div class="eh-ov"><div class="eh-tx">'
+      + '<div class="eh-k">One plant is enough to start</div>'
+      + '<div class="eh-h">Every room<br>feels better<br>with something<br>alive in it.</div></div>'
+      + '<div class="btn b-lime" data-scan>Add your first plant</div>'
+      + '<div class="eh-alt" data-go="add-plant">or pick from the library</div></div></div>';
+    return;
+  }
+  const sc = healthScore(), v = verdict(sc);
+  const due = MY_PLANTS.filter(function(p){ return wDue(p) <= 0; });
+  const soon = MY_PLANTS.filter(function(p){ const d = wDue(p); return d > 0 && d <= 2; });
+  const nextP = MY_PLANTS.slice().sort(function(a,b){ return wDue(a) - wDue(b); })[0];
+  g.textContent = 'Good morning';
+  h.innerHTML = 'Plant parent';
+  acc.innerHTML =
+     '<div class="score">'
+   + '<div class="score-ph" style="background-image:url(img/' + MY_PLANTS[0].h[1] + '.jpg)"></div>'
+   + '<div class="score-in"><div class="score-top">' + ringBig(sc, 56)
+   + '<span>' + ICONS._leaf + '</span></div>'
+   + '<div class="score-n"><b>' + sc + '</b><s>/100</s></div>'
+   + '<div class="score-v">' + v[0] + '</div><div class="score-s">' + v[1] + '</div></div></div>'
+   + '<div class="wgrid" style="margin-top:8px">'
+   + '<div class="wg wg-dark"><div class="wg-top"><div class="num">' + due.length + '</div>'
+   + ICONS._dropbig + '</div><div class="lbl">Water today</div>'
+   + metricRow([['Soon', soon.length], ['Plants', MY_PLANTS.length]]) + '</div>'
+   + '<div class="wg wg-lite"><div class="wg-top"><div class="num">'
+   + Math.max(0, wDue(nextP)) + '<span>d</span></div>' + arc(wPct(nextP), 44, false) + '</div>'
+   + '<div class="lbl">' + (wDue(nextP) <= 0 ? nextP.h[0] + ' is thirsty' : 'Until ' + nextP.h[0].toLowerCase()) + '</div>'
+   + metricRow([['Light', nextP.h[3].split(' ')[0]], ['Humidity', nextP.h[4]]]) + '</div></div>'
+   + '<div class="sec-h"><span>My plants</span><i data-go="add-plant">Add</i></div>'
+   + '<div class="prow-scroll">' + MY_PLANTS.map(plantCard).join('') + '</div>';
+}
 
 /* ─────────── HOME ─────────── */
 const WEEK_TASKS = [
-  ['Thin radish to 1 inch apart','2 min','Pull the smallest seedlings so each root has room.'],
-  ['Sow second round of lettuce','10 min',''],
-  ['Water check: soil top dry?','2 min',''],
-  ['Feed tomato','3 min',''],
-  ['Stake the tomato','5 min',''],
-  ['Pinch basil tops','2 min','']];
+  ['Water the snake plant','1 min','Soil is dry all the way down — 20 days since the last drink.'],
+  ['Water the pothos','1 min',''],
+  ['Wipe monstera leaves','3 min',''],
+  ['Rotate the fiddle leaf fig','1 min',''],
+  ['Check peace lily humidity','2 min',''],
+  ['Feed everything once this month','4 min','']];
 const CARDS_SHOWN = 4;
 let DONE = [], WEEK_OPEN = true;
 function taskHTML(t){
@@ -1062,63 +1194,20 @@ function taskHTML(t){
     +'</div><div class="min">'+t[1]+'</div></div>';
 }
 function renderHome(){
-  const acc=document.getElementById('homeacc'); if(!acc) return;
-  const g=document.getElementById('homegreet'), h=document.getElementById('homeh1'),
-        pr=document.getElementById('homeprog'), tk=document.getElementById('hometasks');
-  if(!MY_PLANTS.length){
-    g.textContent='Good morning';
-    h.innerHTML='Let&rsquo;s get you<br><span class="m">growing.</span>';
-    acc.innerHTML='<div class="acc"><div class="acc-photo" style="background-image:url(img/garden.jpg)"></div>'
-      +'<div class="row1"><span class="tag">Nothing Planted Yet</span></div>'
-      +'<div class="lbl">Your patio &middot; 6&ndash;8 h sun</div>'
-      +'<div class="big">4 crops fit<br>your space</div>'
-      +'<div class="sub">Radish, leaf lettuce, basil and a cherry tomato all finish here. '
-      +'First pick around April 12.</div>'
-      +'<div class="btn b-lime" data-go="add-plant">Add your first plant</div></div>';
-    pr.innerHTML='';
-    tk.innerHTML='<div class="sl">First thing this week</div>'
-      +taskHTML(['Buy containers + potting mix','25 min','Everything else waits on this one.'])
-      +'<div class="btn b-ghost" data-go="shopping">See the shopping list</div>';
-    return;
-  }
-  const n=MY_PLANTS.length;
-  g.textContent='Good morning · Mar 28 – Apr 3';
-  h.innerHTML='Week 3';
-  acc.innerHTML='<div class="acc"><div class="row1"><span class="tag">Your plants &middot; '+n+'</span>'
-    +'<div class="addtop" data-scan>'+ICONS._plusd+'<span>Add</span></div></div>'
-    +'<div class="plants">'+MY_PLANTS.map((p,i)=>
-       '<div class="prow" data-open="'+i+'"><div class="rw">'+ringSVG(pPct(p),38,true)+'<i>'+ICONS[p.c[1]]+'</i></div>'
-      +'<div class="nm"><b>'+p.c[0]+'</b><s>Day '+p.day+' &middot; '+pStage(p)+'</s></div>'
-      +'<div class="rt">'+pEta(p)+'</div></div>').join('')+'</div>'
-    +'<div style="display:flex;justify-content:space-between;align-items:center;margin-top:16px;padding-top:12px;'
-    +'border-top:1px solid rgba(255,255,255,.12);position:relative">'
-    +'<span style="font-size:13px;color:#B7C7BD">Next harvest <b style="color:#fff;font-weight:600">Apr 12</b></span>'
-    +'<span style="font-size:13px;color:var(--lime);font-weight:600">11-week streak</span></div></div>';
+  renderDashHome();
+  const pr = document.getElementById('homeprog'), tk = document.getElementById('hometasks'),
+        w = document.getElementById('wkwid');
+  if(w) w.innerHTML = '';
+  if(!MY_PLANTS.length){ if(pr) pr.innerHTML = ''; if(tk) tk.innerHTML = ''; return; }
   renderWeek();
 }
 
 /* ─────────── PLANTS + удаление ─────────── */
-function renderPlants(){
-  const box=document.getElementById('plantlist'); if(!box) return;
-  document.getElementById('plantsmeta').textContent =
-    MY_PLANTS.length ? MY_PLANTS.length+' growing · '+(IS_PRO ? 'Pro · unlimited crops' : MY_PLANTS.length+' of '+FREE_LIMIT+' free slots used')
-                     : 'Nothing planted yet';
-  if(!MY_PLANTS.length){
-    box.innerHTML='<div class="note" style="margin-top:16px"><b>No plants yet</b>'
-      +'<p>Pick something that finishes fast — radish is ready in 25 days.</p>'
-      +'<div class="btn b-pri" data-go="add-plant">Add a plant</div></div>'; return;
-  }
-  box.innerHTML='<div class="plist" style="margin-top:16px">'+MY_PLANTS.map((p,i)=>
-     '<div class="pl"><div data-open="'+i+'" style="display:flex;align-items:center;gap:12px;flex:1;min-width:0">'
-    +'<div class="rw">'+ringSVG(pPct(p))+'<i>'+ICONS[p.c[1]]+'</i></div>'
-    +'<div class="nm"><b>'+p.c[0]+'</b><s>Day '+p.day+' &middot; '+pStage(p)+' &middot; '+pEta(p)+'</s></div></div>'
-    +'<div class="del" data-del="'+i+'">'+ICONS._x+'</div></div>').join('')+'</div>';
-}
 function removePlant(i){
   UNDO={p:MY_PLANTS[i], i:i}; MY_PLANTS.splice(i,1);
-  renderPlants(); renderHome(); renderJournal();
+  renderHome(); renderJournal();
   const t=document.getElementById('toast');
-  t.innerHTML='<span>'+UNDO.p.c[0]+' removed</span><b data-undo>Undo</b>';
+  t.innerHTML='<span>'+UNDO.p.h[0]+' removed</span><b data-undo>Undo</b>';
   t.classList.add('on'); clearTimeout(UNDOT);
   UNDOT=setTimeout(()=>{t.classList.remove('on'); UNDO=null;}, 4500);
 }
@@ -1126,7 +1215,7 @@ function undoRemove(){
   if(!UNDO) return;
   MY_PLANTS.splice(UNDO.i,0,UNDO.p); UNDO=null;
   document.getElementById('toast').classList.remove('on');
-  renderPlants(); renderHome(); renderJournal();
+  renderHome(); renderJournal();
 }
 
 /* ─────────── PLANT DETAIL ─────────── */
@@ -1140,45 +1229,34 @@ function photoCard(x){
    +'<figcaption><b>'+x.n+'</b><s>Day '+x.day+' &middot; '+x.st+'</s></figcaption></figure>';
 }
 function renderDetail(){
-  const box=document.getElementById('pdetail'); if(!box) return;
-  const p=MY_PLANTS[SELECTED];
-  if(!p){ box.innerHTML='<div class="note" style="margin-top:16px"><b>This plant is gone</b>'
-      +'<p>You removed it. Nothing is lost — sow it again whenever you like.</p>'
-      +'<div class="btn b-pri" data-go="add-plant">Add a plant</div></div>'; return; }
-  const hero = p.photos.length
-    ? '<div style="height:192px;border-radius:var(--r-lg);background:url(img/'+p.photos[0]
-      +'.jpg) center/cover;margin-top:16px"></div>'
-    : '<div class="herostub">'+ICONS._cam2+'<div><b>No photo yet</b><s>One shot a week builds the whole timeline.</s></div></div>';
-  const strip = p.photos.length
-    ? '<div class="jgrid">'+p.photos.map(x=>photoCard({f:x.f,n:p.c[0],day:x.day,st:stageAt(p,x.day)})).join('')
-      +'</div>'+addPhotoBtn()
-    : addPhotoBtn('Add the first photo');
-  box.innerHTML = hero
-    +'<div style="display:flex;align-items:center;gap:12px;margin-top:16px">'
-    +'<div class="rw" style="width:52px;height:52px">'+ringSVG(pPct(p),52,false,4)+'<i>'+ICONS[p.c[1]]+'</i></div>'
-    +'<div><div style="font-size:23px;font-weight:600">'+p.c[0]+'</div>'
-    +'<div style="font-size:13.5px;color:var(--muted)">Sown Mar 14 &middot; '+p.c[4]+' &middot; patio</div></div></div>'
-    +'<div class="card" style="margin-top:16px">'
-    +'<div style="display:flex;justify-content:space-between;align-items:baseline">'
-    +'<b style="font-size:16px">Day '+p.day+'</b>'
-    +'<span style="font-size:13px;color:var(--muted)">typical '+p.c[2]+'–'+p.c[3]+'</span></div>'
-    +'<div style="position:relative;height:32px;margin-top:8px">'
-    +'<div style="position:absolute;top:12px;left:0;right:0;height:8px;border-radius:999px;background:#DDE3DC"></div>'
-    +'<div style="position:absolute;top:12px;left:'+(p.c[2]/(p.c[3]*1.25)*100).toFixed(0)+'%;width:'
-    +((p.c[3]-p.c[2])/(p.c[3]*1.25)*100).toFixed(0)+'%;height:8px;border-radius:999px;background:var(--lime)"></div>'
-    +'<div style="position:absolute;top:8px;left:calc('+Math.min(96,p.day/(p.c[3]*1.25)*100).toFixed(0)
-    +'% - 9px);width:16px;height:16px;border-radius:50%;background:var(--primary);box-shadow:0 0 0 3px #fff"></div></div>'
-    +'<div style="font-size:14px;color:var(--ink-2);line-height:1.45">'
-    +(p.day>=p.c[2] ? 'Ready to pick. Most of these finish between day '+p.c[2]+' and '+p.c[3]+'.'
-                    : 'On track. Most of these finish between day '+p.c[2]+' and '+p.c[3]+'.')+'</div></div>'
-    +'<div class="sl">Timeline'+(p.photos.length?' &middot; '+p.photos.length+' photos':'')+'</div>'+strip
-    +'<div class="sl">Task history</div>'
-    +'<div class="task done" data-task><div class="box">'+ICONS._check2+'</div>'
-    +'<div class="tt"><div class="t">Sow '+p.c[0].toLowerCase()+'</div></div><div class="min">Mar 14</div></div>'
-    +(p.day>=p.c[2] ? '<div class="btn b-pri" data-go="harvest">Harvest it — ready now</div>' : '')
-    +'<div class="btn b-ghost" data-remove>Remove from my plan</div>';
+  const box = document.getElementById('pdetail'); if(!box) return;
+  const p = MY_PLANTS[SELECTED];
+  if(!p){ box.innerHTML = '<div class="note" style="margin-top:16px"><b>This plant is gone</b>'
+      + '<p>You removed it. Nothing is lost \u2014 add it again whenever you like.</p>'
+      + '<div class="btn b-pri" data-go="add-plant">Add a plant</div></div>'; return; }
+  const st = pState(p), d = wDue(p);
+  box.innerHTML =
+     '<div style="height:220px;border-radius:var(--r-lg);background:url(img/' + p.h[1]
+   + '.jpg) center/cover;margin-top:8px"></div>'
+   + '<div style="display:flex;align-items:center;gap:12px;margin-top:16px">'
+   + '<div><div style="font-size:24px;font-weight:600;letter-spacing:-.02em">' + p.h[0] + '</div>'
+   + '<div style="font-size:13.5px;color:var(--muted);font-style:italic">' + p.h[5] + '</div></div>'
+   + '<div style="flex:1"></div><span class="pill st-pill st-' + st[1] + '">' + st[0] + '</span></div>'
+   + '<div class="wgrid" style="margin-top:12px">'
+   + '<div class="wg wg-dark"><div class="wg-top"><div class="num">' + Math.max(0, d)
+   + '<span>d</span></div>' + arc(wPct(p), 44, true) + '</div>'
+   + '<div class="lbl">' + (d <= 0 ? 'Water it today' : 'Until next water') + '</div>'
+   + metricRow([['Every', p.h[2] + 'd'], ['Last', p.since + 'd ago']]) + '</div>'
+   + '<div class="wg wg-lite"><div class="wg-h"><b>Conditions</b></div>'
+   + metricRow([['Light', p.h[3]]]) + metricRow([['Humidity', p.h[4]]]) + '</div></div>'
+   + '<div class="btn b-pri" data-water="' + SELECTED + '">Water it now</div>'
+   + '<div class="sl">Journal' + (p.photos.length ? ' \u00b7 ' + p.photos.length + ' photos' : '') + '</div>'
+   + (p.photos.length
+      ? '<div class="jgrid">' + p.photos.map(function(x){
+          return photoCard({ f:x.f, u:x.u, n:p.h[0], day:x.day, st:st[0] }); }).join('') + '</div>' + addPhotoBtn()
+      : addPhotoBtn('Take the first photo'))
+   + '<div class="btn b-ghost" data-remove>Remove from my plants</div>';
 }
-
 /* ─────────── JOURNAL ─────────── */
 function renderJournal(){
   const box=document.getElementById('journal'); if(!box) return;
@@ -1369,10 +1447,10 @@ function attachShot(file){
   if(!file || !MY_PLANTS.length) return;
   const i = (CAM_TARGET!==null && MY_PLANTS[CAM_TARGET]) ? CAM_TARGET : 0;
   const p = MY_PLANTS[i];
-  p.photos.unshift({u: URL.createObjectURL(file), day: p.day});
+  p.photos.unshift({u: URL.createObjectURL(file), day: TODAY});
   renderAll();
   const t=document.getElementById('toast');
-  t.innerHTML='<span>Photo added to '+p.c[0]+'</span><b data-gogrowth>See journal</b>';
+  t.innerHTML='<span>Photo added to '+p.h[0]+'</span><b data-gogrowth>See journal</b>';
   t.classList.add('on'); clearTimeout(UNDOT);
   UNDOT=setTimeout(()=>t.classList.remove('on'), 4000);
 }
@@ -1405,8 +1483,7 @@ function renderWeek(){
   if(!pr) return;
   pr.innerHTML = progHTML();
   if(tk) tk.innerHTML = '';
-  const w = document.getElementById('wkwid');
-  if(w) w.innerHTML = MY_PLANTS.length ? weekWidgets() : '';
+
 }
 
 /* ─────────── виджет-сетка дашборда (по референсу с карточками) ─────────── */
@@ -1428,119 +1505,89 @@ function metricRow(items, dark){
     return '<div><s>' + m[0] + '</s><b>' + m[1] + '</b></div>';
   }).join('') + '</div>';
 }
+/* ─────────── GROWTH: дашборд + карточки культур с их фото ─────────── */
+function seasonStats(){
+  const due = MY_PLANTS.filter(function(p){ return wDue(p) <= 0; });
+  return { plants: MY_PLANTS.length, due: due.length, photos: allPhotos().length,
+           score: healthScore(), healthy: MY_PLANTS.filter(function(p){ return wDue(p) > 2; }).length };
+}
+const TODAY = 27;                                    // условный «сегодня» в днях от старта
 function calWidget(){
-  // отмечаем: день посева, дни со снимками, дни готовности культур
+  // отмечаем дни, когда растения поливали, и дни со снимками
   const marks = {};
   MY_PLANTS.forEach(function(p){
-    p.photos.forEach(function(x){ marks[x.day] = marks[x.day] || 'photo'; });
-    if(p.day >= p.c[2]) marks[p.c[2]] = 'pick';
+    for(let d = TODAY - p.since; d > 0; d -= p.h[2]) marks[d] = 'water';
+    p.photos.forEach(function(x){ if(!marks[x.day]) marks[x.day] = 'photo'; });
   });
-  marks[0] = 'sow';
-  const today = MY_PLANTS.length ? Math.max.apply(null, MY_PLANTS.map(function(p){return p.day;})) : 0;
   let cells = '';
   for(let d = 0; d <= 34; d++){
-    const m = marks[d], future = d > today;
+    const m = marks[d], future = d > TODAY;
     cells += '<i class="' + (m ? 'm-' + m : '') + (future ? ' fut' : '') + '">'
            + dayOffset(d).getDate() + '</i>';
   }
-  return '<div class="wg wg-dark span2"><div class="wg-h"><b>Season calendar</b>'
+  return '<div class="wg wg-dark span2"><div class="wg-h"><b>Care calendar</b>'
     + '<s>' + MON[SOW.getMonth()] + ' \u2013 ' + MON[dayOffset(34).getMonth()] + '</s></div>'
     + '<div class="cal">' + cells + '</div>'
-    + '<div class="callg"><span><i class="m-sow"></i>sown</span>'
-    + '<span><i class="m-photo"></i>photo</span><span><i class="m-pick"></i>first pick</span></div></div>';
-}
-function weekWidgets(){
-  if(!MY_PLANTS.length) return '';
-  const st = seasonStats();
-  const growing = MY_PLANTS.filter(function(p){ return p.day < p.c[2]; });
-  const next = growing.length ? growing.reduce(function(a,b){
-                 return (b.c[2]-b.day) < (a.c[2]-a.day) ? b : a; }) : null;
-  return '<div class="wgrid">'
-   + '<div class="wg wg-dark"><div class="wg-top"><div class="num">' + (next ? (next.c[2]-next.day) : 0)
-   + '<span>d</span></div>' + arc(next ? pPct(next) : 100, 44, true) + '</div>'
-   + '<div class="lbl">' + (next ? 'Until ' + next.c[0].toLowerCase() : 'All ready to pick') + '</div>'
-   + metricRow([['Growing', growing.length], ['Ready', st.crops]]) + '</div>'
-   + '<div class="wg wg-lite"><div class="wg-top"><div class="num">' + st.picks + '</div>'
-   + arc(Math.min(100, st.picks * 12), 44, false) + '</div>'
-   + '<div class="lbl">Harvests logged</div>'
-   + metricRow([['Crops', st.crops], ['Photos', st.photos]]) + '</div>'
-   + '</div>';
+    + '<div class="callg"><span><i class="m-water"></i>watered</span>'
+    + '<span><i class="m-photo"></i>photo</span></div></div>';
 }
 function seasonWidgets(){
   const st = seasonStats();
-  const seasonPct = Math.min(100, Math.round(st.days / 187 * 100));
   return '<div class="wgrid">' + calWidget()
-   + '<div class="wg wg-lite span2"><div class="wg-h"><b>Season progress</b><s>day ' + st.days
-   + ' of 187</s></div><div class="pb-track" style="margin-top:12px;height:10px">'
-   + '<i style="width:' + seasonPct + '%"></i></div>'
-   + metricRow([['Sown', MON[SOW.getMonth()] + ' ' + SOW.getDate()],
-                ['Today', 'day ' + st.days], ['Frost', 'Nov 28']]) + '</div>'
-   + '</div>';
-}
-
-/* ─────────── GROWTH: дашборд + карточки культур с их фото ─────────── */
-function seasonStats(){
-  const harvested = MY_PLANTS.filter(p=>p.day >= p.c[2]);
-  const picks = harvested.reduce((n,p)=>n + Math.max(1, Math.floor((p.day - p.c[2]) / 7) + 1), 0);
-  return {picks: picks, crops: harvested.length, photos: allPhotos().length,
-          days: MY_PLANTS.length ? Math.max.apply(null, MY_PLANTS.map(p=>p.day)) : 0};
+   + '<div class="wg wg-lite span2"><div class="wg-h"><b>Plant health</b><s>' + st.score + ' of 100</s></div>'
+   + '<div class="pb-track" style="margin-top:12px;height:10px"><i style="width:' + st.score + '%"></i></div>'
+   + metricRow([['Plants', st.plants], ['Thirsty', st.due], ['Photos', st.photos]]) + '</div></div>';
 }
 function renderDash(){
   const el = document.getElementById('dash'); if(!el) return;
   const st = seasonStats();
   const sub = document.getElementById('seasonsub');
-  if(sub) sub.textContent = MY_PLANTS.length
-    ? 'Sown Mar 14 · day ' + st.days : 'Nothing sown yet';
+  if(sub) sub.textContent = MY_PLANTS.length ? st.plants + ' plants in your care' : 'No plants yet';
   if(!MY_PLANTS.length){
-    el.innerHTML = '<div class="note" style="margin-top:16px"><b>Your season starts with one seed</b>'
-      + '<p>Add a plant and this page fills itself — harvests, photos, how long everything took.</p>'
+    el.innerHTML = '<div class="note" style="margin-top:16px"><b>Nothing to show yet</b>'
+      + '<p>Add a plant and this page starts keeping its history \u2014 waterings, photos, how it changed.</p>'
       + '<div class="btn b-pri" data-go="add-plant">Add a plant</div></div>';
     return;
   }
-  el.innerHTML = '<div class="acc dash"><div class="row1"><span class="tag">Season counter</span></div>'
-    + '<div class="lbl">Harvests logged</div><div class="huge">' + st.picks + '</div>'
-    + '<div class="sub">' + (st.crops
-        ? st.crops + (st.crops===1?' crop has':' crops have') + ' reached the table. '
-          + st.photos + (st.photos===1?' photo':' photos') + ' in the journal.'
-        : 'Nothing ready yet — the first pick is the one that matters.') + '</div>'
-    + '<div class="duo"><div class="cell"><s>Days</s><b>' + st.days + '</b></div>'
-    + '<div class="cell"><s>Harvested</s><b>' + st.crops + (st.crops===1?' crop':' crops') + '</b></div>'
-    + '<div class="cell"><s>Streak</s><b>11 wk</b></div></div></div>'
+  const v = verdict(st.score);
+  el.innerHTML = '<div class="acc dash"><div class="row1"><span class="tag">Plant parent</span></div>'
+    + '<div class="lbl">Health score</div><div class="huge">' + st.score + '</div>'
+    + '<div class="sub">' + v[0] + ' \u2014 ' + v[1].toLowerCase() + '. '
+    + st.photos + (st.photos === 1 ? ' photo' : ' photos') + ' in the journal.</div>'
+    + '<div class="duo"><div class="cell"><s>Plants</s><b>' + st.plants + '</b></div>'
+    + '<div class="cell"><s>Thirsty</s><b>' + st.due + '</b></div>'
+    + '<div class="cell"><s>Healthy</s><b>' + st.healthy + '</b></div></div></div>'
     + seasonWidgets();
 }
 function cropCard(p, i){
-  const ready = p.day >= p.c[2];
-  const picks = ready ? Math.max(1, Math.floor((p.day - p.c[2]) / 7) + 1) : 0;
+  const st = pState(p), d = wDue(p);
   const strip = p.photos.length
-    ? '<div class="cstrip">' + p.photos.slice(0,4).map(x=>
-        '<div style="background-image:url(' + phUrl(x) + ')"></div>').join('')
-      + (p.photos.length>4 ? '<div class="cmore">+' + (p.photos.length-4) + '</div>' : '') + '</div>'
-    : '<div class="cempty" data-shoot="' + i + '">' + ICONS._cam + '<span>No photos yet — take one</span></div>';
+    ? '<div class="cstrip">' + p.photos.slice(0,4).map(function(x){
+        return '<div style="background-image:url(' + phUrl(x) + ')"></div>'; }).join('')
+      + (p.photos.length > 4 ? '<div class="cmore">+' + (p.photos.length - 4) + '</div>' : '') + '</div>'
+    : '<div class="cempty" data-shoot="' + i + '">' + ICONS._cam + '<span>No photos yet \u2014 take one</span></div>';
   return '<div class="ccard"><div class="chead" data-open="' + i + '">'
-    + '<div class="rw">' + ringSVG(pPct(p)) + '<i>' + ICONS[p.c[1]] + '</i></div>'
-    + '<div class="nm"><b>' + p.c[0] + '</b><s>'
-    + (ready ? picks + (picks===1?' harvest':' harvests') + ' · day ' + p.day
-             : 'Day ' + p.day + ' · ' + pStage(p) + ' · ' + pEta(p))
+    + '<div class="cthumb" style="background-image:url(img/' + p.h[1] + '.jpg)"></div>'
+    + '<div class="nm"><b>' + p.h[0] + '</b><s class="st-' + st[1] + '">' + st[0]
     + '</s></div>' + ICONS._chev + '</div>' + strip + '</div>';
 }
 function renderCropCards(){
   const el = document.getElementById('cropcards'); if(!el) return;
-  if(!MY_PLANTS.length){ el.innerHTML=''; return; }
-  const ready = [], growing = [];
-  MY_PLANTS.forEach((p,i)=>(p.day >= p.c[2] ? ready : growing).push([p,i]));
+  if(!MY_PLANTS.length){ el.innerHTML = ''; return; }
+  const thirsty = [], fine = [];
+  MY_PLANTS.forEach(function(p, i){ (wDue(p) <= 2 ? thirsty : fine).push([p, i]); });
   let h = '';
-  if(ready.length)   h += '<div class="sl">Made it to the table</div>'
-                          + ready.map(x=>cropCard(x[0],x[1])).join('');
-  if(growing.length) h += '<div class="sl">Still growing</div>'
-                          + growing.map(x=>cropCard(x[0],x[1])).join('');
+  if(thirsty.length) h += '<div class="sl">Needs attention</div>'
+                          + thirsty.map(function(x){ return cropCard(x[0], x[1]); }).join('');
+  if(fine.length)    h += '<div class="sl">Doing fine</div>'
+                          + fine.map(function(x){ return cropCard(x[0], x[1]); }).join('');
   h += addPhotoBtn();
   el.innerHTML = h;
 }
-
 function checkWeekDone(){
   if(DONE.filter(Boolean).length === WEEK_TASKS.length) setTimeout(function(){{ go('week-done'); }}, 600);
 }
-function renderAll(){ renderHome(); renderPlants(); renderDetail(); renderJournal();
+function renderAll(){ renderHome(); renderDetail(); renderJournal();
                       try{ renderDash(); renderCropCards(); }catch(e){}
                       try{ renderLock(); renderSettingsPlan(); }catch(e){} }
 
@@ -1570,6 +1617,9 @@ ICON_JS = {n: ic(n, 'var(--primary)', 15, '1.9') for n in ICONSET}
 ICON_JS['_plus'] = ic('plus', 'var(--primary)', 17, '2.4')
 ICON_JS['_check'] = ic('check', '#fff', 17, '3')
 ICON_JS['_check2'] = ic('check', '#fff', 16, '3')
+ICON_JS['_drop'] = ic('drop', '#fff', 15)
+ICON_JS['_dropbig'] = ic('drop', 'var(--lime)', 30)
+ICON_JS['_leaf'] = ic('leaf', 'var(--lime)', 20)
 ICON_JS['_chevd'] = ic('chevron-right', 'var(--muted)', 18, '2.4')
 ICON_JS['_circ'] = ('<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="#B4BEB8" '
                     'stroke-width="2"><circle cx="12" cy="12" r="9"/></svg>')
@@ -1719,6 +1769,7 @@ toks = '<div class="tok">' + ''.join(
     for v, hx, lbl in TOKENS) + '</div>'
 
 import json
+JS_SRC = JS_SRC.replace('__HOUSE__', json.dumps(HOUSEPLANTS, ensure_ascii=False))
 JS_EXTRA = JS_SRC.replace('__ICONS__', json.dumps(ICON_JS, ensure_ascii=False)).replace('__CROPS__', json.dumps(CROPS, ensure_ascii=False))
 HTML = f'''<!doctype html><html lang="ru"><head><meta charset="utf-8">
 <title>HOMEGROWN — прототип</title>
@@ -1759,7 +1810,6 @@ function go(id){{
   if(id==='add-plant'){{ const q=document.getElementById('cropq'); if(q){{q.value='';
       q.parentElement.classList.remove('has');}} PENDING=[]; renderCrops(''); }}
   if(id==='home') renderHome();
-  if(id==='plants') renderPlants();
   if(id==='week-empty'){{ const w=document.getElementById('wkplants');
     if(w) w.innerHTML='<div class="plist">'+MY_PLANTS.map((p,i)=>
       '<div class="pl" data-open="'+i+'"><div class="rw">'+ringSVG(pPct(p))+'<i>'+ICONS[p.c[1]]+'</i></div>'
@@ -1847,6 +1897,12 @@ document.addEventListener('click', e=>{{
   if(br){{ const i = +br.dataset.brtoggle; DONE[i] = !DONE[i]; renderWeek(); checkWeekDone(); return; }}
   const wt = e.target.closest('[data-wtask]');
   if(wt){{ const i = +wt.dataset.wtask; DONE[i] = !DONE[i]; renderWeek(); checkWeekDone(); return; }}
+  const wa = e.target.closest('[data-water]');
+  if(wa){{ const p = MY_PLANTS[+wa.dataset.water]; if(p){{ p.since = 0; renderAll();
+    const t=document.getElementById('toast');
+    t.innerHTML='<span>'+p.h[0]+' watered</span><b data-gogrowth>See journal</b>';
+    t.classList.add('on'); clearTimeout(UNDOT); UNDOT=setTimeout(function(){{t.classList.remove('on')}},3000); }}
+    return; }}
   if(e.target.closest('[data-addphoto]')){{ openCamera(); return; }}
   const sh = e.target.closest('[data-shoot]');
   if(sh){{ openCamera(+sh.dataset.shoot); return; }}
@@ -1860,7 +1916,7 @@ document.addEventListener('click', e=>{{
   if(e.target.closest('[data-undo]')){{ undoRemove(); return; }}
   const del = e.target.closest('[data-del]');
   if(del){{ removePlant(+del.dataset.del); return; }}
-  if(e.target.closest('[data-remove]')){{ removePlant(SELECTED); go('plants'); return; }}
+  if(e.target.closest('[data-remove]')){{ removePlant(SELECTED); go('home'); return; }}
   const op = e.target.closest('[data-open]');
   if(op){{ SELECTED = +op.dataset.open; renderDetail(); go('plant'); return; }}
   const ad = e.target.closest('[data-add]');
@@ -1905,13 +1961,13 @@ document.addEventListener('click', e=>{{
 }});
 document.addEventListener('click', e=>{{
   const d = e.target.closest('[data-demo]');
-  if(d){{ if(d.dataset.demo==='empty') MY_PLANTS=[]; else seedPlants();
+  if(d){{ if(d.dataset.demo==='empty') MY_PLANTS=[]; else seedHouse();
           PENDING=[]; SELECTED=0; renderAll(); go('home'); }}
 }});
 (function(){{ const c=document.getElementById('cam');
   if(c) c.addEventListener('change', function(){{ attachShot(c.files && c.files[0]); }});
 }})();
-seedPlants(); renderAll(); renderLock(); renderSettingsPlan();
+seedHouse(); renderAll(); renderLock(); renderSettingsPlan();
 document.addEventListener('keydown', e=>{{
   if((e.key===' '||e.key==='Enter') && e.target.classList && e.target.classList.contains('tgl')){{
     e.preventDefault(); e.target.click(); }}

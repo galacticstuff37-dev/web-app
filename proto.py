@@ -405,6 +405,13 @@ body.is-pro .ofr{display:none}
 .mrow s{display:block;font-size:var(--t-11);color:var(--muted);text-decoration:none;letter-spacing:-.02em}
 .wg-dark .mrow s{color:#A9BCB0}
 .mrow b{display:block;font-size:var(--t-15);font-weight:600;margin-top:2px;letter-spacing:-.02em}
+/* ───── Harvest calendar.
+   Виджет на Growth остаётся сеткой из 12 клеток — это превью года.
+   На самом экране окна рисуются НЕПРЕРЫВНЫМИ полосами: клетка с зазором
+   читается как шахматка, полоса — как отрезок времени. Посев и сбор идут
+   двумя дорожками, как в печатных календарях университетских extension-служб
+   (Iowa State, Foodwise), поэтому третий цвет под «и сеять, и снимать»
+   больше не нужен — видно сам сдвиг между посевом и сбором. */
 .calyear{display:grid;grid-template-columns:repeat(12,1fr);gap:3px;margin-top:12px}
 .calyear i{height:30px;border-radius:5px;background:#F0F3EF;font-style:normal;
      font-size:var(--t-11);font-weight:600;color:var(--muted);display:flex;
@@ -415,27 +422,91 @@ body.is-pro .ofr{display:none}
 .calyear i.cnow{box-shadow:inset 0 0 0 1.5px var(--deep)}
 .calcta{margin-top:12px;padding-top:12px;border-top:1px solid var(--hair);
      font-size:var(--t-13);font-weight:600;color:var(--primary)}
-.calleg2{display:flex;gap:14px;flex-wrap:wrap;font-size:var(--t-12);color:var(--muted);
-     margin-bottom:10px}
-.calleg2 span{display:flex;align-items:center;gap:5px}
-.calleg2 i{width:12px;height:12px;border-radius:3px;flex:none;font-style:normal}
-.calbox{background:var(--surface);border-radius:var(--r-lg);padding:10px 12px}
-.calrow{display:flex;align-items:center;gap:8px;padding:3px 0}
-.calrow b{flex:0 0 92px;font-size:var(--t-13);font-weight:600;letter-spacing:-.02em;
+
+/* переключатель вида: «этот месяц» отвечает на вопрос «что сажать сейчас»,
+   «весь год» — на вопрос «как устроен мой сезон» */
+.calseg{display:grid;grid-template-columns:1fr 1fr;gap:4px;background:var(--surface);
+     border-radius:999px;padding:4px;margin-top:16px}
+.calseg div{height:44px;display:flex;align-items:center;justify-content:center;border-radius:999px;
+     font-size:var(--t-14);font-weight:600;color:var(--muted);cursor:pointer;white-space:nowrap}
+.calseg div.on{background:var(--primary);color:#fff}
+
+/* ── вид «этот месяц» */
+.calmh{display:flex;align-items:center;gap:10px;margin-top:20px}
+.calmh b{font-family:Caprasimo,Georgia,serif;font-weight:400;font-size:var(--t-31);
+     line-height:1.05;letter-spacing:-.01em}
+/* Двенадцать клеток по 44px в 358px не влезают физически, поэтому рейка —
+   ускоритель, а обязательная тап-зона живёт здесь. */
+.calnav{margin-left:auto;display:flex;gap:4px;flex:none}
+.calnav i{width:44px;height:44px;border-radius:50%;background:var(--surface);
+     display:flex;align-items:center;justify-content:center;cursor:pointer;font-style:normal}
+.calnav i svg{fill:none;stroke:var(--primary)}
+.calnav i.prev svg{transform:rotate(180deg)}
+/* рейка года: и обзор двенадцати месяцев, и навигация по ним */
+.calrail{display:grid;grid-template-columns:repeat(12,1fr);gap:3px;margin-top:12px}
+/* пустой месяц на ground'е должен читаться как клетка, а не как дырка:
+   #F0F3EF почти совпадал с фоном экрана */
+.calrail i{height:44px;border-radius:var(--r-xs);background:var(--hair);font-style:normal;
+     font-size:var(--t-11);font-weight:600;color:var(--muted);display:flex;
+     align-items:flex-end;justify-content:center;padding-bottom:5px;cursor:pointer}
+.calrail i.c-sow{background:#B9E3C6;color:#0E6234}
+.calrail i.c-pick{background:var(--primary);color:#fff}
+.calrail i.c-both{background:linear-gradient(180deg,#B9E3C6 0 52%,var(--primary) 52% 100%);color:#fff}
+.calrail i{position:relative}
+.calrail i.on{box-shadow:inset 0 0 0 2px var(--deep)}
+/* «сейчас» тем же оранжевым, что линия сегодня в годовом виде — один язык */
+.calrail i.cnow:after{content:"";position:absolute;top:5px;left:50%;margin-left:-2.5px;
+     width:5px;height:5px;border-radius:50%;background:var(--flame)}
+.calgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:8px}
+.calcard{background:var(--surface);border-radius:var(--r-md);padding:6px;cursor:pointer}
+.calph{aspect-ratio:1;border-radius:var(--r-xs);background:#EDF3EE;background-size:cover;
+     background-position:center;display:flex;align-items:center;justify-content:center}
+.calph svg{width:22px;height:22px;fill:#8CA093}
+.calcard b{display:block;font-size:var(--t-12);font-weight:600;letter-spacing:-.02em;
+     line-height:1.15;height:2.3em;overflow:hidden;margin:5px 2px 0}
+.calcard s{display:block;font-size:var(--t-11);color:var(--muted);text-decoration:none;margin:1px 2px 2px}
+
+/* ── вид «весь год»: таблица непрерывных полос */
+.calbox{--cn:104px;background:var(--surface);border-radius:var(--r-lg);padding:12px}
+.calaxis{display:flex;gap:8px;padding-bottom:6px}
+.calaxis b{flex:0 0 var(--cn)}
+.calaxis div{flex:1;min-width:0;display:grid;grid-template-columns:repeat(12,1fr)}
+.calaxis i{font-style:normal;font-size:var(--t-11);font-weight:600;color:var(--muted);text-align:center}
+.calaxis i.on{color:var(--flame)}
+.caltl{position:relative}
+.calgrp{font-size:var(--t-11);font-weight:700;letter-spacing:.04em;color:var(--muted);
+     margin:10px 0 4px;position:relative;z-index:3;background:var(--surface)}
+.calgrp:first-child{margin-top:0}
+.calgrp s{text-decoration:none;font-weight:600;letter-spacing:0}
+.calrow{display:flex;align-items:center;gap:8px;padding:5px 0;cursor:pointer;
+     position:relative;z-index:1}
+.calname{flex:0 0 var(--cn);font-size:var(--t-12);font-weight:600;letter-spacing:-.02em;
      white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.cal12{display:grid;grid-template-columns:repeat(12,1fr);gap:2px;flex:1;min-width:0}
-.cal12 i{height:16px;border-radius:3px;background:#F0F3EF;font-style:normal}
-.cal12 i.c-sow{background:#B9E3C6}
-.cal12 i.c-pick{background:var(--primary)}
-.cal12 i.c-both{background:linear-gradient(180deg,#B9E3C6 0 55%,var(--primary) 55% 100%)}
-.calleg2 i.c-both{background:linear-gradient(180deg,#B9E3C6 0 55%,var(--primary) 55% 100%)}
-.cal12 i.c-any{background:#DCE7DE}
-.calhead b{flex:0 0 92px}
-.calhead .cal12 i{background:transparent;font-size:var(--t-11);color:var(--muted);
-     text-align:center;line-height:16px;font-weight:600}
-.calhead .cal12 i.cnow{color:var(--primary);font-weight:700}
-.cal12 i.cnow{box-shadow:inset 0 0 0 1.5px var(--deep)}
-.calleg2 i.cnow{background:#F0F3EF;box-shadow:inset 0 0 0 1.5px var(--deep)}
+.calrow.open .calname{color:var(--primary)}
+.caltrack{flex:1;min-width:0;height:17px;position:relative;border-radius:2px;
+     background:repeating-linear-gradient(90deg,#EDF0EB 0 1px,transparent 1px calc(100%/12))}
+.calbar{position:absolute;height:7px;border-radius:999px;font-style:normal}
+.calbar.s-sow{top:0;background:#B9E3C6}
+.calbar.s-pick{top:10px;background:var(--primary)}
+.calbar.s-any{top:5px;background:#DCE7DE}
+/* заморозки и «сегодня» — один слой на всю таблицу, а не по метке в строке */
+.calov{position:absolute;left:calc(var(--cn) + 8px);right:0;top:0;bottom:0;
+     pointer-events:none;z-index:2}
+.calov i{position:absolute;top:0;bottom:0;font-style:normal}
+.calov i.calfrost{border-left:1px dashed #8FA697}
+.calov i.caltoday{width:2px;margin-left:-1px;background:var(--flame);border-radius:999px}
+/* раскрытая строка перекрывает слой линий собой — иначе пунктир и «сегодня»
+   режут даты пополам */
+.caldet{font-size:var(--t-12);color:var(--muted);line-height:1.45;position:relative;z-index:3;
+     background:var(--surface);padding:1px 0 9px calc(var(--cn) + 8px);letter-spacing:-.01em}
+.caldet b{color:var(--ink);font-weight:600}
+.callg{display:flex;gap:14px;flex-wrap:wrap;font-size:var(--t-12);color:var(--muted);margin-top:12px}
+.callg span{display:flex;align-items:center;gap:6px}
+.callg i{font-style:normal;flex:none;width:18px;height:7px;border-radius:999px}
+.callg i.s-sow{background:#B9E3C6}
+.callg i.s-pick{background:var(--primary)}
+.callg i.l-today{width:2px;height:14px;background:var(--flame)}
+.callg i.l-frost{width:0;height:14px;border-radius:0;border-left:1px dashed #8FA697}
 .ccard{background:var(--surface);border-radius:var(--r-lg);padding:12px;margin-bottom:8px}
 .chead{display:flex;align-items:center;gap:12px;cursor:pointer;padding:4px}
 .chead .nm b{display:block;font-size:var(--t-16);font-weight:600;letter-spacing:-.02em}
@@ -564,10 +635,10 @@ body.is-pro .ofr{display:none}
 /* ───── отклик на нажатие: было на трёх элементах из двадцати четырёх */
 .btn:active,.btn-dash:active,.opt:active,.pl:active,.plcard:active,.chead:active,
 .br-row:active,.chip:active,.ofr:active .ofr-in,.zip:active,.seg div:active,
-.cempty:active,.ccard:active .chead{transform:scale(.985)}
+.cempty:active,.ccard:active .chead,.calseg div:active,.calcard:active{transform:scale(.985)}
 .ni:active{opacity:.6}
 .xbtn:active{transform:scale(.92)}
-.btn,.btn-dash,.opt,.pl,.plcard,.chead,.br-row,.ofr-in,.xbtn,.zip,.seg div{
+.btn,.btn-dash,.opt,.pl,.plcard,.chead,.br-row,.ofr-in,.xbtn,.zip,.seg div,.calseg div,.calcard{
      transition:transform .16s cubic-bezier(.32,.72,0,1),background-color .16s ease-out,
                 opacity .16s ease-out}
 
@@ -1053,14 +1124,20 @@ screen('pick',
 screen('calendar',
  f'{sb()}{hd(back="growth")}<div class="bd">'
  '<div class="h1" style="margin-top:16px">Harvest calendar</div>'
- '<div style="font-size:var(--t-14);color:var(--muted);margin-top:4px;line-height:1.4" id="calsub">&nbsp;</div>'
- '<div id="calbody" style="margin-top:16px"></div>'
+ '<div id="calbody"></div>'
  '</div>' + nav('Growth'),
- 'Harvest calendar', 'Общий календарь года: когда что <b>сеять</b> и когда <b>снимать</b>. '
- 'Окна не выдуманы — считаются из даты последних заморозков выбранного ZIP, длины сезона и '
- 'числа дней до сбора каждой культуры. Холодостойкие уходят в грунт за месяц до заморозков, '
+ 'Harvest calendar', 'Два вида под два разных вопроса. <b>This month</b> — «что сажать сейчас»: '
+ 'рейка двенадцати месяцев (её же можно листать) и плитки с настоящими снимками, '
+ 'отсортированные по скорости до урожая; если окно закрывается в этом месяце, плитка пишет '
+ 'крайний срок. <b>Whole year</b> — «как устроен мой сезон»: таблица непрерывных полос, '
+ 'по две дорожки на культуру (посев и сбор), сгруппированная на холодостойкие и теплолюбивые '
+ 'и отсортированная по открытию окна, поэтому строки складываются в каскад. Пунктиром — обе '
+ 'даты заморозков, оранжевой линией — сегодня: именно от них считаются все окна. Тап по строке '
+ 'раскрывает точные даты. Окна не выдуманы — считаются из даты последних заморозков выбранного '
+ 'ZIP, длины сезона и числа дней до сбора. Холодостойкие уходят в грунт за месяц до заморозков, '
  'теплолюбивые только после; крайний срок посева такой, чтобы культура успела отдать урожай '
- 'до осенних заморозков. У комнатных сезона нет — их строка открыта весь год. '
+ 'до осенних заморозков. В помещении заморозков нет — сезона тоже, годится любой месяц. '
+ 'У комнатных урожая нет вовсе, поэтому им экран показывает свет, а не месяцы. '
  'Проваливаешься из виджета на Growth.', 'Growth')
 
 # ═════════════════════════════ 7. ПОДОКОННИК
@@ -2246,17 +2323,30 @@ function careStats(){
 }
 /* ─────────── календарь урожая ─────────── */
 const MON1 = ['J','F','M','A','M','J','J','A','S','O','N','D'];
+const MONF = ['January','February','March','April','May','June',
+              'July','August','September','October','November','December'];
+let CAL_VIEW = 'month';   /* month — что сажать сейчас, year — как устроен сезон */
+let CAL_M    = null;      /* выбранный месяц в виде «месяц»; null — текущий */
+let CAL_OPEN = null;      /* id раскрытой строки в годовом виде */
+/* Роутер на входе в библиотеку чистит и поиск, и выбор, поэтому положить
+   вид прямо в PENDING нельзя — он тут же обнулится. Передаём одноразово. */
+let LIB_SEEK = null;
+
 function frostDates(){
   const parts = zipInfo().frost.split(' ');
   const last = new Date(2026, MON.indexOf(parts[0]), +parts[1]);
   const first = new Date(last); first.setDate(first.getDate() + zipInfo().season);
   return {last: last, first: first};
 }
+/* В помещении заморозков нет, значит нет и календарного окна — годится любой
+   месяц. Раньше окна всё равно считались от заморозков, и экран спорил сам с
+   собой: подзаголовок обещал «any month works», а строки показывали весну. */
+const noSeason = () => !CHOICES.outdoor;
 /* Окно посева: холодостойкие уходят в грунт за месяц до последних заморозков,
    теплолюбивые — только после. Крайний срок считается так, чтобы культура
    успела отдать урожай до первых осенних заморозков. */
 function windows(sp){
-  if(sp.kind === 'house') return null;
+  if(sp.kind === 'house' || noSeason()) return null;
   const f = frostDates();
   const from = new Date(f.last);
   if(sp.cool) from.setDate(from.getDate() - 28);
@@ -2273,64 +2363,291 @@ const monthsOf = (a, b) => {
   while(d <= b){ out[d.getMonth()] = 1; d.setMonth(d.getMonth() + 1); }
   return out;
 };
+/* Кэш: рейка месяцев спрашивает monthMap 12×29 раз за перерисовку, а ответ
+   меняется только от ZIP и от «на улице или нет». */
+let MM_CACHE = {}, MM_KEY = '';
 function monthMap(sp){
+  const key = CHOICES.zip + '|' + (CHOICES.outdoor ? 1 : 0);
+  if(key !== MM_KEY){ MM_KEY = key; MM_CACHE = {}; }
+  if(sp.id in MM_CACHE) return MM_CACHE[sp.id];
   const w = windows(sp);
-  if(!w) return null;                                  // комнатное: круглый год
-  const sow = monthsOf(w.sow[0], w.sow[1]), pick = monthsOf(w.pick[0], w.pick[1]);
-  return MON1.map(function(_, m){
-    if(sow[m] && pick[m]) return 'both';    // и сеять можно, и что-то снимаешь
-    if(sow[m]) return 'sow';
-    if(pick[m]) return 'pick';
-    return '';
-  });
+  let out = null;
+  if(w){                                              /* иначе сезона нет */
+    const sow = monthsOf(w.sow[0], w.sow[1]), pick = monthsOf(w.pick[0], w.pick[1]);
+    out = MON1.map(function(_, m){
+      if(sow[m] && pick[m]) return 'both';  // и сеять можно, и что-то снимаешь
+      if(sow[m]) return 'sow';
+      if(pick[m]) return 'pick';
+      return '';
+    });
+  }
+  MM_CACHE[sp.id] = out;
+  return out;
 }
 const nowMonth = () => dayOffset(TODAY).getMonth();
-function sowableNow(){
-  return speciesPool().filter(function(sp){
-    const mm = monthMap(sp);
-    const k = mm && mm[nowMonth()];
-    return k === 'sow' || k === 'both';
+const calMonth = () => CAL_M === null ? nowMonth() : CAL_M;
+const fmtMD    = d => MON[d.getMonth()] + ' ' + d.getDate();
+const spDays   = sp => sp.days + (sp.daysMax !== sp.days ? '–' + sp.daysMax : '');
+const addD     = (d, n) => { const x = new Date(d); x.setDate(x.getDate() + n); return x; };
+/* Позиция даты на оси года в процентах — из этого считаются длины полос. */
+const pctY = d => Math.max(0, Math.min(100,
+  (d - new Date(2026, 0, 1)) / 86400000 / 365 * 100));
+
+function inWin(sp, m, kind){
+  const mm = monthMap(sp);
+  /* съедобное без сезона (подоконник) сеется в любой месяц, а вот «снимать
+     в таком-то месяце» без сезона не определено — там счёт идёт от посева */
+  if(!mm) return sp.kind === 'edible' && kind === 'sow';
+  const k = mm[m];
+  return kind === 'sow' ? (k === 'sow' || k === 'both')
+                        : (k === 'pick' || k === 'both');
+}
+/* Трек комнатных: у календаря урожая для него нет ни окон, ни сбора —
+   значит и месячная механика неприменима, её нельзя показывать пустой. */
+const calHouse = () => !speciesPool().some(function(x){ return x.kind === 'edible'; });
+const sowableIn   = m => speciesPool().filter(function(sp){ return inWin(sp, m, 'sow'); });
+const pickableIn  = m => speciesPool().filter(function(sp){ return inWin(sp, m, 'pick'); });
+const sowableNow  = () => sowableIn(nowMonth());
+/* Порядок строк — по дате открытия окна посева, потом по крайнему сроку:
+   при одинаковом старте первой идёт культура, у которой меньше времени.
+   Так строки складываются в каскад вместо ровной зелёной плиты. */
+function calSort(list){
+  return list.slice().sort(function(a, b){
+    const wa = windows(a), wb = windows(b);
+    if(!wa || !wb) return !wa && !wb ? a.name.localeCompare(b.name) : (wa ? -1 : 1);
+    return (wa.sow[0] - wb.sow[0]) || (wa.sow[1] - wb.sow[1]) || a.name.localeCompare(b.name);
   });
 }
-function calStrip(sp){
-  const mm = monthMap(sp);
-  const now = nowMonth();
-  const cells = MON1.map(function(_, m){
-    const k = mm ? mm[m] : 'any';
-    return '<i class="' + (k ? 'c-' + k : '') + (m === now ? ' cnow' : '') + '"></i>';
-  }).join('');
-  return '<div class="calrow"><b>' + sp.name + '</b><div class="cal12">' + cells + '</div></div>';
+/* Одна строка человеческим языком — она же aria-label, она же раскрытая деталь. */
+function calSay(sp){
+  const w = windows(sp);
+  if(!w) return sp.kind === 'house'
+    ? 'no season — open all year'
+    : 'sow any month · ready ' + spDays(sp) + ' days after sowing';
+  if(w.tight) return 'the season here is too short for it — no window this year';
+  return 'sow <b>' + fmtMD(w.sow[0]) + ' – ' + fmtMD(w.sow[1]) + '</b> · pick <b>'
+       + fmtMD(w.pick[0]) + ' – ' + fmtMD(w.pick[1]) + '</b> · '
+       + spDays(sp) + ' days to harvest';
+}
+const plain = s => s.replace(/<[^>]+>/g, '');
+
+/* ── строка годового вида: две дорожки-полосы, посев и сбор */
+function calRow(sp){
+  const w = windows(sp);
+  const open = CAL_OPEN === sp.id;
+  const seg = (a, b, cls) => {
+    const l = pctY(a), r = pctY(b);
+    return '<i class="calbar ' + cls + '" style="left:' + l.toFixed(1)
+         + '%;width:' + Math.max(1.8, r - l).toFixed(1) + '%"></i>';
+  };
+  const bars = w
+    ? seg(w.sow[0], w.sow[1], 's-sow') + seg(w.pick[0], w.pick[1], 's-pick')
+    : '<i class="calbar s-any" style="left:0;width:100%"></i>';
+  return '<div class="calrow' + (open ? ' open' : '') + '" role="button" tabindex="0"'
+    + ' aria-expanded="' + (open ? 'true' : 'false') + '"'
+    + ' aria-label="' + sp.name + ' — ' + plain(calSay(sp)) + '"'
+    + ' data-calrow="' + sp.id + '">'
+    + '<b class="calname">' + sp.name + '</b>'
+    + '<div class="caltrack">' + bars + '</div></div>'
+    + (open ? '<div class="caldet">' + calSay(sp) + '</div>' : '');
+}
+function calAxis(){
+  return '<div class="calaxis" aria-hidden="true"><b></b><div>'
+    + MON1.map(function(m, i){
+        return '<i' + (i === nowMonth() ? ' class="on"' : '') + '>' + m + '</i>'; }).join('')
+    + '</div></div>';
+}
+/* Заморозки и «сегодня» — один слой на всю таблицу. Именно эти две пунктирные
+   линии объясняют форму диаграммы: от них считаются все окна. */
+function calOv(){
+  if(noSeason()) return '';
+  const f = frostDates();
+  return '<div class="calov" aria-hidden="true">'
+    + '<i class="calfrost" style="left:' + pctY(f.last).toFixed(1) + '%"></i>'
+    + '<i class="calfrost" style="left:' + pctY(f.first).toFixed(1) + '%"></i>'
+    + '<i class="caltoday" style="left:' + pctY(dayOffset(TODAY)).toFixed(1) + '%"></i></div>';
+}
+function calTable(rows, groups){
+  const body = groups
+    ? groups.map(function(g){
+        return '<div class="calgrp">' + g.t + (g.s ? ' <s>· ' + g.s + '</s>' : '') + '</div>'
+             + g.rows.map(calRow).join(''); }).join('')
+    : rows.map(calRow).join('');
+  return '<div class="calbox">' + calAxis()
+       + '<div class="caltl">' + calOv() + body + '</div></div>';
+}
+function calYearView(){
+  const mine = MY_PLANTS.map(function(p){ return p.s; });
+  const seen = {};
+  const mineU = mine.filter(function(x){
+    if(seen[x.id]) return false; seen[x.id] = 1; return true; });
+  const rest = speciesPool().filter(function(x){ return !seen[x.id]; });
+  const f = frostDates();
+  let h = '';
+  if(mineU.length) h += '<div class="sl">Yours</div>' + calTable(calSort(mineU));
+  const groups = [];
+  if(noSeason()){
+    groups.push({t:'ANY MONTH', s:'no frost indoors, so nothing waits', rows: calSort(rest)});
+  } else {
+    const cool  = rest.filter(function(x){ return x.kind === 'edible' && x.cool; });
+    const warm  = rest.filter(function(x){ return x.kind === 'edible' && !x.cool; });
+    const house = rest.filter(function(x){ return x.kind === 'house'; });
+    if(cool.length)  groups.push({t:'COOL-SEASON',
+      s:'in the ground from ' + fmtMD(addD(f.last, -28)), rows: calSort(cool)});
+    if(warm.length)  groups.push({t:'WARM-SEASON',
+      s:'waits until ' + fmtMD(f.last), rows: calSort(warm)});
+    if(house.length) groups.push({t:'NO SEASON', s:'houseplants, open all year',
+      rows: calSort(house)});
+  }
+  if(groups.length)
+    h += '<div class="sl">' + (mineU.length ? 'Could also go in' : 'What can go in') + '</div>'
+       + calTable(null, groups);
+  h += '<div class="callg"><span><i class="s-sow"></i>sow</span>'
+     + '<span><i class="s-pick"></i>pick</span>'
+     + (noSeason() ? ''
+        : '<span><i class="l-frost"></i>frost dates</span>'
+        + '<span><i class="l-today"></i>today</span>')
+     + '</div>';
+  return h;
+}
+/* ── вид «этот месяц»: плитки с настоящими снимками вместо зелёных клеток */
+function calRail(){
+  const m = calMonth();
+  return '<div class="calrail" role="radiogroup" aria-label="Month">'
+    + MON1.map(function(lbl, i){
+        const s = sowableIn(i).length, p = pickableIn(i).length;
+        const k = s && p ? 'c-both' : p ? 'c-pick' : s ? 'c-sow' : '';
+        /* вслух клетка должна называть не только месяц, но и что в нём есть */
+        const say = MONF[i] + (i === nowMonth() ? ' (this month)' : '') + ' — '
+          + (s ? s + ' to sow' : 'nothing to sow')
+          + ', ' + (p ? p + ' in a harvest window' : 'no harvest window');
+        return '<i class="' + k + (i === m ? ' on' : '')
+          + (i === nowMonth() ? ' cnow' : '') + '" role="radio" tabindex="0"'
+          + ' aria-checked="' + (i === m ? 'true' : 'false') + '"'
+          + ' aria-label="' + say + '" data-calgo="' + i + '">' + lbl + '</i>'; }).join('')
+    + '</div>';
+}
+function calCard(sp, note){
+  return '<div class="calcard" role="button" tabindex="0" aria-label="' + sp.name + ' — '
+    + note + '" data-calsp="' + sp.id + '">'
+    + (sp.img ? '<div class="calph" style="background-image:url(img/' + sp.img + '.jpg)"></div>'
+              : '<div class="calph">' + ICONS[sp.icon] + '</div>')
+    + '<b>' + sp.name + '</b><s>' + note + '</s></div>';
+}
+/* В месячном виде полезен другой порядок, чем в годовом: не каскад окон,
+   а «что даст урожай раньше» — число дней стоит на самой плитке. */
+const byDays = list => list.slice().sort(function(a, b){
+  return (a.days - b.days) || (a.daysMax - b.daysMax) || a.name.localeCompare(b.name); });
+
+function calMonthView(){
+  const m = calMonth(), isNow = m === nowMonth();
+  const pool = speciesPool();
+  if(!pool.length) return '<div class="setnote">Nothing on the list yet.</div>';
+  /* Комнатные: месяц ничего не решает, решает свет. Рейку месяцев тут
+     показывать нельзя — двенадцать одинаковых клеток обещают выбор,
+     которого нет. */
+  if(calHouse())
+    return '<div class="sl">Any month works · ' + pool.length + '</div>'
+      + '<div class="calgrid">' + pool.map(function(sp){
+          return calCard(sp, sp.light); }).join('') + '</div>';
+  const sow = byDays(sowableIn(m)), pick = byDays(pickableIn(m));
+  let h = '<div class="calmh"><b>' + MONF[m] + '</b>'
+        + '<div class="calnav">'
+        + '<i class="prev" role="button" tabindex="0" aria-label="Previous month"'
+        + ' data-calstep="-1">' + ICONS._caret + '</i>'
+        + '<i role="button" tabindex="0" aria-label="Next month"'
+        + ' data-calstep="1">' + ICONS._caret + '</i></div>'
+        + '</div>' + calRail();
+  h += '<div class="sl">' + (sow.length
+        ? (noSeason() ? 'Can go in any month · ' + sow.length
+                      : 'Sow in ' + MONF[m] + ' · ' + sow.length)
+        : 'Nothing to sow in ' + MONF[m]) + '</div>';
+  if(sow.length){
+    h += '<div class="calgrid">' + sow.map(function(sp){
+      const w = windows(sp);
+      /* окно закрывается в этом же месяце — это и есть срочность, её и пишем */
+      const last = w && !w.tight && w.sow[1].getMonth() === m;
+      return calCard(sp, last ? 'sow by ' + fmtMD(w.sow[1]) : spDays(sp) + ' days');
+    }).join('') + '</div>';
+  } else {
+    const opens = speciesPool().map(windows).filter(Boolean)
+      .map(function(w){ return w.sow[0]; }).sort(function(a, b){ return a - b; })[0];
+    h += '<div class="setnote">Too cold to start anything outside. '
+       + (opens ? 'The first window opens around <b>' + fmtMD(opens) + '</b>.'
+                : 'Nothing on this list has an outdoor window here.') + '</div>';
+  }
+  if(!noSeason()){
+    h += '<div class="sl">' + (pick.length
+          ? 'Harvest window in ' + MONF[m] + ' · ' + pick.length
+          : 'No harvest window in ' + MONF[m]) + '</div>';
+    if(pick.length){
+      h += '<div class="calgrid">' + pick.map(function(sp){
+        return calCard(sp, spDays(sp) + ' days'); }).join('') + '</div>'
+        + '<div class="setnote">A window, not a promise: it opens this early only if '
+        + 'the seed went in on the first possible day.</div>';
+    } else {
+      h += '<div class="setnote">Nothing sown here has had time to come in yet.</div>';
+    }
+  }
+  return h;
+}
+/* Шапка экрана всегда описывает ТЕКУЩИЙ месяц: это сводка, а не то,
+   что человек листает рейкой. */
+function calHero(){
+  const z = zipInfo(), f = frostDates(), n = nowMonth();
+  const house = calHouse();
+  const s = sowableIn(n).length, p = pickableIn(n).length;
+  let big, sub, duo = '';
+  if(house){
+    big = 'Houseplants keep<br>no season';
+    sub = 'Nothing here waits for a date — they go by light, not by month.';
+  } else if(noSeason()){
+    big = s + (s === 1 ? ' crop can go in' : ' crops can go in');
+    sub = 'Indoors there is no frost to work around, so any month works. '
+        + 'What matters is days from sowing to the first cut.';
+  } else {
+    big = s + (s === 1 ? ' crop can go in' : ' crops can go in');
+    sub = (p ? p + (p === 1 ? ' is' : ' are') + ' inside a harvest window.'
+             : 'No harvest window is open yet.')
+        + ' Both come from your frost dates.';
+    duo = '<div class="duo">'
+      + '<div class="cell"><s>Last frost</s><b>' + z.frost + '</b></div>'
+      + '<div class="cell"><s>First frost</s><b>' + fmtMD(f.first) + '</b></div>'
+      + '<div class="cell"><s>Season</s><b>' + z.season + 'd</b></div></div>';
+  }
+  return '<div class="acc">'
+    + '<div class="acc-photo" style="background-image:url(img/'
+    + (house ? 'hero-plants' : 'hero-calendar') + '.jpg)"></div>'
+    + '<div class="row1" style="margin-top:16px"><span class="tag">'
+    + (CHOICES.outdoor ? 'SEASON 2026 · ' + z.city.toUpperCase() : 'INDOORS · ALL YEAR')
+    + '</span></div>'
+    + '<div class="lbl">' + (house ? 'All twelve months' : MONF[n]) + '</div>'
+    + '<div class="big">' + big + '</div>'
+    + '<div class="sub">' + sub + '</div>' + duo + '</div>';
 }
 function renderCalendar(){
   const box = document.getElementById('calbody'); if(!box) return;
-  const f = frostDates();
-  const sub = document.getElementById('calsub');
-  if(sub) sub.textContent = CHOICES.outdoor
-    ? zipInfo().city + ' · last frost ' + zipInfo().frost + ' · first frost around '
-      + MON[f.first.getMonth()] + ' ' + f.first.getDate()
-    : 'Indoors, so there is no frost to work around — any month works.';
-  const mine = MY_PLANTS.map(function(p){ return p.s; });
-  const seen = {}; const mineU = mine.filter(function(x){
-    if(seen[x.id]) return false; seen[x.id] = 1; return true; });
-  const rest = speciesPool().filter(function(x){ return !seen[x.id]; });
-  const head = '<div class="calrow calhead"><b></b><div class="cal12">'
-    + MON1.map(function(m, i){
-        return '<i class="' + (i === nowMonth() ? 'cnow' : '') + '">' + m + '</i>'; }).join('')
-    + '</div></div>';
-  box.innerHTML =
-      '<div class="calleg2"><span><i class="c-sow"></i>sow</span>'
-    + '<span><i class="c-both"></i>sow &amp; pick</span>'
-    + '<span><i class="c-pick"></i>pick only</span>'
-    + '<span><i class="cnow"></i>this month</span></div>'
-    + (mineU.length ? '<div class="sl">Yours</div><div class="calbox">' + head
-        + mineU.map(calStrip).join('') + '</div>' : '')
-    + '<div class="sl">' + (mineU.length ? 'Could also go in' : 'What can go in') + '</div>'
-    + '<div class="calbox">' + head + rest.map(calStrip).join('') + '</div>'
-    + '<div class="setnote">Windows come from your last frost date and how long each crop needs. '
-      + 'Houseplants have no season, so their row stays open all year.<br><br>'
-      + 'One honest gap: this works off frost, not summer heat. In a hot region the '
-      + 'cool-season crops — lettuce, radish, cilantro — will bolt in midsummer even though '
-      + 'the row here stays open. Sow those in spring and again in late summer.</div>';
+  const y = CAL_VIEW === 'year';
+  box.innerHTML = calHero()
+    + '<div class="calseg" role="radiogroup" aria-label="Calendar view">'
+    + '<div' + (y ? '' : ' class="on"') + ' role="radio" aria-checked="' + (y ? 'false' : 'true')
+    + '" tabindex="0" data-calview="month">This month</div>'
+    + '<div' + (y ? ' class="on"' : '') + ' role="radio" aria-checked="' + (y ? 'true' : 'false')
+    + '" tabindex="0" data-calview="year">Whole year</div></div>'
+    + (y ? calYearView() : calMonthView())
+    + '<div class="setnote">' + (calHouse()
+      ? 'A harvest calendar has nothing to plan for a houseplant: there is no sowing '
+        + 'window and no crop to bring in. What decides whether one of these works '
+        + 'is the light in the room, so that is what each card shows.'
+      : noSeason()
+      ? 'Indoors there is no frost, so no month is closed. The number that matters '
+        + 'is days from sowing to the first cut.'
+      : 'Windows come from your last frost date and how long each crop needs. '
+        + 'Houseplants have no season, so their row stays open all year.<br><br>'
+        + 'One honest gap: this works off frost, not summer heat. In a hot region the '
+        + 'cool-season crops — lettuce, radish, cilantro — will bolt in midsummer even '
+        + 'though the row here stays open. Sow those in spring and again in late summer.')
+    + '</div>';
 }
 /* Виджет — предпросмотр календаря урожая, а не журнал поливов: заголовок
    обещал урожай, а внутри была сетка поливов за 35 дней. Показываем год
@@ -2338,6 +2655,7 @@ function renderCalendar(){
 function calWidget(){
   const mine = MY_PLANTS.map(function(p){ return p.s; });
   const now = nowMonth();
+  const free = noSeason() && mine.some(function(x){ return x.kind === 'edible'; });
   const cells = MON1.map(function(lbl, m){
     let sow = 0, pick = 0;
     mine.forEach(function(sp){
@@ -2345,16 +2663,24 @@ function calWidget(){
       if(mm[m] === 'sow' || mm[m] === 'both') sow++;
       if(mm[m] === 'pick' || mm[m] === 'both') pick++;
     });
-    const k = pick && sow ? 'c-both' : pick ? 'c-pick' : sow ? 'c-sow' : '';
+    /* без сезона строка открыта весь год — красим ровно, а не пусто */
+    const k = free ? 'c-sow' : (pick && sow ? 'c-both' : pick ? 'c-pick' : sow ? 'c-sow' : '');
     return '<i class="' + k + (m === now ? ' cnow' : '') + '">' + lbl + '</i>';
   }).join('');
-  const can = sowableNow();
+  /* Полоса показывает год ЕГО растений, значит и счётчик должен считать
+     остальное: одна и та же цифра про «всё вообще» рядом с личной полосой
+     читалась как её подпись. */
+  const have = {};
+  mine.forEach(function(sp){ have[sp.id] = 1; });
+  const can = sowableNow().filter(function(sp){ return !have[sp.id]; });
+  const word = (mine.length ? ' more crop' : ' crop') + (can.length === 1 ? '' : 's');
   return '<div class="wg wg-lite span2" role="button" tabindex="0" data-go="calendar">'
     + '<div class="wg-h"><b>Harvest calendar</b><s>' + MON[now] + '</s></div>'
     + '<div class="calyear">' + cells + '</div>'
-    + '<div class="calcta">' + (can.length
-        ? can.length + (can.length === 1 ? ' crop can go in this month' : ' crops can go in this month')
-        : 'Nothing new should go in this month') + ' · see the whole year</div></div>';
+    + '<div class="calcta">' + (noSeason()
+        ? 'No season indoors — any month works'
+        : (can.length ? can.length + word + ' can go in this month'
+                      : 'Nothing new should go in this month')) + ' · see the whole year</div></div>';
 }
 function careWidgets(){
   return '<div class="wgrid">' + calWidget() + '</div>';
@@ -2738,6 +3064,8 @@ ICON_JS['_dropbig'] = ic('drop', 'var(--lime)', 30)
 ICON_JS['_dropp'] = ic('drop', 'var(--bright)', 28)
 ICON_JS['_leaf'] = ic('leaf', 'var(--lime)', 20)
 ICON_JS['_chevd'] = ic('chevron-right', 'var(--muted)', 18, '2.4')
+# шаг по месяцам в календаре: левая кнопка — тот же глиф, повёрнутый в CSS
+ICON_JS['_caret'] = ic('caret-right', 'var(--primary)', 20, '2.6')
 ICON_JS['_circ'] = ('<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="#B4BEB8" '
                     'stroke-width="2"><circle cx="12" cy="12" r="9"/></svg>')
 ICON_JS['_checkp'] = ('<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="var(--primary)" '
@@ -3001,8 +3329,15 @@ function go(id){{
   if(ONB.indexOf(id)>-1) renderPg(id);
   if(id==='preview') try{{ renderPreview(); }}catch(e){{}}
   if(id==='save') renderSave();
-  if(id==='add-plant'){{ const q=document.getElementById('spq'); if(q){{q.value='';
-      q.parentElement.classList.remove('has');}} PENDING=[]; renderLibrary('');
+  if(id==='add-plant'){{
+    const seek = LIB_SEEK; LIB_SEEK = null;
+    const sk = seek ? SP(seek) : null;
+    const own = sk && MY_PLANTS.some(function(x){{ return x.s.id === sk.id; }});
+    const q=document.getElementById('spq'); if(q){{q.value = sk ? sk.name : '';
+      q.parentElement.classList.toggle('has', !!sk);}}
+    /* пришли из календаря — вид уже отмечен, добавить его можно одним тапом */
+    PENDING = sk && !own && MY_PLANTS.length < limit() ? [sk.id] : [];
+    renderLibrary(sk ? sk.name : '');
     /* в онбординге экран ведёт себя иначе: назад к развилке, без таб-бара */
     el.classList.toggle('onb', ONB_MODE === 'own');
     const bk = el.querySelector('.back');
@@ -3022,7 +3357,7 @@ function go(id){{
   if(id==='week-lock') renderLock();
   if(id==='settings') renderSettings();
   if(id==='pick') renderPick();
-  if(id==='calendar') renderCalendar();
+  if(id==='calendar'){{ CAL_M = null; CAL_OPEN = null; renderCalendar(); }}
   stampRoles(el);
   el.classList.add('on');
   /* Сдвиг лаймового баннера считается от РЕАЛЬНОЙ высоты подвала и таб-бара.
@@ -3107,6 +3442,24 @@ document.addEventListener('click', e=>{{
     scr.querySelector('[data-zipres]').style.display='block';
     scr.querySelector('[data-cta]').classList.remove('off'); return;
   }}
+  /* ── календарь урожая: вид, месяц, раскрытие строки, переход к культуре */
+  const cv = e.target.closest('[data-calview]');
+  if(cv){{ CAL_VIEW = cv.dataset.calview; CAL_OPEN = null; renderCalendar(); return; }}
+  const cg = e.target.closest('[data-calgo]');
+  if(cg){{ CAL_M = +cg.dataset.calgo; renderCalendar(); return; }}
+  const cst = e.target.closest('[data-calstep]');
+  /* год замкнут: с декабря шаг вперёд ведёт в январь, а не в тупик */
+  if(cst){{ CAL_M = (calMonth() + +cst.dataset.calstep + 12) % 12;
+            renderCalendar(); return; }}
+  const cr = e.target.closest('[data-calrow]');
+  if(cr){{ const id = cr.dataset.calrow;
+           CAL_OPEN = CAL_OPEN === id ? null : id; renderCalendar(); return; }}
+  const cs = e.target.closest('[data-calsp]');
+  if(cs){{ const id = cs.dataset.calsp;
+           const k = MY_PLANTS.findIndex(function(x){{ return x.s.id === id; }});
+           /* уже растёт — открываем карточку; ещё нет — библиотеку с этим видом */
+           if(k > -1){{ SELECTED = k; renderDetail(); go('plant'); return; }}
+           LIB_SEEK = id; go('add-plant'); return; }}
   const t = e.target.closest('[data-task]');
   if(t){{ const on = t.classList.toggle('done');
           t.setAttribute('aria-checked', on ? 'true' : 'false'); return; }}

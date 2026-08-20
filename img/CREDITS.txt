@@ -51,3 +51,10 @@ hero-garden.jpg photo-1620477017908-01bef31b896b  woman in blue t-shirt sitting 
                но не даёт прав на изображение узнаваемых людей так, будто человек
                рекламирует продукт. Для прототипа это нормально; перед реальным
                запуском нужен снимок с модель-релизом или собственная съёмка.
+
+hero-calendar.jpg photo-1624668430039-0175a0fbf006  «A wooden harvest basket filled with
+                assorted tomatoes, okra, shallots, and fresh herbs», Zoe Richardson
+                (@farmsteadphoto), unsplash.com/photos/hmoDcZnB7uw — шапка экрана Harvest
+                calendar. Кадр сверху, вся корзина в полосе 800×340. Unsplash License.
+                На треке комнатных этой шапки нет: там переиспользован hero-plants.jpg,
+                потому что «урожай» к комнатным не относится.

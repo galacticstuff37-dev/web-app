@@ -405,17 +405,14 @@ body.is-pro .ofr{display:none}
 .mrow s{display:block;font-size:var(--t-11);color:var(--muted);text-decoration:none;letter-spacing:-.02em}
 .wg-dark .mrow s{color:#A9BCB0}
 .mrow b{display:block;font-size:var(--t-15);font-weight:600;margin-top:2px;letter-spacing:-.02em}
-.cal{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;margin-top:12px}
-.cal i{aspect-ratio:1;border-radius:50%;display:flex;align-items:center;justify-content:center;
-       font-size:var(--t-12);font-weight:600;font-style:normal;color:#7A8880;background:#EDF1EB}
-.cal i.fut{color:#B4BEB8;background:#F4F6F3}
-/* полив и снимок раньше красились в один цвет: легенда обещала два, ячейки были
-   одинаковые. Теперь полив залит, снимок обведён. */
-.cal i.m-water{background:#D6EADC;color:#0E6234}
-.cal i.m-photo{background:var(--primary);color:#fff}
-.callg{display:flex;gap:14px;margin-top:12px;font-size:var(--t-11);color:var(--muted)}
-.callg span{display:flex;align-items:center;gap:5px}
-.callg i{width:10px;height:10px;border-radius:50%;font-style:normal;flex:none}
+.calyear{display:grid;grid-template-columns:repeat(12,1fr);gap:3px;margin-top:12px}
+.calyear i{height:30px;border-radius:5px;background:#F0F3EF;font-style:normal;
+     font-size:var(--t-11);font-weight:600;color:var(--muted);display:flex;
+     align-items:flex-end;justify-content:center;padding-bottom:3px}
+.calyear i.c-sow{background:#B9E3C6;color:#0E6234}
+.calyear i.c-pick{background:var(--primary);color:#fff}
+.calyear i.c-both{background:linear-gradient(180deg,#B9E3C6 0 55%,var(--primary) 55% 100%);color:#fff}
+.calyear i.cnow{box-shadow:inset 0 0 0 1.5px var(--deep)}
 .calcta{margin-top:12px;padding-top:12px;border-top:1px solid var(--hair);
      font-size:var(--t-13);font-weight:600;color:var(--primary)}
 .calleg2{display:flex;gap:14px;flex-wrap:wrap;font-size:var(--t-12);color:var(--muted);
@@ -439,8 +436,6 @@ body.is-pro .ofr{display:none}
 .calhead .cal12 i.cnow{color:var(--primary);font-weight:700}
 .cal12 i.cnow{box-shadow:inset 0 0 0 1.5px var(--deep)}
 .calleg2 i.cnow{background:#F0F3EF;box-shadow:inset 0 0 0 1.5px var(--deep)}
-.callg i.m-water{background:#D6EADC}
-.callg i.m-photo{background:var(--primary)}
 .ccard{background:var(--surface);border-radius:var(--r-lg);padding:12px;margin-bottom:8px}
 .chead{display:flex;align-items:center;gap:12px;cursor:pointer;padding:4px}
 .chead .nm b{display:block;font-size:var(--t-16);font-weight:600;letter-spacing:-.02em}
@@ -577,7 +572,7 @@ body.is-pro .ofr{display:none}
                 opacity .16s ease-out}
 
 /* ───── цифры не должны прыгать по ширине при пересчёте */
-.wg .num,.acc .huge,.acc .cell b,.score-n b,.stat b,.pcard .pr,.cal i,.mrow b,
+.wg .num,.acc .huge,.acc .cell b,.score-n b,.stat b,.pcard .pr,.mrow b,
 .pb-n,.pb-pct,.min,.br-m,.eta,.zip,.acc .prow .rt{font-variant-numeric:tabular-nums}
 
 /* ───── висячие слова в заголовках и хвосты в абзацах */
@@ -2002,7 +1997,7 @@ function pickOptions(key){
           + ' of ' + speciesPool().length + ' plants'}; }); }
   if(key === 'effort') return [{v:3,label:'About 10 minutes',sub:'3 plants'},
                                {v:4,label:'About 20 minutes',sub:'4 plants'},
-                               {v:5,label:'30+ minutes',sub:'5–6 plants'}];
+                               {v:6,label:'30+ minutes',sub:'up to 6 plants'}];
   if(key === 'units')  return [{v:'imperial',label:'Imperial',sub:'inches, gallons, pints'},
                                {v:'metric',label:'Metric',sub:'centimetres, litres'}];
   if(key === 'remind') return REMIND_AT.map(function(t, i){
@@ -2337,30 +2332,29 @@ function renderCalendar(){
       + 'cool-season crops — lettuce, radish, cilantro — will bolt in midsummer even though '
       + 'the row here stays open. Sow those in spring and again in late summer.</div>';
 }
+/* Виджет — предпросмотр календаря урожая, а не журнал поливов: заголовок
+   обещал урожай, а внутри была сетка поливов за 35 дней. Показываем год
+   по месяцам, сложенный по всем растениям человека. */
 function calWidget(){
-  // отмечаем дни, когда растения поливали, и дни со снимками
-  const marks = {};
-  MY_PLANTS.forEach(function(p){
-    /* растение существует p.day дней, раньше этого его не поливали */
-    const born = Math.max(0, TODAY - p.day);
-    for(let d = TODAY - p.since; d > born; d -= p.s.water) marks[d] = 'water';
-    p.photos.forEach(function(x){ if(!marks[x.day]) marks[x.day] = 'photo'; });
-  });
-  let cells = '';
-  for(let d = 0; d <= 34; d++){
-    const m = marks[d], future = d > TODAY;
-    cells += '<i class="' + (m ? 'm-' + m : '') + (future ? ' fut' : '') + '">'
-           + dayOffset(d).getDate() + '</i>';
-  }
+  const mine = MY_PLANTS.map(function(p){ return p.s; });
+  const now = nowMonth();
+  const cells = MON1.map(function(lbl, m){
+    let sow = 0, pick = 0;
+    mine.forEach(function(sp){
+      const mm = monthMap(sp); if(!mm) return;
+      if(mm[m] === 'sow' || mm[m] === 'both') sow++;
+      if(mm[m] === 'pick' || mm[m] === 'both') pick++;
+    });
+    const k = pick && sow ? 'c-both' : pick ? 'c-pick' : sow ? 'c-sow' : '';
+    return '<i class="' + k + (m === now ? ' cnow' : '') + '">' + lbl + '</i>';
+  }).join('');
   const can = sowableNow();
   return '<div class="wg wg-lite span2" role="button" tabindex="0" data-go="calendar">'
-    + '<div class="wg-h"><b>Harvest calendar</b><s>' + MON[nowMonth()] + ' · open</s></div>'
-    + '<div class="cal">' + cells + '</div>'
-    + '<div class="callg"><span><i class="m-water"></i>watered</span>'
-    + '<span><i class="m-photo"></i>photo</span></div>'
+    + '<div class="wg-h"><b>Harvest calendar</b><s>' + MON[now] + '</s></div>'
+    + '<div class="calyear">' + cells + '</div>'
     + '<div class="calcta">' + (can.length
         ? can.length + (can.length === 1 ? ' crop can go in this month' : ' crops can go in this month')
-        : 'Nothing new should go in this month') + ' · see the year</div></div>';
+        : 'Nothing new should go in this month') + ' · see the whole year</div></div>';
 }
 function careWidgets(){
   return '<div class="wgrid">' + calWidget() + '</div>';
@@ -2589,9 +2583,11 @@ function applyPlan(){
   MY_PLANTS = take.map(function(sp){ return mkPlant(sp.id, 0, 0, []); });
   ONB_MODE = null;
   renderAll();
+  const names = held.map(function(x){ return lc(x.name); });
+  const list2 = names.length > 1
+    ? names.slice(0, -1).join(', ') + ' and ' + names[names.length - 1] : names[0];
   toast(held.length
-    ? '<span>Added ' + take.length + '. Pro also keeps '
-      + held.map(function(x){ return lc(x.name); }).join(' and ') + '</span>'
+    ? '<span>Added ' + take.length + '. Pro also keeps ' + list2 + '</span>'
     : '<span>Added ' + take.length + (take.length === 1 ? ' plant' : ' plants') + '</span>', 4500);
   go('save');
 }
@@ -2660,7 +2656,7 @@ function renderQ5(){
   box.innerHTML =
       optHTML('About 10 minutes', 'Keep it very simple · 3 plants', 'preview', false)
     + optHTML('About 20 minutes', 'I can do a bit more · 4 plants', 'preview', false)
-    + optHTML('30+ minutes', 'I want ' + many + ' · 5–6 plants', 'preview', false);
+    + optHTML('30+ minutes', 'I want ' + many + ' · up to 6 plants', 'preview', false);
 }
 
 function renderAll(){
@@ -2729,7 +2725,7 @@ function recordChoice(scr, label){
     CHOICES.sunRank = SUNRANK[label] || 1;
   }
   if(scr === 's-q5'){ CHOICES.effort = label.indexOf('10') > -1 ? 3
-                                     : label.indexOf('20') > -1 ? 4 : 5; }
+                                     : label.indexOf('20') > -1 ? 4 : 6; }
 }
 '''
 

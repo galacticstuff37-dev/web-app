@@ -343,17 +343,14 @@ body.is-pro .ofr{display:none}
 .mrow s{display:block;font-size:var(--t-11);color:var(--muted);text-decoration:none;letter-spacing:-.02em}
 .wg-dark .mrow s{color:#A9BCB0}
 .mrow b{display:block;font-size:var(--t-15);font-weight:600;margin-top:2px;letter-spacing:-.02em}
-.cal{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;margin-top:12px}
-.cal i{aspect-ratio:1;border-radius:50%;display:flex;align-items:center;justify-content:center;
-       font-size:var(--t-12);font-weight:600;font-style:normal;color:#7A8880;background:#EDF1EB}
-.cal i.fut{color:#B4BEB8;background:#F4F6F3}
-/* полив и снимок раньше красились в один цвет: легенда обещала два, ячейки были
-   одинаковые. Теперь полив залит, снимок обведён. */
-.cal i.m-water{background:#D6EADC;color:#0E6234}
-.cal i.m-photo{background:var(--primary);color:#fff}
-.callg{display:flex;gap:14px;margin-top:12px;font-size:var(--t-11);color:var(--muted)}
-.callg span{display:flex;align-items:center;gap:5px}
-.callg i{width:10px;height:10px;border-radius:50%;font-style:normal;flex:none}
+.calyear{display:grid;grid-template-columns:repeat(12,1fr);gap:3px;margin-top:12px}
+.calyear i{height:30px;border-radius:5px;background:#F0F3EF;font-style:normal;
+     font-size:var(--t-11);font-weight:600;color:var(--muted);display:flex;
+     align-items:flex-end;justify-content:center;padding-bottom:3px}
+.calyear i.c-sow{background:#B9E3C6;color:#0E6234}
+.calyear i.c-pick{background:var(--primary);color:#fff}
+.calyear i.c-both{background:linear-gradient(180deg,#B9E3C6 0 55%,var(--primary) 55% 100%);color:#fff}
+.calyear i.cnow{box-shadow:inset 0 0 0 1.5px var(--deep)}
 .calcta{margin-top:12px;padding-top:12px;border-top:1px solid var(--hair);
      font-size:var(--t-13);font-weight:600;color:var(--primary)}
 .calleg2{display:flex;gap:14px;flex-wrap:wrap;font-size:var(--t-12);color:var(--muted);
@@ -377,8 +374,6 @@ body.is-pro .ofr{display:none}
 .calhead .cal12 i.cnow{color:var(--primary);font-weight:700}
 .cal12 i.cnow{box-shadow:inset 0 0 0 1.5px var(--deep)}
 .calleg2 i.cnow{background:#F0F3EF;box-shadow:inset 0 0 0 1.5px var(--deep)}
-.callg i.m-water{background:#D6EADC}
-.callg i.m-photo{background:var(--primary)}
 .ccard{background:var(--surface);border-radius:var(--r-lg);padding:12px;margin-bottom:8px}
 .chead{display:flex;align-items:center;gap:12px;cursor:pointer;padding:4px}
 .chead .nm b{display:block;font-size:var(--t-16);font-weight:600;letter-spacing:-.02em}
@@ -515,7 +510,7 @@ body.is-pro .ofr{display:none}
                 opacity .16s ease-out}
 
 /* ───── цифры не должны прыгать по ширине при пересчёте */
-.wg .num,.acc .huge,.acc .cell b,.score-n b,.stat b,.pcard .pr,.cal i,.mrow b,
+.wg .num,.acc .huge,.acc .cell b,.score-n b,.stat b,.pcard .pr,.mrow b,
 .pb-n,.pb-pct,.min,.br-m,.eta,.zip,.acc .prow .rt{font-variant-numeric:tabular-nums}
 
 /* ───── висячие слова в заголовках и хвосты в абзацах */
@@ -1425,7 +1420,7 @@ function pickOptions(key){
           + ' of ' + speciesPool().length + ' plants'}; }); }
   if(key === 'effort') return [{v:3,label:'About 10 minutes',sub:'3 plants'},
                                {v:4,label:'About 20 minutes',sub:'4 plants'},
-                               {v:5,label:'30+ minutes',sub:'5–6 plants'}];
+                               {v:6,label:'30+ minutes',sub:'up to 6 plants'}];
   if(key === 'units')  return [{v:'imperial',label:'Imperial',sub:'inches, gallons, pints'},
                                {v:'metric',label:'Metric',sub:'centimetres, litres'}];
   if(key === 'remind') return REMIND_AT.map(function(t, i){
@@ -1760,30 +1755,29 @@ function renderCalendar(){
       + 'cool-season crops — lettuce, radish, cilantro — will bolt in midsummer even though '
       + 'the row here stays open. Sow those in spring and again in late summer.</div>';
 }
+/* Виджет — предпросмотр календаря урожая, а не журнал поливов: заголовок
+   обещал урожай, а внутри была сетка поливов за 35 дней. Показываем год
+   по месяцам, сложенный по всем растениям человека. */
 function calWidget(){
-  // отмечаем дни, когда растения поливали, и дни со снимками
-  const marks = {};
-  MY_PLANTS.forEach(function(p){
-    /* растение существует p.day дней, раньше этого его не поливали */
-    const born = Math.max(0, TODAY - p.day);
-    for(let d = TODAY - p.since; d > born; d -= p.s.water) marks[d] = 'water';
-    p.photos.forEach(function(x){ if(!marks[x.day]) marks[x.day] = 'photo'; });
-  });
-  let cells = '';
-  for(let d = 0; d <= 34; d++){
-    const m = marks[d], future = d > TODAY;
-    cells += '<i class="' + (m ? 'm-' + m : '') + (future ? ' fut' : '') + '">'
-           + dayOffset(d).getDate() + '</i>';
-  }
+  const mine = MY_PLANTS.map(function(p){ return p.s; });
+  const now = nowMonth();
+  const cells = MON1.map(function(lbl, m){
+    let sow = 0, pick = 0;
+    mine.forEach(function(sp){
+      const mm = monthMap(sp); if(!mm) return;
+      if(mm[m] === 'sow' || mm[m] === 'both') sow++;
+      if(mm[m] === 'pick' || mm[m] === 'both') pick++;
+    });
+    const k = pick && sow ? 'c-both' : pick ? 'c-pick' : sow ? 'c-sow' : '';
+    return '<i class="' + k + (m === now ? ' cnow' : '') + '">' + lbl + '</i>';
+  }).join('');
   const can = sowableNow();
   return '<div class="wg wg-lite span2" role="button" tabindex="0" data-go="calendar">'
-    + '<div class="wg-h"><b>Harvest calendar</b><s>' + MON[nowMonth()] + ' · open</s></div>'
-    + '<div class="cal">' + cells + '</div>'
-    + '<div class="callg"><span><i class="m-water"></i>watered</span>'
-    + '<span><i class="m-photo"></i>photo</span></div>'
+    + '<div class="wg-h"><b>Harvest calendar</b><s>' + MON[now] + '</s></div>'
+    + '<div class="calyear">' + cells + '</div>'
     + '<div class="calcta">' + (can.length
         ? can.length + (can.length === 1 ? ' crop can go in this month' : ' crops can go in this month')
-        : 'Nothing new should go in this month') + ' · see the year</div></div>';
+        : 'Nothing new should go in this month') + ' · see the whole year</div></div>';
 }
 function careWidgets(){
   return '<div class="wgrid">' + calWidget() + '</div>';
@@ -2012,9 +2006,11 @@ function applyPlan(){
   MY_PLANTS = take.map(function(sp){ return mkPlant(sp.id, 0, 0, []); });
   ONB_MODE = null;
   renderAll();
+  const names = held.map(function(x){ return lc(x.name); });
+  const list2 = names.length > 1
+    ? names.slice(0, -1).join(', ') + ' and ' + names[names.length - 1] : names[0];
   toast(held.length
-    ? '<span>Added ' + take.length + '. Pro also keeps '
-      + held.map(function(x){ return lc(x.name); }).join(' and ') + '</span>'
+    ? '<span>Added ' + take.length + '. Pro also keeps ' + list2 + '</span>'
     : '<span>Added ' + take.length + (take.length === 1 ? ' plant' : ' plants') + '</span>', 4500);
   go('save');
 }
@@ -2083,7 +2079,7 @@ function renderQ5(){
   box.innerHTML =
       optHTML('About 10 minutes', 'Keep it very simple · 3 plants', 'preview', false)
     + optHTML('About 20 minutes', 'I can do a bit more · 4 plants', 'preview', false)
-    + optHTML('30+ minutes', 'I want ' + many + ' · 5–6 plants', 'preview', false);
+    + optHTML('30+ minutes', 'I want ' + many + ' · up to 6 plants', 'preview', false);
 }
 
 function renderAll(){
@@ -2152,7 +2148,7 @@ function recordChoice(scr, label){
     CHOICES.sunRank = SUNRANK[label] || 1;
   }
   if(scr === 's-q5'){ CHOICES.effort = label.indexOf('10') > -1 ? 3
-                                     : label.indexOf('20') > -1 ? 4 : 5; }
+                                     : label.indexOf('20') > -1 ? 4 : 6; }
 }
 
 const NOTES = {"landing": ["Landing", "Фото на весь экран, лайм-кнопка. Никаких попапов и логина — §4.2. Обещание больше не про еду: продукт про растения в целом."], "q0": ["Q0 · Старт", "Развилка, которой раньше не было. Приложение — трекер ухода, а онбординг строил <b>план посадки</b>: человеку с готовой монстерой пять вопросов про то, что сажать, были бесполезны. Теперь «уже есть» ведёт сразу в библиотеку со сканом, а «хочу начать» — в план. Обе ветки сходятся на Home. Начало онбординга <b>обнуляет MY_PLANTS</b>: демо-набор больше не притворяется твоими растениями."], "qwhat": ["Q1 · Track", "Тот же вопрос, что был первым, но теперь его видит только ветка «хочу начать». Кто уже держит растения, трек не выбирает — он выводится из того, что человек занёс."], "q1": ["Q1 · Space", "Варианты рендерятся из трека: комнаты для house, площадки для edible, смесь для both. Уличное место включает <b>outdoor</b> — только тогда спрашиваем ZIP и заморозки."], "q2": ["Q2 · ZIP", "Спрашивается <b>только на уличном треке</b>. Комнатным растениям заморозки не нужны, поэтому indoor этот экран не видит вообще."], "q3": ["Q3 · Sun", "Главный фильтр качества плана, только для уличного трека. not_sure → ранг 1 + задача Sun check."], "q2i": ["Q2-indoor · Light", "Внутри света меряется <b>стороной окна</b>, не часами. Ложится в тот же sunRank, движок один. Это экран всего indoor — и комнатных, и подоконниковых съедобных."], "q4": ["Q4 · Goals", "Варианты из трека: комнатные спрашивают «hard to kill / low light / statement», съедобные — «salads / herbs / tomatoes». Лимит 3, лишние <b>гаснут, а не исчезают</b> — §4.6."], "q5": ["Q5 · Effort", "Определяет размер плана: 3 / 4 / 5&ndash;6 растений. Слово в подписи меняется по треку."], "preview": ["Plan Preview", "⚠ Цитата — <b>плейсхолдер</b>: настоящий отзыв надо получить у реального человека с его согласия, выдумывать его нельзя. Момент ценности. <b>План до регистрации</b> — §4.8. Строки плана: съедобным показываем дату первого сбора, комнатным — интервал полива."], "save": ["Save Plan", "Фото на весь экран. Регистрация — <b>после</b> показанной ценности, magic link без пароля (§4.9). Пилюля считается из плана: «4 PLANTS · YEAR-ROUND» внутри, «· 30 WEEKS» на улице."], "home": ["Home", "Один экран, два состояния. Пусто → акцентный блок зовёт добавить растение. Есть растения → health score, виджеты и список. Задачи недели <b>считаются из MY_PLANTS</b>, а не захардкожены: полив по просрочке, сбор для созревших, протирка листьев для крупных."], "add-plant": ["Add a plant", "Библиотека — <b>один справочник на 29 видов</b>: 8 комнатных и 21 съедобная культура. Показывается подмножество под трек и место; тем, чему не хватает света, ставим блок «Needs more light» — <b>погашено, а не спрятано</b>. Внизу soft-lock OFF-04."], "week-lock": ["Soft-lock", "<b>Даты и объём видны</b>, скрыты только формулировки — §10.3. Это не стена. Обещание Pro теперь «весь календарь ухода», а не «30 недель сезона»."], "week-empty": ["Week · пусто", "<b>§18</b> «Nothing needed this week. Water, watch, enjoy.» Пустая неделя — подтверждение, что всё идёт по плану. Список растений и срок следующей задачи <b>считаются из данных</b> — здесь раньше падало на модели съедобных."], "week-back": ["Week · возврат", "<b>§6.4</b> Продукт <b>никогда</b> не показывает список из двадцати просроченных задач. Движок сворачивает пропуск в две задачи из настоящих растений, остальное закрывается статусом expired без обвинения."], "week-long": ["Week · долгий пропуск", "<b>§19.1 №7</b> Пересчёт <b>предлагается</b>, но никогда не делается автоматически. Нижняя строка называет растения, которые реально пересохли, а не выдуманный редис."], "season-end": ["Recap · OFF-11", "<b>§7.5</b> Итог. На уличном треке триггер <b>today &ge; first_frost</b> и счёт в сборах; для комнатных сезон не кончается никогда, поэтому итог считается в поливах, растениях и снимках. Один экран, две формулировки — рендерится из данных."], "scan": ["Scan a plant", "Кнопка Add открывает камеру и распознаёт растение <b>по-настоящему</b> — PlantNet через воркер-прокси (ключ в клиент не попадает). Латинское имя маппится на наши 29 видов, включая комнатные; процент — настоящий score от API. Состояния: не подключено, нет совпадения, не наш вид, нет сети."], "plant": ["Plant detail", "Карточка растения. Второй виджет зависит от вида: комнатному — свет и влажность, съедобному — прогресс до сбора и «типичный диапазон». Если у вида нет настоящей фотографии, стоит <b>плитка с иконкой</b>, а не битая картинка. Внизу — удаление с Undo."], "growth": ["Growth", "История ухода. Раньше здесь были <b>две сущности про одно и то же</b> — список и отдельная сетка фото, хотя каждое фото и так принадлежит растению. Теперь один дашборд и карточки растений, у каждой свои снимки. Тап ведёт в карточку."], "harvest": ["Milestone", "Пик удержания и лучшая точка конверсии — §9. Для съедобных это «First harvest. Day 31», для комнатных — «It is thriving» с числом дней и поливов. Экран <b>берёт настоящее фото растения из журнала</b>, если оно есть."], "shopping": ["Shopping list", "Собирается <b>из плана</b>: горшки по размеру каждого вида, поддоны, грунт, лейка, удобрение — и строка семян только если в плане есть съедобное. Сумма считается, а не написана. Free — список на экране, Pro — печатный PDF."], "paywall": ["Paywall", "Собран по референсу Fit AI: тёмный фон, лаймовый glow, сегмент-переключатель, фичи с точками, белый CTA. <b>Починено:</b> карточка цены была помечена классом карточки растения (<code>plcard</code>) — из-за этого рисовалась белой полосой 132px, а переключатель тарифов падал на несуществующем <code>.pcard</code>. Показывается сразу после регистрации и закрывается в тот экран, откуда пришёл — конфликт со §10.4 сохранён осознанно."], "week-done": ["Week complete · OFF-05", "success_modal, <b>не чаще 1 раза в 7 дней</b>. Прозрачного скрима нет — полный экран. Цифры и строка «что дальше» берутся из настоящих растений."], "settings": ["Settings", "Экран собирается из состояния целиком, и <b>каждая строка что-то меняет</b>. «Your setup» — ответы онбординга: тап циклит значение, ZIP появляется только на уличном треке, Units переводит объёмы и диаметры по всему приложению (настоящий пересчёт, не подпись). «What goes on the week card» — тумблеры, которые реально фильтруют движок задач; полив не отключается, это ядро. «Reminders» — время и письма. Export отдаёт настоящий JSON файлом. Delete account вынесен из блока и подан серым секондари: это выход, а не пункт меню."], "pick": ["Настройка · выбор", "Значения в настройках больше <b>не циклятся по тапу</b>: строка открывает раздел со списком, где видно все варианты и что выбрано сейчас. У каждого варианта есть следствие — для света это «сколько растений подойдёт», для ZIP — зона, заморозки и длина сезона. Выбрал — вернулся в настройки."], "calendar": ["Harvest calendar", "Общий календарь года: когда что <b>сеять</b> и когда <b>снимать</b>. Окна не выдуманы — считаются из даты последних заморозков выбранного ZIP, длины сезона и числа дней до сбора каждой культуры. Холодостойкие уходят в грунт за месяц до заморозков, теплолюбивые только после; крайний срок посева такой, чтобы культура успела отдать урожай до осенних заморозков. У комнатных сезона нет — их строка открыта весь год. Проваливаешься из виджета на Growth."], "indoor": ["Windowsill · edibles", "Съедобный трек внутри дома. «Season ends: never» — вот почему подоконник закрывает сезонность: ритм тут <b>срез каждую неделю</b>, а не один сбор за 30 дней. Все четыре вида есть в справочнике с флагом <code>sill</code>. Экран показательный, содержимое статичное."]};

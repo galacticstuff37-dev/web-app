@@ -199,27 +199,31 @@ h1,h2,h3{font-weight:600;letter-spacing:-.015em}
 .tt .b{font-size:14px;color:var(--ink-2);line-height:1.42;margin-top:4px}
 .min{font-size:13px;color:var(--muted);flex:none;margin-top:2px;font-weight:500}
 .task.done .t{color:#9EA8A2;text-decoration:line-through;text-decoration-color:#C9D2CC}
-.pbar{display:flex;align-items:center;gap:10px;background:var(--surface);border-radius:999px;
-      height:48px;padding:0 16px 0 12px;margin-top:16px;cursor:pointer;
-      box-shadow:0 1px 3px rgba(11,31,20,.07)}
+.wk{background:var(--surface);border-radius:28px;margin-top:16px;overflow:hidden;
+     box-shadow:0 1px 3px rgba(11,31,20,.07)}
+.wk-h{display:flex;align-items:center;gap:10px;height:56px;padding:0 16px 0 12px;cursor:pointer}
 .pb-ic{display:flex;flex:none}
-.pb-n{font-size:14px;font-weight:700;letter-spacing:-.02em;flex:none}
+.pb-n{font-size:15px;font-weight:700;letter-spacing:-.02em;flex:none}
 .pb-track{flex:1;height:8px;border-radius:999px;background:#E4E8E2;overflow:hidden;min-width:0}
 .pb-track i{display:block;height:100%;background:var(--bright);border-radius:999px;transition:width .3s}
-.pb-pct{font-size:14px;font-weight:700;color:var(--muted);flex:none;letter-spacing:-.02em}
+.pb-pct{font-size:15px;font-weight:700;color:var(--muted);flex:none;letter-spacing:-.02em}
 .pb-chev{display:flex;flex:none;transition:transform .2s}
-.pbar.open .pb-chev{transform:rotate(90deg)}
-.branch{position:relative;margin:12px 0 0 20px;padding-left:20px}
-.branch:before{content:"";position:absolute;left:0;top:4px;bottom:24px;width:2px;border-radius:2px;background:#DDE3DC}
+.wk.open .pb-chev{transform:rotate(90deg)}
+.wk-list{padding:4px 16px 8px;border-top:1px solid var(--hair)}
+.branch{position:relative;margin-left:12px;padding-left:20px}
+.branch:before{content:"";position:absolute;left:0;top:20px;bottom:24px;width:2px;
+     border-radius:2px;background:#E4E8E2}
 .br-row{display:flex;align-items:center;gap:12px;padding:12px 0;cursor:pointer;position:relative}
-.br-row:before{content:"";position:absolute;left:-20px;top:50%;width:16px;height:2px;border-radius:2px;background:#DDE3DC}
+.br-row:before{content:"";position:absolute;left:-20px;top:50%;width:14px;height:2px;
+     border-radius:2px;background:#E4E8E2}
 .br-dot{width:24px;height:24px;border-radius:50%;flex:none;box-shadow:inset 0 0 0 2px #C9D2CC;
-      display:flex;align-items:center;justify-content:center;background:var(--surface)}
+     display:flex;align-items:center;justify-content:center;background:var(--surface)}
 .br-dot.on{background:var(--primary);box-shadow:none}
-.br-t{flex:1;font-size:15.5px;font-weight:600;letter-spacing:-.02em;line-height:1.25}
+.br-t{flex:1;font-size:15.5px;font-weight:600;letter-spacing:-.02em;line-height:1.25;min-width:0}
+.br-t s{display:block;font-size:13.5px;font-weight:400;color:var(--ink-2);text-decoration:none;
+     margin-top:3px;line-height:1.35}
 .br-t.done{color:#9EA8A2;text-decoration:line-through;text-decoration-color:#C9D2CC}
-.br-m{font-size:13px;color:var(--muted);flex:none;font-weight:500}
-.moretap{font-size:14px;font-weight:600;color:var(--primary);padding:12px 4px 0;cursor:pointer;letter-spacing:-.02em}
+.br-m{font-size:13px;color:var(--muted);flex:none;font-weight:500;align-self:flex-start;margin-top:4px}
 .prog{display:flex;align-items:center;gap:12px;margin:16px 2px 0}
 .bar{flex:1;height:8px;border-radius:999px;background:#DDE3DC;overflow:hidden}
 .bar i{display:block;height:100%;background:var(--bright);border-radius:999px;transition:width .35s}
@@ -244,8 +248,13 @@ h1,h2,h3{font-weight:600;letter-spacing:-.015em}
 .ni.on{color:var(--primary)}
 .ni.on span{font-weight:700}
 .bdg{position:absolute;top:-4px;left:calc(50% + 8px);width:8px;height:8px;border-radius:50%;background:var(--flame)}
-.ofr{padding:8px 16px 8px;flex:none;cursor:pointer}
-.ofr:last-child{padding-bottom:calc(12px + env(safe-area-inset-bottom))}
+.ofr{position:absolute;left:0;right:0;bottom:calc(56px + env(safe-area-inset-bottom));
+     padding:0 12px;cursor:pointer;z-index:20}
+.ofr:last-child{bottom:calc(12px + env(safe-area-inset-bottom))}
+.screen:has(.ofr) .bd{padding-bottom:84px}
+.screen:has(.foot) .ofr{bottom:calc(88px + env(safe-area-inset-bottom))}
+.screen:has(.foot):has(.nav) .ofr{bottom:calc(144px + env(safe-area-inset-bottom))}
+body.is-pro .ofr{display:none}
 body.is-pro .ofr{display:none}
 .ofr-in{display:flex;align-items:center;gap:12px;border-radius:999px;height:52px;padding:0 8px 0 8px;
         background:var(--lime);position:relative;overflow:hidden;
@@ -629,6 +638,7 @@ screen('home',
  '<div id="homeacc"></div>'
  '<div id="homeprog"></div>'
  '<div id="hometasks"></div>'
+ '<div id="wkwid"></div>'
  '</div>' + ofr() + nav('Week', badge=True),
  'Home', 'Один экран, два состояния. Пусто → акцентный блок зовёт добавить растение. '
  'Есть растения → в том же блоке они сами. Всё рендерится из <b>MY_PLANTS</b>, '
@@ -1022,7 +1032,7 @@ const WEEK_TASKS = [
   ['Stake the tomato','5 min',''],
   ['Pinch basil tops','2 min','']];
 const CARDS_SHOWN = 4;
-let DONE = [], WEEK_OPEN = false;
+let DONE = [], WEEK_OPEN = true;
 function taskHTML(t){
   return '<div class="task" data-task><div class="box">'+ICONS._check2+'</div><div class="tt">'
     +'<div class="t">'+t[0]+'</div>'+(t[2]?'<div class="b">'+t[2]+'</div>':'')
@@ -1236,39 +1246,32 @@ function attachShot(file){
 function progHTML(){
   const n = DONE.filter(Boolean).length, m = WEEK_TASKS.length;
   const pct = m ? Math.round(n / m * 100) : 0;
-  return '<div class="pbar' + (WEEK_OPEN ? ' open' : '') + '" data-progtoggle>'
+  return '<div class="wk' + (WEEK_OPEN ? ' open' : '') + '">'
+    + '<div class="wk-h" data-progtoggle>'
     + '<span class="pb-ic">' + (n ? ICONS._checkp : ICONS._circ) + '</span>'
     + '<span class="pb-n">' + n + ' of ' + m + '</span>'
     + '<span class="pb-track"><i style="width:' + pct + '%"></i></span>'
     + '<span class="pb-pct">' + pct + '%</span>'
     + '<span class="pb-chev">' + ICONS._chevd + '</span></div>'
-    + (WEEK_OPEN ? branchHTML() : '');
-}
-function branchHTML(){
-  return '<div class="branch">' + WEEK_TASKS.map(function(t, i){
-    return '<div class="br-row" data-brtoggle="' + i + '">'
-      + '<span class="br-dot' + (DONE[i] ? ' on' : '') + '">'
-      + (DONE[i] ? ICONS._check2 : '') + '</span>'
-      + '<span class="br-t' + (DONE[i] ? ' done' : '') + '">' + t[0] + '</span>'
-      + '<span class="br-m">' + t[1] + '</span></div>';
-  }).join('') + '</div>';
+    + (WEEK_OPEN ? '<div class="wk-list"><div class="branch">' + WEEK_TASKS.map(function(t, i){
+        return '<div class="br-row" data-brtoggle="' + i + '">'
+          + '<span class="br-dot' + (DONE[i] ? ' on' : '') + '">'
+          + (DONE[i] ? ICONS._check2 : '') + '</span>'
+          + '<span class="br-t' + (DONE[i] ? ' done' : '') + '">' + t[0]
+          + (t[2] && !DONE[i] ? '<s>' + t[2] + '</s>' : '') + '</span>'
+          + '<span class="br-m">' + t[1] + '</span></div>';
+      }).join('') + '</div></div>' : '')
+    + '</div>';
 }
 function renderWeek(){
   const pr = document.getElementById('homeprog'), tk = document.getElementById('hometasks');
-  if(!pr || !tk) return;
+  if(!pr) return;
   pr.innerHTML = progHTML();
-  if(WEEK_OPEN){ tk.innerHTML = ''; return; }
-  tk.innerHTML = '<div class="sl">This week</div>'
-    + WEEK_TASKS.slice(0, CARDS_SHOWN).map(function(t, i){
-        return '<div class="task' + (DONE[i] ? ' done' : '') + '" data-wtask="' + i + '">'
-          + '<div class="box">' + ICONS._check2 + '</div><div class="tt"><div class="t">' + t[0] + '</div>'
-          + (t[2] ? '<div class="b">' + t[2] + '</div>' : '') + '</div>'
-          + '<div class="min">' + t[1] + '</div></div>';
-      }).join('')
-    + '<div class="moretap" data-progtoggle>+' + (WEEK_TASKS.length - CARDS_SHOWN)
-    + ' more this week &mdash; see all</div>';
+  if(tk) tk.innerHTML = '';
+  const w = document.getElementById('wkwid');
+  if(w) w.innerHTML = MY_PLANTS.length
+    ? '<div class="sl">At a glance</div>' + weekWidgets() : '';
 }
-
 
 /* ─────────── виджет-сетка дашборда (по референсу с карточками) ─────────── */
 const MON = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
@@ -1310,22 +1313,27 @@ function calWidget(){
     + '<div class="callg"><span><i class="m-sow"></i>sown</span>'
     + '<span><i class="m-photo"></i>photo</span><span><i class="m-pick"></i>first pick</span></div></div>';
 }
-function widgets(){
+function weekWidgets(){
+  if(!MY_PLANTS.length) return '';
   const st = seasonStats();
   const growing = MY_PLANTS.filter(function(p){ return p.day < p.c[2]; });
   const next = growing.length ? growing.reduce(function(a,b){
                  return (b.c[2]-b.day) < (a.c[2]-a.day) ? b : a; }) : null;
-  const seasonPct = Math.min(100, Math.round(st.days / 187 * 100));
   return '<div class="wgrid">'
+   + '<div class="wg wg-dark"><div class="wg-top"><div class="num">' + (next ? (next.c[2]-next.day) : 0)
+   + '<span>d</span></div>' + arc(next ? pPct(next) : 100, 44, true) + '</div>'
+   + '<div class="lbl">' + (next ? 'Until ' + next.c[0].toLowerCase() : 'All ready to pick') + '</div>'
+   + metricRow([['Growing', growing.length], ['Ready', st.crops]]) + '</div>'
    + '<div class="wg wg-lite"><div class="wg-top"><div class="num">' + st.picks + '</div>'
    + arc(Math.min(100, st.picks * 12), 44, false) + '</div>'
    + '<div class="lbl">Harvests logged</div>'
    + metricRow([['Crops', st.crops], ['Photos', st.photos]]) + '</div>'
-   + '<div class="wg wg-dark"><div class="wg-top"><div class="num">' + (next ? (next.c[2]-next.day) : 0)
-   + '<span>d</span></div>' + arc(next ? pPct(next) : 100, 44, true) + '</div>'
-   + '<div class="lbl">' + (next ? 'Until ' + next.c[0].toLowerCase() : 'All ready') + '</div>'
-   + metricRow([['Growing', growing.length], ['Ready', st.crops]]) + '</div>'
-   + calWidget()
+   + '</div>';
+}
+function seasonWidgets(){
+  const st = seasonStats();
+  const seasonPct = Math.min(100, Math.round(st.days / 187 * 100));
+  return '<div class="wgrid">' + calWidget()
    + '<div class="wg wg-lite span2"><div class="wg-h"><b>Season progress</b><s>day ' + st.days
    + ' of 187</s></div><div class="pb-track" style="margin-top:12px;height:10px">'
    + '<i style="width:' + seasonPct + '%"></i></div>'
@@ -1362,7 +1370,7 @@ function renderDash(){
     + '<div class="duo"><div class="cell"><s>Days</s><b>' + st.days + '</b></div>'
     + '<div class="cell"><s>Harvested</s><b>' + st.crops + (st.crops===1?' crop':' crops') + '</b></div>'
     + '<div class="cell"><s>Streak</s><b>11 wk</b></div></div></div>'
-    + widgets();
+    + seasonWidgets();
 }
 function cropCard(p, i){
   const ready = p.day >= p.c[2];

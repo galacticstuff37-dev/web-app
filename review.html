@@ -14,7 +14,7 @@
   --deepest:#0B1F14;
   --flame:#FF7043;          /* на тёмном 6.3:1 */
   /* радиусы: одна лестница по 4px + пилюля */
-  --r-xs:8px; --r-sm:12px; --r-md:16px; --r-lg:20px; --r-xl:24px; --r-2xl:28px;
+  --r-xs:8px; --r-sm:10px; --r-md:12px; --r-lg:16px; --r-xl:18px; --r-2xl:20px;
   /* типографическая шкала. Было 31 произвольное значение на 26 экранов. */
   --t-11:11px;   /* микро-лейблы, подписи навигации, легенда */
   --t-12:12px;   /* капшены, календарь, мелкая мета */
@@ -83,7 +83,9 @@ h1,h2,h3{font-weight:600;letter-spacing:-.015em}
 /* ───── app chrome */
 .sb{height:48px;display:flex;align-items:center;justify-content:space-between;padding:0 24px;flex:none;
     font-size:var(--t-13);font-weight:600}
-.hd{padding:4px 16px 8px;display:flex;justify-content:center;align-items:center;flex:none;min-height:52px;background:var(--ground);position:relative;z-index:5}
+.hd{padding:4px 16px 8px;display:flex;justify-content:center;align-items:center;flex:none;
+    min-height:52px;position:relative;z-index:5;
+    background:linear-gradient(180deg,#E4EBE4 0%,#EDF1EB 58%,var(--ground) 100%)}
 .hd-l,.hd-r{position:absolute;top:0;bottom:8px;display:flex;align-items:center;width:44px}
 .hd-l{left:12px;justify-content:flex-start}
 .hd-r{right:12px;justify-content:flex-end}
@@ -290,12 +292,14 @@ body.is-pro .ofr{display:none}
      cursor:pointer;padding:14px 10px;margin:-14px -10px;border-radius:var(--r-xs)}
 .prow-scroll{display:flex;gap:10px;overflow-x:auto;scrollbar-width:none;margin:0 -20px;padding:0 20px 4px}
 .prow-scroll::-webkit-scrollbar{display:none}
-.plcard{width:132px;flex:none;background:var(--surface);border-radius:var(--r-2xl);padding:8px;cursor:pointer}
+.plcard{width:158px;flex:none;background:var(--surface);border-radius:var(--r-2xl);padding:8px;cursor:pointer}
 .plcard-ph{aspect-ratio:1;border-radius:var(--r-sm);background-size:cover;background-position:center;position:relative}
 .plcard-fav{position:absolute;right:6px;top:6px;width:26px;height:26px;border-radius:50%;
       background:rgba(11,31,20,.55);display:flex;align-items:center;justify-content:center}
-.plcard b{display:block;font-size:var(--t-14);font-weight:600;margin:8px 4px 0;letter-spacing:-.02em;line-height:1.2}
-.plcard s{display:block;font-size:var(--t-12);text-decoration:none;margin:3px 4px 4px;font-weight:600}
+.plcard b{display:block;font-size:var(--t-14);font-weight:600;margin:8px 4px 0;letter-spacing:-.02em;
+      line-height:1.2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.plcard s{display:block;font-size:var(--t-12);text-decoration:none;margin:3px 4px 4px;font-weight:600;
+      white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .st-ok{color:var(--primary)}.st-warn{color:#B8860B}.st-bad{color:#C2410C}
 .wgrid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px}
 .wg{border-radius:var(--r-2xl);padding:16px;min-width:0}
@@ -484,7 +488,13 @@ body.is-pro .ofr{display:none}
 
 /* ───── крупное число в акцентном блоке (Growth · health score) */
 .acc .huge{font-family:Caprasimo,Georgia,serif;font-weight:400;font-size:var(--n-lg);line-height:.96;
-     letter-spacing:-.01em;margin-top:2px}
+     letter-spacing:-.01em}
+.scorehead{display:flex;align-items:baseline;gap:8px;margin-top:2px;position:relative}
+.huge-of{font-size:var(--t-15);color:#A9BCB0;font-weight:500}
+/* полоса прогресса переехала сюда из отдельного виджета Plant health,
+   который показывал то же самое число второй раз */
+.accbar{margin-top:14px;height:10px;background:rgba(255,255,255,.16);position:relative}
+.accbar i{background:var(--lime)}
 
 /* ───── плитка вместо фотографии: у вида нет настоящего снимка, врать нечем */
 .no-ph{position:relative;overflow:hidden}
@@ -1497,11 +1507,7 @@ function calWidget(){
     + '<span><i class="m-photo"></i>photo</span></div></div>';
 }
 function careWidgets(){
-  const st = careStats();
-  return '<div class="wgrid">' + calWidget()
-   + '<div class="wg wg-lite span2"><div class="wg-h"><b>Plant health</b><s>' + st.score + ' of 100</s></div>'
-   + '<div class="pb-track" style="margin-top:12px;height:10px"><i style="width:' + st.score + '%"></i></div>'
-   + metricRow([['Plants', st.plants], ['Thirsty', st.due], ['Photos', st.photos]]) + '</div></div>';
+  return '<div class="wgrid">' + calWidget() + '</div>';
 }
 function renderDash(){
   const el = document.getElementById('dash'); if(!el) return;
@@ -1518,7 +1524,10 @@ function renderDash(){
   }
   const v = verdict(st.score);
   el.innerHTML = '<div class="acc"><div class="row1"><span class="tag">Plant parent</span></div>'
-    + '<div class="lbl">Health score</div><div class="huge">' + st.score + '</div>'
+    + '<div class="lbl">Health score</div>'
+    + '<div class="scorehead"><div class="huge">' + st.score + '</div>'
+    + '<div class="huge-of">of 100</div></div>'
+    + '<div class="pb-track accbar"><i style="width:' + st.score + '%"></i></div>'
     + '<div class="sub">' + v[0] + ' — ' + v[1].toLowerCase() + '. '
     + st.photos + (st.photos === 1 ? ' photo' : ' photos') + ' in the journal.</div>'
     + '<div class="duo"><div class="cell"><s>Thirsty</s><b>' + st.due + '</b></div>'

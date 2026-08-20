@@ -1,7 +1,8 @@
-const CACHE = 'homegrown-2bb1adad13';
+const CACHE = 'homegrown-5ec02e2a4a';
 const ASSETS = [
   './', './index.html', './manifest.webmanifest', './scan-config.js',
-  './img/hero.jpg', './img/garden.jpg', './img/radish.jpg', './img/basil.jpg',
+  './img/hero.jpg', './img/hero-plants.jpg', './img/garden.jpg',
+  './img/radish.jpg', './img/basil.jpg', './img/lettuce.jpg', './img/cherrytomato.jpg',
   './img/flowers.jpg', './img/containers.jpg',
   './img/leaves1.jpg', './img/leaves2.jpg', './img/leaves3.jpg',
   './img/icon-192.png', './img/icon-512.png', './img/apple-touch-icon.png',

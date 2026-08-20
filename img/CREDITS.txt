@@ -10,3 +10,30 @@ leaves1-3.jpg macro leaves                                                 — J
 
 Домашние растения (Unsplash License):
 monstera, snakeplant, pothos, zzplant, fiddleleaf, peacelily, aloe, calathea, hero-plants
+
+Съедобные культуры (Unsplash License, добавлено 2026-08-20).
+Вид подтверждён описанием автора на Unsplash — где описание было общим
+(«green leafy plant»), фото не бралось, культура остаётся с иконочной плиткой.
+
+lettuce.jpg      photo-1691906470255-640353380f3d  a bunch of green lettuce growing in a garden
+chard.jpg        photo-1759579719674-22b27ba1b8b0  vibrant red chard leaves with prominent veins
+microgreens.jpg  photo-1647613233075-e0d5546b0f22  a pile of green sprouts
+cilantro.jpg     photo-1776089770931-e422e57f760c  fresh cilantro leaves
+beans.jpg        photo-1567375698348-5d9d5ae99de0  pile of green string beans
+beets.jpg        photo-1663961355715-cf362778dc0e  a pile of purple beets
+squash.jpg       photo-1695468126087-77202862d286  a yellow squash on a brown cloth
+cherrytomato.jpg photo-1762512217552-653d0eab7a18  ripe cherry tomatoes growing on the vine
+tomato.jpg       photo-1592841200221-a6898f307baa  red and green tomato fruit
+kale.jpg         photo-1768672957286-e635cdad5ecd  close-up of fresh green kale leaves
+turnips.jpg      photo-1741518009653-8c17d00345b8  a bunch of turnips ready to eat
+carrots.jpg      photo-1598170845058-32b9d6a5da37  fresh orange carrots with green leafy tops
+cucumber.jpg     photo-1676043966926-c575c1ef320a  a cucumber growing on a vine in a garden
+onions.jpg       photo-1559836833-2a2c99b1f54f    green spring onions
+parsley.jpg      photo-1535189487909-a262ad10c165  green parsley
+eggplant.jpg     photo-1639428134238-b548770d4b77  an eggplant on a wooden surface with leaves
+chives.jpg       photo-1763221126413-5e7bbad876f6  close-up of fresh garlic chives
+pepper.jpg       photo-1786992618263-dfd20f1d1e78  a red bell pepper growing on a plant
+
+БЕЗ ФОТО (осознанно): Mustard greens — Unsplash по запросу отдаёт цветущее
+жёлтое поле, а в продукте это листовая культура на 35 день, до цветения.
+Подписывать цветы горчичной зеленью было бы неправдой. Остаётся плитка с иконкой.

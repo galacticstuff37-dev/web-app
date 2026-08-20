@@ -145,12 +145,13 @@ h1,h2,h3{font-weight:600;letter-spacing:-.015em}
 /* ───── app chrome */
 .sb{height:48px;display:flex;align-items:center;justify-content:space-between;padding:0 24px;flex:none;
     font-size:var(--t-13);font-weight:600}
-.hd{padding:4px 16px 8px;display:flex;justify-content:center;align-items:center;flex:none;
-    min-height:52px;position:relative;z-index:5;
+.hd{padding:4px 12px 8px;display:grid;grid-template-columns:44px 1fr 44px;align-items:center;
+    flex:none;min-height:52px;position:relative;z-index:5;
     background:linear-gradient(180deg,#E4EBE4 0%,#EDF1EB 58%,var(--ground) 100%)}
-.hd-l,.hd-r{position:absolute;top:0;bottom:8px;display:flex;align-items:center;width:44px}
-.hd-l{left:12px;justify-content:flex-start}
-.hd-r{right:12px;justify-content:flex-end}
+.hd-l,.hd-r{display:flex;align-items:center;height:44px}
+.hd-l{justify-content:flex-start}
+.hd-r{justify-content:flex-end}
+.hd .wm{text-align:center}
 .back{width:44px;height:44px;border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;flex:none}
 .back svg{transform:rotate(180deg)}
 .back:active{background:#E6EBE4}
@@ -494,6 +495,7 @@ body.is-pro .ofr{display:none}
 .spic{width:40px;height:40px;flex:none;border-radius:50%;background:#EDF3EE;
       display:flex;align-items:center;justify-content:center}
 .spic svg{width:20px;height:20px}
+.spic.has{background-size:cover;background-position:center;background-color:#DDE3DC}
 .acc .spic{background:rgba(255,255,255,.10)}
 .acc .spic svg{fill:var(--lime)}
 .addbtn svg:last-child{display:none}
@@ -670,7 +672,7 @@ screen('landing',
  '<div class="cap-f" style="font-size:var(--t-40);line-height:1.02">Keep every plant<br>'
  '<span style="color:var(--lime)">alive and growing</span></div>'
  '<div style="font-size:var(--t-16);line-height:1.5;margin-top:16px;color:#DCE7DE">'
- 'A monstera in the corner, basil on the sill, radishes in a pot. Tell us what you have and '
+ 'Radishes in a pot, basil on the sill, a monstera in the corner. Tell us what you have and '
  'how much light it gets &mdash; we&rsquo;ll tell you exactly what it needs this week.</div>'
  '<div class="btn b-lime" style="margin-top:24px" data-go="q0">Build my free plan</div>'
  '<div style="font-size:var(--t-13);color:#C3D2C7;text-align:center;margin-top:12px">No card. Takes 90 seconds.</div></div>',
@@ -683,9 +685,9 @@ screen('q0',
  '<div style="font-size:var(--t-14);color:var(--muted);margin-top:4px">This decides everything else we ask.</div>'
  '<div class="pg" data-pg></div>'
  '<div style="margin-top:16px">' +
+ opt('Something to eat', 'Radishes, greens, tomatoes in pots', next='q1') +
  opt('Houseplants', 'Monstera, pothos, snake plant', next='q1') +
- opt('Something to eat', 'Herbs, greens, tomatoes in pots', next='q1') +
- opt('Both', 'Plants inside, something edible too', next='q1') + '</div></div>',
+ opt('Both', 'Something edible, plants inside too', next='q1') + '</div></div>',
  'Q0 · Track', 'Развилка продукта. <b>house</b> — только декоративные, <b>edible</b> — только съедобные, '
  '<b>both</b> — и то и другое. От трека зависят варианты в Q1 и Q4, состав библиотеки и '
  'спрашиваем ли вообще ZIP.', 'Онбординг')
@@ -1039,45 +1041,45 @@ PLANTS = [
  # ── съедобные: контейнеры сохнут быстро, отсюда короткие интервалы полива
  sp('radish','Radish','edible','carrot','Raphanus sativus',2,'6\u20138 h sun','\u2014','radish',
     days=25,days_max=35,pot='1 pint',sun=1,tags=('fast','roots','kids')),
- sp('lettuce','Leaf lettuce','edible','leaf','Lactuca sativa',2,'3\u20135 h sun','\u2014',None,
+ sp('lettuce','Leaf lettuce','edible','leaf','Lactuca sativa',2,'3\u20135 h sun','\u2014','lettuce',
     days=30,days_max=35,pot='0.5 gal',sun=1,tags=('salads','fast'),sill=True),
- sp('chard','Swiss chard','edible','leaf','Beta vulgaris',2,'3\u20135 h sun','\u2014',None,
+ sp('chard','Swiss chard','edible','leaf','Beta vulgaris',2,'3\u20135 h sun','\u2014','chard',
     days=30,days_max=40,pot='0.5 gal',sun=1,tags=('salads',)),
  sp('mustard','Mustard greens','edible','leaf','Brassica juncea',2,'3\u20135 h sun','\u2014',None,
     days=35,days_max=40,pot='0.5 gal',sun=1,tags=('salads',),sill=True),
- sp('microgreens','Microgreens','edible','grains','',1,'3\u20135 h sun','\u2014',None,
+ sp('microgreens','Microgreens','edible','grains','',1,'3\u20135 h sun','\u2014','microgreens',
     days=10,days_max=14,pot='tray',sun=1,tags=('fast','herbs','kids'),sill=True),
- sp('cilantro','Cilantro','edible','leaf','Coriandrum sativum',3,'3\u20135 h sun','\u2014',None,
+ sp('cilantro','Cilantro','edible','leaf','Coriandrum sativum',3,'3\u20135 h sun','\u2014','cilantro',
     days=28,days_max=42,pot='0.5 gal',sun=1,tags=('herbs','fast'),sill=True),
  sp('basil','Basil','edible','leaf','Ocimum basilicum',3,'6\u20138 h sun','\u2014','basil',
     days=40,days_max=40,pot='1 gal',sun=2,tags=('herbs',),sill=True),
- sp('beans','Bush beans','edible','grains','Phaseolus vulgaris',2,'6\u20138 h sun','\u2014',None,
+ sp('beans','Bush beans','edible','grains','Phaseolus vulgaris',2,'6\u20138 h sun','\u2014','beans',
     days=45,days_max=60,pot='2 gal',sun=2,tags=('beans','kids')),
- sp('beets','Beets','edible','carrot','Beta vulgaris',2,'3\u20135 h sun','\u2014',None,
+ sp('beets','Beets','edible','carrot','Beta vulgaris',2,'3\u20135 h sun','\u2014','beets',
     days=50,days_max=60,pot='0.5 gal',sun=1,tags=('roots',)),
- sp('squash','Summer squash','edible','orange','Cucurbita pepo',2,'6\u20138 h sun','\u2014',None,
+ sp('squash','Summer squash','edible','orange','Cucurbita pepo',2,'6\u20138 h sun','\u2014','squash',
     days=50,days_max=60,pot='5 gal',sun=2,tags=()),
- sp('cherrytomato','Cherry tomato','edible','cherries','Solanum lycopersicum',2,'6\u20138 h sun','\u2014',None,
+ sp('cherrytomato','Cherry tomato','edible','cherries','Solanum lycopersicum',2,'6\u20138 h sun','\u2014','cherrytomato',
     days=55,days_max=100,pot='1 gal',sun=2,tags=('tomatoes','kids')),
- sp('tomato','Tomato','edible','cherries','Solanum lycopersicum',2,'6\u20138 h sun','\u2014',None,
+ sp('tomato','Tomato','edible','cherries','Solanum lycopersicum',2,'6\u20138 h sun','\u2014','tomato',
     days=55,days_max=100,pot='5 gal',sun=2,tags=('tomatoes',)),
- sp('kale','Kale','edible','leaf','Brassica oleracea',2,'3\u20135 h sun','\u2014',None,
+ sp('kale','Kale','edible','leaf','Brassica oleracea',2,'3\u20135 h sun','\u2014','kale',
     days=55,days_max=65,pot='5 gal',sun=1,tags=('salads',)),
- sp('turnips','Turnips','edible','carrot','Brassica rapa',2,'3\u20135 h sun','\u2014',None,
+ sp('turnips','Turnips','edible','carrot','Brassica rapa',2,'3\u20135 h sun','\u2014','turnips',
     days=30,days_max=60,pot='3 gal',sun=1,tags=('roots',)),
- sp('carrots','Carrots','edible','carrot','Daucus carota',2,'6\u20138 h sun','\u2014',None,
+ sp('carrots','Carrots','edible','carrot','Daucus carota',2,'6\u20138 h sun','\u2014','carrots',
     days=65,days_max=80,pot='1 quart',sun=1,tags=('roots','kids')),
- sp('cucumber','Cucumber','edible','orange','Cucumis sativus',2,'6\u20138 h sun','\u2014',None,
+ sp('cucumber','Cucumber','edible','orange','Cucumis sativus',2,'6\u20138 h sun','\u2014','cucumber',
     days=70,days_max=80,pot='5 gal',sun=2,tags=()),
- sp('onions','Green onions','edible','plant','Allium fistulosum',3,'3\u20135 h sun','\u2014',None,
+ sp('onions','Green onions','edible','plant','Allium fistulosum',3,'3\u20135 h sun','\u2014','onions',
     days=70,days_max=100,pot='0.5 gal',sun=1,tags=('herbs',),sill=True),
- sp('parsley','Parsley','edible','leaf','Petroselinum crispum',3,'3\u20135 h sun','\u2014',None,
+ sp('parsley','Parsley','edible','leaf','Petroselinum crispum',3,'3\u20135 h sun','\u2014','parsley',
     days=70,days_max=84,pot='0.5 gal',sun=1,tags=('herbs',),sill=True),
- sp('eggplant','Eggplant','edible','pepper','Solanum melongena',2,'6\u20138 h sun','\u2014',None,
+ sp('eggplant','Eggplant','edible','pepper','Solanum melongena',2,'6\u20138 h sun','\u2014','eggplant',
     days=75,days_max=100,pot='5 gal',sun=2,tags=()),
- sp('chives','Garlic chives','edible','plant','Allium tuberosum',3,'3\u20135 h sun','\u2014',None,
+ sp('chives','Garlic chives','edible','plant','Allium tuberosum',3,'3\u20135 h sun','\u2014','chives',
     days=84,days_max=84,pot='0.5 gal',sun=1,tags=('herbs',),sill=True),
- sp('pepper','Bell pepper','edible','pepper','Capsicum annuum',2,'6\u20138 h sun','\u2014',None,
+ sp('pepper','Bell pepper','edible','pepper','Capsicum annuum',2,'6\u20138 h sun','\u2014','pepper',
     days=110,days_max=120,pot='2 gal',sun=2,tags=('peppers',)),
 ]
 N_HOUSE  = len([x for x in PLANTS if x['kind'] == 'house'])
@@ -1091,8 +1093,9 @@ const ICONS = __ICONS__;
 const SPECIES = __SPECIES__;
 const RING_TRACK = '#DDE3DC', RING_ON = '#22A559';
 /* track: house | edible | both. outdoor решает, спрашиваем ли ZIP и есть ли конец сезона. */
-const CHOICES = {track:'house', space:'living room', outdoor:false,
-                 sun:'an east or west window', sunRank:2, goals:[], effort:4, zip:null};
+/* съедобное — основной трек продукта. Комнатные остаются полноценной ветвью. */
+const CHOICES = {track:'edible', space:'patio', outdoor:true,
+                 sun:'6–8 hours of sun', sunRank:2, goals:[], effort:4, zip:'78704'};
 const anA  = w => (/^[aeiou]/i.test(w) ? 'an ' : 'a ') + w;
 const inOn = () => CHOICES.outdoor ? 'on your ' : 'in your ';
 
@@ -1135,6 +1138,13 @@ function photoTile(s, cls, style){
    + (s.img ? '' : '<span class="ph-ic">' + (ICONS['_big_' + s.icon] || ICONS._big_leaf) + '</span>');
 }
 
+/* круглая миниатюра вида: настоящее фото, если оно есть в img/,
+   иначе диск с иконкой. Из 29 видов без фото остался один. */
+function spThumb(s){
+  return s.img
+    ? '<div class="spic has" style="background-image:url(img/' + s.img + '.jpg)"></div>'
+    : '<div class="spic">' + ICONS[s.icon] + '</div>';
+}
 /* ─────────── библиотека: строка вида ─────────── */
 function spSub(s){
   if(s.kind === 'edible')
@@ -1150,7 +1160,7 @@ function spRow(s){
   return '<div class="pl' + (pick ? ' added' : '') + (have ? ' have' : '') + '" '
    + (have ? 'aria-disabled="true" ' : 'role="button" tabindex="0" data-add ')
    + 'aria-label="' + label + '" data-sp="' + s.id + '">'
-   + '<div class="spic">' + ICONS[s.icon] + '</div>'
+   + spThumb(s)
    + '<div class="nm"><b>' + s.name + '</b><s>' + spSub(s)
    + (fitsLight(s) ? '' : ' · needs more light') + '</s></div>'
    + '<div class="addbtn" aria-hidden="true">'
@@ -1273,7 +1283,7 @@ function renderPreview(){
   const edible = plan.filter(function(s){ return s.kind === 'edible'; });
   el.innerHTML = plan.map(function(s){
     const right = s.kind === 'edible' ? dateAfter(s.days) : 'every ' + s.water + 'd';
-    return '<div class="prow"><div class="spic">' + ICONS[s.icon] + '</div>'
+    return '<div class="prow">' + spThumb(s)
      + '<div class="nm"><b>' + s.name + '</b><s>' + spSub(s) + '</s></div>'
      + '<div class="rt">' + right + '</div></div>';
   }).join('');
@@ -1353,6 +1363,12 @@ function mkPlant(id, since, day, photos){
            day: day === undefined ? 0 : day, photos: photos || [] };
 }
 function seedPlants(){
+  MY_PLANTS = [ mkPlant('radish', 0, 27, [{f:'radish', day:24}, {f:'leaves1', day:11}]),
+                mkPlant('lettuce', 1, 24, [{f:'leaves3', day:18}]),
+                mkPlant('basil', 3, 34, [{f:'basil', day:21}]),
+                mkPlant('cherrytomato', 1, 12, []) ];
+}
+function seedHouseDemo(){
   MY_PLANTS = [ mkPlant('monstera', 4, 210, [{f:'leaves3', day:18}]),
                 mkPlant('snakeplant', 20, 430, []),
                 mkPlant('pothos', 9, 96, [{f:'leaves1', day:11}]),
@@ -1397,16 +1413,22 @@ const allPhotos = () => MY_PLANTS.flatMap(function(p){
 function healthScore(){
   if(!MY_PLANTS.length) return 0;
   const sum = MY_PLANTS.reduce(function(a, p){
-    const over = Math.max(0, -wDue(p)) / p.s.water;                 // насколько просрочен полив
-    return a + Math.max(0, 1 - over * 1.6);
+    const d = wDue(p);
+    const pen = d > 0 ? 0                                    // ещё не пора — полный вклад
+              : d === 0 ? 0.12                               // ровно сегодня — небольшой штраф
+              : Math.min(1, (-d) / p.s.water * 1.6);         // просрочено — по мере просрочки
+    return a + Math.max(0, 1 - pen);
   }, 0);
   return Math.round(sum / MY_PLANTS.length * 100);
 }
-function verdict(sc){
-  if(sc >= 90) return ['Great', 'Your plants are doing amazing'];
-  if(sc >= 70) return ['Good', 'One or two need a drink'];
-  if(sc >= 45) return ['Needs care', 'Some plants are thirsty'];
-  return ['Struggling', 'Several plants are overdue'];
+function verdict(sc, due){
+  due = due || 0;
+  if(due >= 3)  return ['Struggling', due + ' plants are waiting for water'];
+  if(due === 2) return ['Needs care', 'Two are waiting for water'];
+  if(due === 1) return ['Good', 'One needs a drink today'];
+  if(sc >= 92)  return ['Great', 'Your plants are doing amazing'];
+  if(sc >= 75)  return ['Good', 'Everything is on schedule'];
+  return ['Needs care', 'Some plants are drifting off schedule'];
 }
 function ringBig(pct, sz){
   const sw = 6, r = (sz - sw) / 2, c = 2 * Math.PI * r, off = c * (1 - pct / 100);
@@ -1439,8 +1461,9 @@ function renderDashHome(){
       + '<div class="eh-alt" data-go="add-plant">or pick from the library</div></div></div>';
     return;
   }
-  const sc = healthScore(), v = verdict(sc);
+  const sc = healthScore();
   const due = MY_PLANTS.filter(function(p){ return wDue(p) <= 0; });
+  const v = verdict(sc, due.length);
   const soon = MY_PLANTS.filter(function(p){ const d = wDue(p); return d > 0 && d <= 2; });
   const nextP = MY_PLANTS.slice().sort(function(a,b){ return wDue(a) - wDue(b); })[0];
   g.textContent = 'Good morning';
@@ -1614,7 +1637,7 @@ function renderDetail(){
    + '<div style="flex:1"></div><span class="pill st-pill st-' + st[1] + '">' + st[0] + '</span></div>'
    + '<div class="wgrid" style="margin-top:12px">'
    + '<div class="wg wg-dark"><div class="wg-top"><div class="num">' + Math.max(0, d)
-   + '<span>d</span></div>' + arc(wPct(p), 44, true) + '</div>'
+   + '<span>d</span></div>' + arc(100 - wPct(p), 44, true) + '</div>'
    + '<div class="lbl">' + (d <= 0 ? 'Water it today' : 'Until next water') + '</div>'
    + metricRow([['Every', p.s.water + 'd'], ['Last', p.since + 'd ago']]) + '</div>'
    + (isEdible(p)
@@ -2056,7 +2079,7 @@ function renderDash(){
       + '<div class="btn b-pri" data-go="add-plant">Add a plant</div></div>';
     return;
   }
-  const v = verdict(st.score);
+  const v = verdict(st.score, st.due);
   el.innerHTML = '<div class="acc"><div class="row1"><span class="tag">Plant parent</span></div>'
     + '<div class="lbl">Health score</div>'
     + '<div class="scorehead"><div class="huge">' + st.score + '</div>'
@@ -2571,8 +2594,9 @@ notes = {s['id']: (s['title'], s['note']) for s in SCR}
 
 idx = ('<div class="grp"><div class="gt">Состояние данных</div><div class="chips">'
        '<button class="chip" data-demo="empty">Сбросить — новый юзер</button>'
-       '<button class="chip" data-demo="seed">4 комнатных</button>'
-       '<button class="chip" data-demo="mixed">Смешанный набор — 2 + 2</button></div></div>')
+       '<button class="chip" data-demo="seed">4 овоща</button>'
+       '<button class="chip" data-demo="house">4 комнатных</button>'
+       '<button class="chip" data-demo="mixed">Смешанный — 2 + 2</button></div></div>')
 for g in GROUPS:
     items = [s for s in SCR if s['group'] == g]
     if not items: continue
@@ -2806,7 +2830,11 @@ document.addEventListener('click', e=>{{
   const d = e.target.closest('[data-demo]');
   if(d){{ if(d.dataset.demo==='empty') MY_PLANTS=[];
           else if(d.dataset.demo==='mixed'){{ seedMixed(); CHOICES.track='both'; }}
-          else {{ seedPlants(); CHOICES.track='house'; }}
+          else if(d.dataset.demo==='house'){{ seedHouseDemo(); CHOICES.track='house';
+            CHOICES.outdoor=false; CHOICES.space='living room';
+            CHOICES.sun='an east or west window'; CHOICES.sunRank=1; }}
+          else {{ seedPlants(); CHOICES.track='edible'; CHOICES.outdoor=true;
+            CHOICES.space='patio'; CHOICES.sun='6–8 hours of sun'; CHOICES.sunRank=2; }}
           PENDING=[]; SELECTED=0; DONE={{}}; renderAll(); go('home'); }}
 }});
 (function(){{ const c=document.getElementById('cam');
@@ -2945,7 +2973,8 @@ BUILD = hashlib.sha1(MOBILE.encode()).hexdigest()[:10]
 SW_SRC = """const CACHE = 'homegrown-%s';
 const ASSETS = [
   './', './index.html', './manifest.webmanifest', './scan-config.js',
-  './img/hero.jpg', './img/garden.jpg', './img/radish.jpg', './img/basil.jpg',
+  './img/hero.jpg', './img/hero-plants.jpg', './img/garden.jpg',
+  './img/radish.jpg', './img/basil.jpg', './img/lettuce.jpg', './img/cherrytomato.jpg',
   './img/flowers.jpg', './img/containers.jpg',
   './img/leaves1.jpg', './img/leaves2.jpg', './img/leaves3.jpg',
   './img/icon-192.png', './img/icon-512.png', './img/apple-touch-icon.png',

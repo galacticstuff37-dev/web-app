@@ -130,8 +130,11 @@ h1,h2,h3{font-weight:600;letter-spacing:-.015em}
 /* ───── app chrome */
 .sb{height:48px;display:flex;align-items:center;justify-content:space-between;padding:0 24px;flex:none;
     font-size:13px;font-weight:600}
-.hd{padding:4px 16px 8px;display:flex;justify-content:space-between;align-items:center;flex:none;min-height:52px;background:var(--ground);position:relative;z-index:5}
-.back{width:44px;height:44px;margin-left:-8px;border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;flex:none}
+.hd{padding:4px 16px 8px;display:flex;justify-content:center;align-items:center;flex:none;min-height:52px;background:var(--ground);position:relative;z-index:5}
+.hd-l,.hd-r{position:absolute;top:0;bottom:8px;display:flex;align-items:center;width:44px}
+.hd-l{left:12px;justify-content:flex-start}
+.hd-r{right:12px;justify-content:flex-end}
+.back{width:44px;height:44px;border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;flex:none}
 .back svg{transform:rotate(180deg)}
 .back:active{background:#E6EBE4}
 .wm{font-family:Caprasimo,Georgia,serif;font-weight:400;font-size:19px;letter-spacing:.01em;color:var(--primary);line-height:1}
@@ -381,11 +384,13 @@ def nav(active='Week', badge=False):
     return '<div class="nav">' + ''.join(out) + '</div>'
 
 def hd(initial='Y', back=None):
+    """Шапка: лого всегда по центру, «назад» слева, аватар справа."""
     left = (f'<div class="back" data-go="{back}">{ic("caret-right", "var(--ink)", 20)}</div>'
-            if back else '<div class="wm">HOMEGROWN</div>')
-    right = (f'<div class="av" data-go="settings">{initial}</div>' if not back
-             else '<div class="wm">HOMEGROWN</div>')
-    return f'<div class="hd">{left}{right}</div>'    
+            if back else '')
+    right = '' if back else f'<div class="av" data-go="settings">{initial}</div>'
+    return (f'<div class="hd"><div class="hd-l">{left}</div>'
+            f'<div class="wm">HOMEGROWN</div>'
+            f'<div class="hd-r">{right}</div></div>')
 
 def ofr(txt='Unlock all 30 weeks', sub='$29/yr', go='paywall'):
     return (f'<div class="ofr" data-go="{go}"><div class="ofr-in">'

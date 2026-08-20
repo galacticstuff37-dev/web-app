@@ -239,6 +239,39 @@ body.is-pro .ofr{display:none}
 .pl.added .addbtn svg:first-child,.pl.added .addbtn svg:last-child{display:none}
 .pl.added .addbtn svg:last-child{display:block}
 .pl.have{opacity:.55}
+.wgrid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px}
+.wg{border-radius:20px;padding:16px;min-width:0}
+.wg.span2{grid-column:1 / -1}
+.wg-lite{background:var(--surface)}
+.wg-dark{background:var(--deepest);color:#fff}
+.wg-top{display:flex;align-items:flex-start;justify-content:space-between;gap:8px}
+.wg .num{font-family:Caprasimo,Georgia,serif;font-weight:400;font-size:36px;line-height:1;letter-spacing:-.02em}
+.wg .num span{font-size:18px;margin-left:2px}
+.wg .lbl{font-size:13px;color:var(--muted);margin-top:8px;letter-spacing:-.02em}
+.wg-dark .lbl{color:#A9BCB0}
+.wg-h{display:flex;align-items:baseline;justify-content:space-between;gap:8px}
+.wg-h b{font-size:15px;font-weight:600;letter-spacing:-.02em}
+.wg-h s{font-size:12.5px;color:var(--muted);text-decoration:none}
+.wg-dark .wg-h s{color:#A9BCB0}
+.mrow{display:flex;gap:12px;margin-top:12px;padding-top:12px;border-top:1px solid var(--hair)}
+.wg-dark .mrow{border-top-color:rgba(255,255,255,.14)}
+.mrow>div{flex:1;min-width:0}
+.mrow s{display:block;font-size:11.5px;color:var(--muted);text-decoration:none;letter-spacing:-.02em}
+.wg-dark .mrow s{color:#A9BCB0}
+.mrow b{display:block;font-size:15px;font-weight:600;margin-top:2px;letter-spacing:-.02em}
+.cal{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;margin-top:12px}
+.cal i{aspect-ratio:1;border-radius:50%;display:flex;align-items:center;justify-content:center;
+       font-size:12px;font-weight:600;font-style:normal;color:#8DA396;background:rgba(255,255,255,.06)}
+.cal i.fut{color:#4C6155;background:rgba(255,255,255,.03)}
+.cal i.m-sow{background:transparent;box-shadow:inset 0 0 0 2px var(--lime);color:var(--lime)}
+.cal i.m-photo{background:#2E5C3A;color:#fff}
+.cal i.m-pick{background:var(--lime);color:var(--deepest)}
+.callg{display:flex;gap:14px;margin-top:12px;font-size:11.5px;color:#A9BCB0}
+.callg span{display:flex;align-items:center;gap:5px}
+.callg i{width:10px;height:10px;border-radius:50%;font-style:normal;flex:none}
+.callg i.m-sow{box-shadow:inset 0 0 0 2px var(--lime)}
+.callg i.m-photo{background:#2E5C3A}
+.callg i.m-pick{background:var(--lime)}
 .ccard{background:var(--surface);border-radius:var(--r-md);padding:12px;margin-bottom:8px}
 .chead{display:flex;align-items:center;gap:12px;cursor:pointer;padding:4px}
 .chead .nm b{display:block;font-size:16px;font-weight:600;letter-spacing:-.02em}
@@ -739,6 +772,71 @@ function renderWeek(){
     + ' more this week &mdash; see all</div>';
 }
 
+
+/* ─────────── виджет-сетка дашборда (по референсу с карточками) ─────────── */
+const MON = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+const SOW = new Date(2026, 2, 14);                       // 14 марта — день посева
+function dayOffset(d){ const x = new Date(SOW); x.setDate(x.getDate() + d); return x; }
+function arc(pct, sz, dark){
+  const sw = 5, r = (sz - sw) / 2, c = 2 * Math.PI * r, off = c * (1 - Math.min(100, pct) / 100);
+  return '<svg width="' + sz + '" height="' + sz + '" viewBox="0 0 ' + sz + ' ' + sz + '">'
+   + '<circle cx="' + sz/2 + '" cy="' + sz/2 + '" r="' + r + '" fill="none" stroke="'
+   + (dark ? 'rgba(255,255,255,.18)' : '#E4E8E2') + '" stroke-width="' + sw + '"/>'
+   + '<circle cx="' + sz/2 + '" cy="' + sz/2 + '" r="' + r + '" fill="none" stroke="'
+   + (dark ? '#B4F461' : '#22A559') + '" stroke-width="' + sw + '" stroke-linecap="round"'
+   + ' stroke-dasharray="' + c.toFixed(1) + '" stroke-dashoffset="' + off.toFixed(1) + '"'
+   + ' transform="rotate(-90 ' + sz/2 + ' ' + sz/2 + ')"/></svg>';
+}
+function metricRow(items, dark){
+  return '<div class="mrow">' + items.map(function(m){
+    return '<div><s>' + m[0] + '</s><b>' + m[1] + '</b></div>';
+  }).join('') + '</div>';
+}
+function calWidget(){
+  // отмечаем: день посева, дни со снимками, дни готовности культур
+  const marks = {};
+  MY_PLANTS.forEach(function(p){
+    p.photos.forEach(function(x){ marks[x.day] = marks[x.day] || 'photo'; });
+    if(p.day >= p.c[2]) marks[p.c[2]] = 'pick';
+  });
+  marks[0] = 'sow';
+  const today = MY_PLANTS.length ? Math.max.apply(null, MY_PLANTS.map(function(p){return p.day;})) : 0;
+  let cells = '';
+  for(let d = 0; d <= 34; d++){
+    const m = marks[d], future = d > today;
+    cells += '<i class="' + (m ? 'm-' + m : '') + (future ? ' fut' : '') + '">'
+           + dayOffset(d).getDate() + '</i>';
+  }
+  return '<div class="wg wg-dark span2"><div class="wg-h"><b>Season calendar</b>'
+    + '<s>' + MON[SOW.getMonth()] + ' \u2013 ' + MON[dayOffset(34).getMonth()] + '</s></div>'
+    + '<div class="cal">' + cells + '</div>'
+    + '<div class="callg"><span><i class="m-sow"></i>sown</span>'
+    + '<span><i class="m-photo"></i>photo</span><span><i class="m-pick"></i>first pick</span></div></div>';
+}
+function widgets(){
+  const st = seasonStats();
+  const growing = MY_PLANTS.filter(function(p){ return p.day < p.c[2]; });
+  const next = growing.length ? growing.reduce(function(a,b){
+                 return (b.c[2]-b.day) < (a.c[2]-a.day) ? b : a; }) : null;
+  const seasonPct = Math.min(100, Math.round(st.days / 187 * 100));
+  return '<div class="wgrid">'
+   + '<div class="wg wg-lite"><div class="wg-top"><div class="num">' + st.picks + '</div>'
+   + arc(Math.min(100, st.picks * 12), 44, false) + '</div>'
+   + '<div class="lbl">Harvests logged</div>'
+   + metricRow([['Crops', st.crops], ['Photos', st.photos]]) + '</div>'
+   + '<div class="wg wg-dark"><div class="wg-top"><div class="num">' + (next ? (next.c[2]-next.day) : 0)
+   + '<span>d</span></div>' + arc(next ? pPct(next) : 100, 44, true) + '</div>'
+   + '<div class="lbl">' + (next ? 'Until ' + next.c[0].toLowerCase() : 'All ready') + '</div>'
+   + metricRow([['Growing', growing.length], ['Ready', st.crops]]) + '</div>'
+   + calWidget()
+   + '<div class="wg wg-lite span2"><div class="wg-h"><b>Season progress</b><s>day ' + st.days
+   + ' of 187</s></div><div class="pb-track" style="margin-top:12px;height:10px">'
+   + '<i style="width:' + seasonPct + '%"></i></div>'
+   + metricRow([['Sown', MON[SOW.getMonth()] + ' ' + SOW.getDate()],
+                ['Today', 'day ' + st.days], ['Frost', 'Nov 28']]) + '</div>'
+   + '</div>';
+}
+
 /* ─────────── GROWTH: дашборд + карточки культур с их фото ─────────── */
 function seasonStats(){
   const harvested = MY_PLANTS.filter(p=>p.day >= p.c[2]);
@@ -766,7 +864,8 @@ function renderDash(){
         : 'Nothing ready yet — the first pick is the one that matters.') + '</div>'
     + '<div class="duo"><div class="cell"><s>Days</s><b>' + st.days + '</b></div>'
     + '<div class="cell"><s>Harvested</s><b>' + st.crops + (st.crops===1?' crop':' crops') + '</b></div>'
-    + '<div class="cell"><s>Streak</s><b>11 wk</b></div></div></div>';
+    + '<div class="cell"><s>Streak</s><b>11 wk</b></div></div></div>'
+    + widgets();
 }
 function cropCard(p, i){
   const ready = p.day >= p.c[2];

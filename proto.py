@@ -280,6 +280,17 @@ body.is-pro .ofr{display:none}
 .pl.added .addbtn svg:first-child,.pl.added .addbtn svg:last-child{display:none}
 .pl.added .addbtn svg:last-child{display:block}
 .pl.have{opacity:.55}
+.ccard{background:var(--surface);border-radius:var(--r-md);padding:12px;margin-bottom:8px}
+.chead{display:flex;align-items:center;gap:12px;cursor:pointer;padding:4px}
+.chead .nm b{display:block;font-size:16px;font-weight:600;letter-spacing:-.02em}
+.chead .nm s{display:block;font-size:13px;color:var(--muted);text-decoration:none;margin-top:2px}
+.cstrip{display:flex;gap:4px;margin-top:8px}
+.cstrip>div{flex:0 0 calc(25% - 3px);aspect-ratio:1;border-radius:12px;background-size:cover;background-position:center;background-color:#DDE3DC}
+.cmore{display:flex;align-items:center;justify-content:center;background:#E8EDE6!important;
+       color:var(--muted);font-size:14px;font-weight:700}
+.cempty{display:flex;align-items:center;gap:8px;margin-top:8px;padding:12px;border-radius:12px;
+        background:var(--ground);color:var(--muted);font-size:13px;font-weight:600;cursor:pointer}
+.cempty svg{flex:none}
 .jgrid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
 .jc{background:var(--surface);border-radius:16px;padding:8px;margin:0}
 .jph{aspect-ratio:1;border-radius:12px;background-size:cover;background-position:center;background-color:#DDE3DC}
@@ -670,23 +681,15 @@ screen('plant',
 # ═════════════════════════════ 4. GROWTH
 screen('growth',
  f'{sb()}{hd()}<div class="bd">'
- '<div class="h1" style="margin-top:16px">Your season</div>'
- '<div style="font-size:14px;color:var(--muted);margin-top:4px">Started Mar 14 &middot; day 62</div>'
- '<div class="acc"><div class="row1"><span class="tag">Season counter</span></div>'
- '<div class="lbl">Harvests logged</div>'
- '<div class="big" style="font-size:52px;color:var(--lime)">9</div>'
- '<div class="sub">Radish four times, lettuce three, basil twice. Your first pick was April 12 &mdash; day 31.</div>'
- '<div class="duo"><div class="cell"><s>Days</s><b>62</b></div>'
- '<div class="cell"><s>Harvested</s><b>3 crops</b></div>'
- '<div class="cell"><s>Streak</s><b>11 wk</b></div></div></div>'
- '<div class="sl">Crops that made it</div><div class="plist">' +
- ringrow('carrot', 'Radish', '4 harvests &middot; first Apr 12', '&nbsp;', 100, go='plant') +
- ringrow('salad', 'Leaf lettuce', '3 harvests &middot; first Apr 13', '&nbsp;', 100) +
- ringrow('leaf', 'Basil', '2 harvests &middot; first Apr 23', '&nbsp;', 100) + '</div>'
- '<div class="sl" id="jlab">Journal</div><div id="journal"></div>'
+ '<div class="h1">Your season</div>'
+ '<div style="font-size:14px;color:var(--muted);margin-top:4px" id="seasonsub">&nbsp;</div>'
+ '<div id="dash"></div>'
+ '<div id="cropcards"></div>'
  '</div>' + ofr('Keep every photo', '$29/yr') + nav('Growth'),
- 'Growth · дашборд', 'Счётчик сезона из §9.4 живёт в акцентном блоке. Цифры <b>раскрашены по смыслу</b>: '
- 'урожаи лаймом, культуры — flame, дисциплина белым.', 'Growth')
+ 'Growth', 'Пересобрано: раньше здесь были <b>две сущности про одно и то же</b> — список культур и '
+ 'отдельная сетка фото, хотя каждое фото и так принадлежит культуре. Теперь один дашборд сезона '
+ 'и карточки культур, у каждой свои снимки и своя статистика. Тап по карточке ведёт в растение, '
+ 'где лежит полный таймлайн и полоса «типичный диапазон».', 'Growth')
 
 screen('harvest',
  '<div class="dark" style="padding:0">'
@@ -1172,7 +1175,67 @@ function attachShot(file){
   UNDOT=setTimeout(()=>t.classList.remove('on'), 4000);
 }
 
+
+/* ─────────── GROWTH: дашборд + карточки культур с их фото ─────────── */
+function seasonStats(){
+  const harvested = MY_PLANTS.filter(p=>p.day >= p.c[2]);
+  const picks = harvested.reduce((n,p)=>n + Math.max(1, Math.floor((p.day - p.c[2]) / 7) + 1), 0);
+  return {picks: picks, crops: harvested.length, photos: allPhotos().length,
+          days: MY_PLANTS.length ? Math.max.apply(null, MY_PLANTS.map(p=>p.day)) : 0};
+}
+function renderDash(){
+  const el = document.getElementById('dash'); if(!el) return;
+  const st = seasonStats();
+  const sub = document.getElementById('seasonsub');
+  if(sub) sub.textContent = MY_PLANTS.length
+    ? 'Sown Mar 14 · day ' + st.days : 'Nothing sown yet';
+  if(!MY_PLANTS.length){
+    el.innerHTML = '<div class="note" style="margin-top:16px"><b>Your season starts with one seed</b>'
+      + '<p>Add a plant and this page fills itself — harvests, photos, how long everything took.</p>'
+      + '<div class="btn b-pri" data-go="add-plant">Add a plant</div></div>';
+    return;
+  }
+  el.innerHTML = '<div class="acc dash"><div class="row1"><span class="tag">Season counter</span></div>'
+    + '<div class="lbl">Harvests logged</div><div class="huge">' + st.picks + '</div>'
+    + '<div class="sub">' + (st.crops
+        ? st.crops + (st.crops===1?' crop has':' crops have') + ' reached the table. '
+          + st.photos + (st.photos===1?' photo':' photos') + ' in the journal.'
+        : 'Nothing ready yet — the first pick is the one that matters.') + '</div>'
+    + '<div class="duo"><div class="cell"><s>Days</s><b>' + st.days + '</b></div>'
+    + '<div class="cell"><s>Harvested</s><b>' + st.crops + (st.crops===1?' crop':' crops') + '</b></div>'
+    + '<div class="cell"><s>Streak</s><b>11 wk</b></div></div></div>';
+}
+function cropCard(p, i){
+  const ready = p.day >= p.c[2];
+  const picks = ready ? Math.max(1, Math.floor((p.day - p.c[2]) / 7) + 1) : 0;
+  const strip = p.photos.length
+    ? '<div class="cstrip">' + p.photos.slice(0,4).map(x=>
+        '<div style="background-image:url(' + phUrl(x) + ')"></div>').join('')
+      + (p.photos.length>4 ? '<div class="cmore">+' + (p.photos.length-4) + '</div>' : '') + '</div>'
+    : '<div class="cempty" data-shoot="' + i + '">' + ICONS._cam + '<span>No photos yet — take one</span></div>';
+  return '<div class="ccard"><div class="chead" data-open="' + i + '">'
+    + '<div class="rw">' + ringSVG(pPct(p)) + '<i>' + ICONS[p.c[1]] + '</i></div>'
+    + '<div class="nm"><b>' + p.c[0] + '</b><s>'
+    + (ready ? picks + (picks===1?' harvest':' harvests') + ' · day ' + p.day
+             : 'Day ' + p.day + ' · ' + pStage(p) + ' · ' + pEta(p))
+    + '</s></div>' + ICONS._chev + '</div>' + strip + '</div>';
+}
+function renderCropCards(){
+  const el = document.getElementById('cropcards'); if(!el) return;
+  if(!MY_PLANTS.length){ el.innerHTML=''; return; }
+  const ready = [], growing = [];
+  MY_PLANTS.forEach((p,i)=>(p.day >= p.c[2] ? ready : growing).push([p,i]));
+  let h = '';
+  if(ready.length)   h += '<div class="sl">Made it to the table</div>'
+                          + ready.map(x=>cropCard(x[0],x[1])).join('');
+  if(growing.length) h += '<div class="sl">Still growing</div>'
+                          + growing.map(x=>cropCard(x[0],x[1])).join('');
+  h += addPhotoBtn();
+  el.innerHTML = h;
+}
+
 function renderAll(){ renderHome(); renderPlants(); renderDetail(); renderJournal();
+                      try{ renderDash(); renderCropCards(); }catch(e){}
                       try{ renderLock(); renderSettingsPlan(); }catch(e){} }
 
 const SUNLABEL = {
@@ -1201,6 +1264,7 @@ ICON_JS = {n: ic(n, 'var(--primary)', 15, '1.9') for n in ICONSET}
 ICON_JS['_plus'] = ic('plus', 'var(--primary)', 17, '2.4')
 ICON_JS['_check'] = ic('check', '#fff', 17, '3')
 ICON_JS['_check2'] = ic('check', '#fff', 16, '3')
+ICON_JS['_chev'] = ic('chevron-right', '#B4BEB8', 20, '2.2')
 ICON_JS['_plusd'] = ic('plus', 'var(--deepest)', 16, '2.4')
 ICON_JS['_checkg'] = ic('check', 'var(--bright)', 17, '3')
 ICON_JS['_x'] = ic('x', '#6E7A73', 17, '2.4')
@@ -1390,7 +1454,7 @@ function go(id){{
       +'<div class="nm"><b>'+p.c[0]+'</b><s>Day '+p.day+' &middot; '+pStage(p)+'</s></div>'
       +'<div class="eta">'+pEta(p)+'</div></div>').join('')+'</div>'; }}
   if(id==='plant') renderDetail();
-  if(id==='growth') renderJournal();
+  if(id==='growth'){{ renderDash(); renderCropCards(); }}
   if(id==='week-lock') renderLock();
   if(id==='settings') renderSettingsPlan();
   el.classList.add('on'); el.querySelectorAll('.bd').forEach(b=>b.scrollTop=0);
@@ -1463,6 +1527,8 @@ document.addEventListener('click', e=>{{
   if(pick){{ pick.parentElement.querySelectorAll('.opt').forEach(o=>o.classList.remove('sel'));
             pick.classList.add('sel'); return; }}
   if(e.target.closest('[data-addphoto]')){{ openCamera(); return; }}
+  const sh = e.target.closest('[data-shoot]');
+  if(sh){{ openCamera(+sh.dataset.shoot); return; }}
   if(e.target.closest('[data-gogrowth]')){{ document.getElementById('toast').classList.remove('on');
                                             go('growth'); return; }}
   if(e.target.closest('[data-buy]')){{ buyPro(); return; }}

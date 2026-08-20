@@ -287,6 +287,10 @@ body.is-pro .ofr{display:none}
 .btn.off{background:#DDE3DC;color:#9EA8A2;pointer-events:none;box-shadow:none}
 .zip.ph{color:#B4BEB8;letter-spacing:.22em}
 .tglrow{cursor:pointer}
+.pickrow .picktick{display:none;flex:none}
+.pickrow.on .picktick{display:flex}
+.pickrow.on .nm b{color:var(--primary)}
+.setnote{font-size:var(--t-13);color:var(--muted);line-height:1.45;margin:10px 4px 0;text-wrap:pretty}
 .setval{font-size:var(--t-13);color:var(--muted);font-weight:500;flex:none;
      max-width:120px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 /* удаление аккаунта — выход, а не пункт меню: без плашки, серым */
@@ -664,7 +668,7 @@ IMG = 'img/'
 
 # ═════════════════════════════ 1. ОНБОРДИНГ
 screen('landing',
- f'{sb()}<div class="shot" style="background-image:url({IMG}hero-plants.jpg);top:48px"></div>'
+ f'{sb()}<div class="shot" style="background-image:url({IMG}hero-farm.jpg);top:48px"></div>'
  '<div class="scrim" style="top:48px"></div>'
  '<div class="overlay" style="top:48px">'
  '<div class="wm" style="color:#fff">HOMEGROWN</div>'
@@ -710,9 +714,9 @@ screen('q2',
  '<div style="font-size:var(--t-14);color:var(--muted);line-height:1.5;margin-top:16px">'
  'Frost dates decide what you can put outside right now. Tap to enter.</div>'
  '<div class="acc is-hidden" data-zipres style="margin-top:16px"><div class="row1"><span class="tag">Matched</span></div>'
- '<div class="lbl">Climate profile</div><div class="big">Austin, TX</div>'
- '<div class="duo"><div class="cell"><s>Last frost</s><b>Mar 3</b></div>'
- '<div class="cell"><s>Season</s><b>270 days</b></div></div></div>'
+ '<div class="lbl">Climate profile</div><div class="big" id="zipcity">&nbsp;</div>'
+ '<div class="duo"><div class="cell"><s>Last frost</s><b id="zipfrost">&nbsp;</b></div>'
+ '<div class="cell"><s>Season</s><b id="zipseason">&nbsp;</b></div></div></div>'
  '</div></div>' + foot('<div class="btn b-pri off" data-cta data-go="q3">Continue</div>'),
  'Q2 · ZIP', 'Спрашивается <b>только на уличном треке</b>. Комнатным растениям заморозки не нужны, '
  'поэтому indoor этот экран не видит вообще.', 'Онбординг')
@@ -779,7 +783,7 @@ screen('preview',
  'Строки плана: съедобным показываем дату первого сбора, комнатным — интервал полива.', 'Онбординг')
 
 screen('save',
- f'<div class="shot" style="background-image:url({IMG}hero-plants.jpg)"></div><div class="scrim"></div>'
+ f'<div class="shot" style="background-image:url({IMG}hero-farm.jpg)"></div><div class="scrim"></div>'
  '<div class="overlay">'
  f'{sb().replace("var(--ink)","#fff")}'
  '<div style="flex:1"></div>'
@@ -982,6 +986,17 @@ screen('settings',
  '«What goes on the week card» — тумблеры, которые реально фильтруют движок задач; полив не '
  'отключается, это ядро. «Reminders» — время и письма. Export отдаёт настоящий JSON файлом. '
  'Delete account вынесен из блока и подан серым секондари: это выход, а не пункт меню.', 'Система')
+
+screen('pick',
+ f'{sb()}{hd(back="settings")}<div class="bd">'
+ '<div class="h1" id="pickhead" style="margin-top:16px">Setting</div>'
+ '<div style="font-size:var(--t-14);color:var(--muted);margin-top:4px" id="picknote">&nbsp;</div>'
+ '<div id="pickbody" style="margin-top:16px"></div>'
+ '</div>' + nav('Settings'),
+ 'Настройка · выбор', 'Значения в настройках больше <b>не циклятся по тапу</b>: строка открывает '
+ 'раздел со списком, где видно все варианты и что выбрано сейчас. У каждого варианта есть '
+ 'следствие — для света это «сколько растений подойдёт», для ZIP — зона, заморозки и длина '
+ 'сезона. Выбрал — вернулся в настройки.', 'Система')
 
 # ═════════════════════════════ 7. ПОДОКОННИК
 screen('indoor',
@@ -1296,7 +1311,7 @@ function renderPreview(){
     plan.length + (plan.length === 1 ? ' plant.' : ' plants.') + '<br>' + second;
   const mins = CHOICES.effort === 3 ? 10 : CHOICES.effort === 4 ? 20 : 30;
   document.getElementById('planmeta').textContent =
-    (CHOICES.outdoor ? 'Austin, TX · ' : '') + CHOICES.sun + ' · ' + anA(CHOICES.space)
+    (CHOICES.outdoor ? zipInfo().city + ' · ' : '') + CHOICES.sun + ' · ' + anA(CHOICES.space)
     + ' · about ' + mins + ' min a week';
   const q = QUOTE[CHOICES.track === 'edible' ? 'edible' : 'house'];
   const qb = document.getElementById('planquote');
@@ -1667,10 +1682,13 @@ function buyPro(){
   document.body.classList.add('is-pro');
   renderAll();
   const t=document.getElementById('toast');
-  t.innerHTML='<span>Pro unlocked — the full care plan is open</span><b data-unpro>Undo</b>';
+  t.innerHTML='<span>Pro unlocked — the whole calendar is open</span><b data-unpro>Undo</b>';
   t.classList.add('on'); clearTimeout(UNDOT);
   UNDOT=setTimeout(function(){t.classList.remove('on')}, 5000);
-  go(PW_FROM);
+  /* Кнопки обещают «весь календарь», а возврат шёл туда, откуда пришли, —
+     обещание не выполнялось ни разу. Ведём в календарь. Исключения: лимит
+     растений обещал библиотеку, а без растений календарь показывать нечем. */
+  go((PW_FROM === 'add-plant' || !MY_PLANTS.length) ? PW_FROM : 'week-lock');
 }
 function dropPro(){
   IS_PRO = false; document.body.classList.remove('is-pro');
@@ -1720,6 +1738,16 @@ const POT_METRIC = {'6 inch':'15 cm', '8 inch':'20 cm', '10 inch':'25 cm', '12 i
   '2 gal':'7.5 L', '3 gal':'11 L', '5 gal':'19 L', 'tray':'tray'};
 const fmtPot = v => UNITS === 'metric' ? (POT_METRIC[v] || v) : v;
 
+/* Типичные справочные значения последних заморозков и длины сезона.
+   Ими же питается карточка климата на Q2 — раньше она всегда говорила Austin. */
+const ZIPS = [
+  {zip:'78704', city:'Austin, TX',   zone:'8b', frost:'Mar 3',  season:270},
+  {zip:'97214', city:'Portland, OR', zone:'8b', frost:'Apr 5',  season:230},
+  {zip:'10025', city:'New York, NY', zone:'7b', frost:'Apr 15', season:200},
+  {zip:'60613', city:'Chicago, IL',  zone:'6a', frost:'May 5',  season:170}
+];
+const zipInfo = () => ZIPS.find(function(z){ return z.zip === CHOICES.zip; }) || ZIPS[0];
+
 const SPACE_OPTS = {
   house: ['living room','bedroom','kitchen','bathroom','home office','windowsill'],
   edible: ['patio','deck','porch','backyard','raised bed','balcony','windowsill'],
@@ -1734,7 +1762,7 @@ function cycle(list, cur){ const i = list.indexOf(cur); return list[(i + 1) % li
 
 function setRow(key, label, value){
   return '<div class="pl" role="button" tabindex="0" data-set="' + key + '" '
-   + 'aria-label="' + label + ': ' + value + '. Tap to change">'
+   + 'aria-label="' + label + ': ' + value + '. Opens a list of options">'
    + '<div class="nm"><b>' + label + '</b><s>' + value + '</s></div>'
    + ICONS._chev + '</div>';
 }
@@ -1766,13 +1794,15 @@ function renderSettingsPlan(){
 function renderSettingsSetup(){
   const el = document.getElementById('setupbox'); if(!el) return;
   const mins = CHOICES.effort === 3 ? 10 : CHOICES.effort === 4 ? 20 : 30;
-  let h = setRow('track', 'Growing', TRACKWORD[CHOICES.track]);
-  h += setRow('space', 'Space', CHOICES.space);
-  if(CHOICES.outdoor) h += setRow('zip', 'ZIP', (CHOICES.zip || '78704') + ' · Austin, TX');
+  /* Growing здесь нет: чем ты занимаешься, выбирается один раз в онбординге. */
+  let h = setRow('space', 'Space', CHOICES.space);
+  if(CHOICES.outdoor) h += setRow('zip', 'ZIP', zipInfo().zip + ' · ' + zipInfo().city);
   h += setRow('light', 'Light', CHOICES.sun);
   h += setRow('effort', 'Time per week', mins + ' minutes');
   h += setRow('units', 'Units', UNITS === 'metric' ? 'Metric · cm, litres' : 'Imperial · inches, gallons');
-  el.innerHTML = '<div class="sl">Your setup</div><div class="plist">' + h + '</div>';
+  el.innerHTML = '<div class="sl">Your setup</div><div class="plist">' + h + '</div>'
+   + '<div class="setnote">You picked ' + TRACKWORD[CHOICES.track].toLowerCase()
+   + ' when you set up your plan. That one stays put.</div>';
 }
 function renderSettingsCare(){
   const el = document.getElementById('carebox'); if(!el) return;
@@ -1829,16 +1859,68 @@ function exportPlants(){
     toast('<span>Export is not available in this browser</span>');
   }
 }
-function bumpSetting(key){
-  if(key === 'track'){
-    CHOICES.track = cycle(['house','edible','both'], CHOICES.track);
-    CHOICES.space = SPACE_OPTS[CHOICES.track][0];
-    CHOICES.outdoor = false;
-    toast('<span>Library now shows ' + TRACKWORD[CHOICES.track].toLowerCase() + '</span>');
-  }
+/* ─────────── раздел выбора значения ─────────── */
+let PICK_KEY = 'space';
+const PICKS = {
+  space:  {title:'Where it lives',  note:'Changes what the library offers you.'},
+  zip:    {title:'Your ZIP',        note:'Frost dates decide what can go outside and when.'},
+  light:  {title:'How much light',  note:'The single biggest filter on what will actually finish.'},
+  effort: {title:'Time per week',   note:'Sets how many plants the plan holds.'},
+  units:  {title:'Units',           note:'Applies to pot sizes across the whole app.'},
+  remind: {title:'Remind me at',    note:'One notification a day, at this time.'}
+};
+function pickOptions(key){
+  if(key === 'space')  return (SPACE_OPTS[CHOICES.track] || SPACE_OPTS.both).map(function(v){
+    return {v:v, label:cap(v), sub:isOutdoorSpace(cap(v)) ? 'Outside' : 'Indoors'}; });
+  if(key === 'zip')    return ZIPS.map(function(z){
+    return {v:z.zip, label:z.zip + ' · ' + z.city,
+            sub:'Zone ' + z.zone + ' · last frost ' + z.frost + ' · ' + z.season + '-day season'}; });
+  if(key === 'light'){ const L = CHOICES.outdoor ? LIGHT_OUT : LIGHT_IN;
+    const R = CHOICES.outdoor ? LIGHT_RANK_OUT : LIGHT_RANK_IN;
+    return L.map(function(v){ return {v:v, label:cap(v),
+      sub:'Fits ' + speciesPool().filter(function(s){ return s.sun <= R[v]; }).length
+          + ' of ' + speciesPool().length + ' plants'}; }); }
+  if(key === 'effort') return [{v:3,label:'About 10 minutes',sub:'3 plants'},
+                               {v:4,label:'About 20 minutes',sub:'4 plants'},
+                               {v:5,label:'30+ minutes',sub:'5–6 plants'}];
+  if(key === 'units')  return [{v:'imperial',label:'Imperial',sub:'inches, gallons, pints'},
+                               {v:'metric',label:'Metric',sub:'centimetres, litres'}];
+  if(key === 'remind') return REMIND_AT.map(function(t, i){
+    return {v:i, label:t, sub:i <= 1 ? 'Before the day starts'
+                            : i === 2 ? 'Midday' : 'After work'}; });
+  return [];
+}
+function currentPick(key){
+  if(key === 'space')  return CHOICES.space;
+  if(key === 'zip')    return CHOICES.zip;
+  if(key === 'light')  return CHOICES.sun;
+  if(key === 'effort') return CHOICES.effort;
+  if(key === 'units')  return UNITS;
+  if(key === 'remind') return REMIND;
+  return null;
+}
+function renderPick(){
+  const box = document.getElementById('pickbody'); if(!box) return;
+  const meta = PICKS[PICK_KEY] || PICKS.space;
+  const h1 = document.getElementById('pickhead');
+  if(h1) h1.textContent = meta.title;
+  const nt = document.getElementById('picknote');
+  if(nt) nt.textContent = meta.note;
+  const cur = currentPick(PICK_KEY);
+  box.innerHTML = '<div class="plist">' + pickOptions(PICK_KEY).map(function(o){
+    const on = String(o.v) === String(cur);
+    return '<div class="pl pickrow' + (on ? ' on' : '') + '" role="radio" tabindex="0" '
+      + 'aria-checked="' + (on ? 'true' : 'false') + '" data-pickval="' + o.v + '">'
+      + '<div class="nm"><b>' + o.label + '</b><s>' + o.sub + '</s></div>'
+      + '<span class="picktick">' + ICONS._checkg + '</span></div>';
+  }).join('') + '</div>';
+}
+function applyPick(raw){
+  const key = PICK_KEY;
   if(key === 'space'){
-    CHOICES.space = cycle(SPACE_OPTS[CHOICES.track], CHOICES.space);
-    CHOICES.outdoor = isOutdoorSpace(CHOICES.space.charAt(0).toUpperCase() + CHOICES.space.slice(1));
+    CHOICES.space = raw;
+    CHOICES.outdoor = isOutdoorSpace(cap(raw));
+    /* свет живёт в двух разных доменах: часы солнца снаружи, сторона окна внутри */
     if(!CHOICES.outdoor && LIGHT_IN.indexOf(CHOICES.sun) < 0){
       CHOICES.sun = LIGHT_IN[1]; CHOICES.sunRank = LIGHT_RANK_IN[CHOICES.sun];
     }
@@ -1846,19 +1928,16 @@ function bumpSetting(key){
       CHOICES.sun = LIGHT_OUT[1]; CHOICES.sunRank = LIGHT_RANK_OUT[CHOICES.sun];
     }
   }
-  if(key === 'zip'){ CHOICES.zip = CHOICES.zip === '78704' ? '97214' : '78704';
-    toast('<span>Frost dates updated for ' + CHOICES.zip + '</span>'); }
-  if(key === 'light'){
-    const list = CHOICES.outdoor ? LIGHT_OUT : LIGHT_IN;
-    CHOICES.sun = list.indexOf(CHOICES.sun) < 0 ? list[0] : cycle(list, CHOICES.sun);
-    CHOICES.sunRank = (CHOICES.outdoor ? LIGHT_RANK_OUT : LIGHT_RANK_IN)[CHOICES.sun] || 1;
-    toast('<span>Light changed. The library now shows what fits</span>');
-  }
-  if(key === 'effort') CHOICES.effort = CHOICES.effort === 3 ? 4 : CHOICES.effort === 4 ? 5 : 3;
-  if(key === 'units'){ UNITS = UNITS === 'metric' ? 'imperial' : 'metric'; }
-  if(key === 'remind'){ REMIND = (REMIND + 1) % REMIND_AT.length;
+  else if(key === 'zip'){ CHOICES.zip = raw;
+    toast('<span>Frost dates set for ' + zipInfo().city + '</span>'); }
+  else if(key === 'light'){ CHOICES.sun = raw;
+    CHOICES.sunRank = (CHOICES.outdoor ? LIGHT_RANK_OUT : LIGHT_RANK_IN)[raw] || 1;
+    toast('<span>The library now shows what fits ' + raw + '</span>'); }
+  else if(key === 'effort') CHOICES.effort = +raw;
+  else if(key === 'units')  UNITS = raw;
+  else if(key === 'remind'){ REMIND = +raw;
     toast('<span>Reminders at ' + REMIND_AT[REMIND] + '</span>'); }
-  renderSettings(); renderAll();
+  renderSettings(); renderAll(); go('settings');
 }
 function toggleSetting(key){
   if(CARE.hasOwnProperty(key)) CARE[key] = !CARE[key];
@@ -2162,7 +2241,8 @@ function renderRecap(){
                          + st.oldest + ' days.'
                        : st.waterings + ' waterings.<br>' + st.plants
                          + (st.plants === 1 ? ' plant.' : ' plants.');
-  const tag = outdoor ? 'SEASON 2026 · AUSTIN, TX' : 'YOUR YEAR · YEAR-ROUND';
+  const tag = outdoor ? 'SEASON 2026 · ' + zipInfo().city.toUpperCase()
+                      : 'YOUR YEAR · YEAR-ROUND';
   const names = MY_PLANTS.map(function(p){ return p.s.name; });
   const list = names.length > 1
     ? names.slice(0, -1).join(', ') + ' and ' + names[names.length - 1]
@@ -2674,6 +2754,7 @@ function go(id){{
   if(id==='shopping') renderShopping();
   if(id==='week-lock') renderLock();
   if(id==='settings') renderSettings();
+  if(id==='pick') renderPick();
   stampRoles(el);
   el.classList.add('on'); el.querySelectorAll('.bd').forEach(b=>b.scrollTop=0);
   el.querySelectorAll('.dark,.overlay').forEach(b=>b.scrollTop=0);
@@ -2735,8 +2816,13 @@ document.addEventListener('click', e=>{{
   }}
   const zip = e.target.closest('[data-zip]');
   if(zip){{
-    zip.textContent='78704'; zip.classList.remove('ph'); CHOICES.zip='78704';
+    zip.textContent = CHOICES.zip || '78704';
+    zip.classList.remove('ph'); CHOICES.zip = CHOICES.zip || '78704';
+    const zi = zipInfo();
     const scr = zip.closest('.screen');
+    scr.querySelector('#zipcity').textContent = zi.city;
+    scr.querySelector('#zipfrost').textContent = zi.frost;
+    scr.querySelector('#zipseason').textContent = zi.season + ' days';
     scr.querySelector('[data-zipres]').style.display='block';
     scr.querySelector('[data-cta]').classList.remove('off'); return;
   }}
@@ -2779,7 +2865,9 @@ document.addEventListener('click', e=>{{
   const sw = e.target.closest('[data-sw]');
   if(sw){{ toggleSetting(sw.dataset.sw); return; }}
   const st2 = e.target.closest('[data-set]');
-  if(st2){{ bumpSetting(st2.dataset.set); return; }}
+  if(st2){{ PICK_KEY = st2.dataset.set; go('pick'); return; }}
+  const pv = e.target.closest('[data-pickval]');
+  if(pv){{ applyPick(pv.dataset.pickval); return; }}
   if(e.target.closest('[data-export]')){{ exportPlants(); return; }}
   if(e.target.closest('[data-del-acct]')){{
     toast('<span>Type DELETE to confirm — not wired up in the prototype</span>', 4000); return; }}
@@ -2973,7 +3061,7 @@ BUILD = hashlib.sha1(MOBILE.encode()).hexdigest()[:10]
 SW_SRC = """const CACHE = 'homegrown-%s';
 const ASSETS = [
   './', './index.html', './manifest.webmanifest', './scan-config.js',
-  './img/hero.jpg', './img/hero-plants.jpg', './img/garden.jpg',
+  './img/hero.jpg', './img/hero-farm.jpg', './img/hero-plants.jpg', './img/garden.jpg',
   './img/radish.jpg', './img/basil.jpg', './img/lettuce.jpg', './img/cherrytomato.jpg',
   './img/flowers.jpg', './img/containers.jpg',
   './img/leaves1.jpg', './img/leaves2.jpg', './img/leaves3.jpg',

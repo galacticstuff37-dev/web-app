@@ -153,12 +153,8 @@ h1,h2,h3{font-weight:600;letter-spacing:-.015em}
 .back svg{transform:rotate(180deg)}
 .back:active{background:#E6EBE4}
 .wm{font-family:Caprasimo,Georgia,serif;font-weight:400;font-size:var(--t-20);letter-spacing:.01em;color:var(--primary);line-height:1}
-.avbtn{width:44px;height:44px;display:flex;align-items:center;justify-content:center;
-       flex:none;cursor:pointer}
-.av{width:32px;height:32px;border-radius:50%;background:var(--lime);display:flex;align-items:center;
-    justify-content:center;font-size:var(--t-12);font-weight:700;color:var(--deepest)}
 .bd{flex:1;overflow-y:auto;overflow-x:hidden;padding:8px 20px 8px;scrollbar-width:none;min-height:0}
-.foot{flex:none;padding:8px 20px 24px;background:var(--ground);box-shadow:0 -14px 22px -14px rgba(11,31,20,.14)}
+.foot{flex:none;padding:8px 20px 24px;background:transparent}
 .foot .btn{margin-top:0}
 .bd::-webkit-scrollbar{display:none}
 .greet{font-size:var(--t-14);color:var(--muted);margin-top:16px}
@@ -288,6 +284,15 @@ body.is-pro .ofr{display:none}
 .btn.off{background:#DDE3DC;color:#9EA8A2;pointer-events:none;box-shadow:none}
 .zip.ph{color:#B4BEB8;letter-spacing:.22em}
 .tglrow{cursor:pointer}
+.setval{font-size:var(--t-13);color:var(--muted);font-weight:500;flex:none;
+     max-width:120px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+/* удаление аккаунта — выход, а не пункт меню: без плашки, серым */
+.danger{margin-top:20px;text-align:center;font-size:var(--t-14);font-weight:600;
+     color:var(--muted);cursor:pointer;padding:14px 8px;border-radius:var(--r-xs);min-height:44px;
+     display:flex;align-items:center;justify-content:center}
+.danger:active{color:var(--ink-2)}
+.dangernote{text-align:center;font-size:var(--t-12);color:#9AA49E;line-height:1.4;
+     margin:0 16px 8px;text-wrap:pretty}
 .tgl{width:48px;height:28px;border-radius:999px;background:#D3DAD4;flex:none;position:relative;
      cursor:pointer;transition:background .18s}
 .tgl i{position:absolute;left:4px;top:4px;width:20px;height:20px;border-radius:50%;background:#fff;
@@ -295,9 +300,16 @@ body.is-pro .ofr{display:none}
 .tgl.on{background:var(--bright)}
 .tgl.on i{left:24px}
 .is-hidden{display:none}
+.searchrow{display:flex;gap:8px;align-items:center;margin-top:16px}
 .search{display:flex;align-items:center;gap:8px;background:var(--surface);border-radius:var(--r-lg);
-        padding:0 16px;height:52px;margin-top:16px}
-.search input{flex:1;border:0;outline:0;background:transparent;font:500 var(--t-15) 'Inter Tight',sans-serif;
+        padding:0 16px;height:52px;flex:1;min-width:0}
+.scanbtn{width:52px;height:52px;flex:none;border-radius:var(--r-lg);background:var(--primary);
+        display:flex;align-items:center;justify-content:center;cursor:pointer}
+.scanbtn:active{transform:scale(.94)}
+.scanhint{font-size:var(--t-13);color:var(--muted);margin-top:10px;line-height:1.4}
+.scanhint b{color:var(--primary);font-weight:600;cursor:pointer;
+        padding:6px 4px;margin:-6px -4px;border-radius:var(--r-xs)}
+.search input{flex:1;border:0;outline:0;background:transparent;font:500 var(--t-16) 'Inter Tight',sans-serif;
         color:var(--ink);min-width:0}
 .search input::placeholder{color:#9EA8A2;font-weight:400}
 .search .si{display:flex;flex:none}
@@ -317,20 +329,23 @@ body.is-pro .ofr{display:none}
 .tlink{font-size:var(--t-14);color:#fff;text-align:center;margin-top:8px;cursor:pointer;
      font-weight:600;padding:14px 8px;border-radius:var(--r-xs);min-height:44px;
      display:flex;align-items:center;justify-content:center}
-.score{position:relative;border-radius:var(--r-2xl);overflow:hidden;margin-top:8px;min-height:200px;
-      background:linear-gradient(120deg,#17683C 0%,#0F3A24 55%,#0B1F14 100%)}
-.score-ph{position:absolute;right:-8px;top:0;bottom:0;width:52%;background-size:cover;
-      background-position:center;
-      mask-image:linear-gradient(90deg,transparent 0,#000 38%);
-      -webkit-mask-image:linear-gradient(90deg,transparent 0,#000 38%)}
-.score-in{position:relative;padding:20px;width:62%}
-.score-top{display:flex;align-items:center;justify-content:center;width:56px;height:56px;position:relative}
+.score{position:relative;border-radius:var(--r-2xl);overflow:hidden;margin-top:8px;min-height:240px;
+      display:flex;align-items:flex-end;background:var(--deepest)}
+.score-ph{position:absolute;inset:0;background-size:cover;background-position:center}
+/* градиент снизу вверх: фото остаётся фотографией, текст читается */
+.score-sc{position:absolute;inset:0;background:linear-gradient(180deg,
+      rgba(11,31,20,0) 0%,rgba(11,31,20,.14) 34%,rgba(11,31,20,.62) 64%,
+      rgba(11,31,20,.90) 84%,rgba(11,31,20,.96) 100%)}
+.score-in{position:relative;padding:20px;width:100%}
+.score-row{display:flex;align-items:center;gap:14px}
+.score-top{display:flex;align-items:center;justify-content:center;width:56px;height:56px;
+      position:relative;flex:none}
 .score-top span{position:absolute;inset:0;display:flex;align-items:center;justify-content:center}
-.score-n{display:flex;align-items:baseline;gap:2px;margin-top:12px;color:#fff}
+.score-n{display:flex;align-items:baseline;gap:2px;color:#fff}
 .score-n b{font-family:Caprasimo,Georgia,serif;font-weight:400;font-size:var(--t-40);line-height:1}
 .score-n s{font-size:var(--t-16);text-decoration:none;color:#A9BCB0}
-.score-v{font-size:var(--t-16);font-weight:700;color:var(--lime);margin-top:8px;letter-spacing:-.02em}
-.score-s{font-size:var(--t-14);color:#C2D3C8;line-height:1.35;margin-top:2px}
+.score-v{font-size:var(--t-16);font-weight:700;color:var(--lime);letter-spacing:-.02em;margin-top:2px}
+.score-s{font-size:var(--t-14);color:#D2DFD6;line-height:1.35;margin-top:10px}
 .sec-h{display:flex;align-items:baseline;justify-content:space-between;margin:20px 0 10px}
 .sec-h span{font-size:var(--t-16);font-weight:600;letter-spacing:-.02em}
 .sec-h i{font-style:normal;font-size:var(--t-14);font-weight:600;color:var(--primary);
@@ -366,26 +381,28 @@ body.is-pro .ofr{display:none}
 .mrow b{display:block;font-size:var(--t-15);font-weight:600;margin-top:2px;letter-spacing:-.02em}
 .cal{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;margin-top:12px}
 .cal i{aspect-ratio:1;border-radius:50%;display:flex;align-items:center;justify-content:center;
-       font-size:var(--t-12);font-weight:600;font-style:normal;color:#8DA396;background:rgba(255,255,255,.06)}
-.cal i.fut{color:#4C6155;background:rgba(255,255,255,.03)}
-.cal i.m-photo{background:#2E5C3A;color:#fff}
-.callg{display:flex;gap:14px;margin-top:12px;font-size:var(--t-11);color:#A9BCB0}
+       font-size:var(--t-12);font-weight:600;font-style:normal;color:#7A8880;background:#EDF1EB}
+.cal i.fut{color:#B4BEB8;background:#F4F6F3}
+/* полив и снимок раньше красились в один цвет: легенда обещала два, ячейки были
+   одинаковые. Теперь полив залит, снимок обведён. */
+.cal i.m-water{background:#D6EADC;color:#0E6234}
+.cal i.m-photo{background:var(--primary);color:#fff}
+.callg{display:flex;gap:14px;margin-top:12px;font-size:var(--t-11);color:var(--muted)}
 .callg span{display:flex;align-items:center;gap:5px}
 .callg i{width:10px;height:10px;border-radius:50%;font-style:normal;flex:none}
-.callg i.m-photo{background:#2E5C3A}
-.callg i.m-water{background:#2E5C3A}
+.callg i.m-water{background:#D6EADC}
+.callg i.m-photo{background:var(--primary)}
 .ccard{background:var(--surface);border-radius:var(--r-lg);padding:12px;margin-bottom:8px}
 .chead{display:flex;align-items:center;gap:12px;cursor:pointer;padding:4px}
 .chead .nm b{display:block;font-size:var(--t-16);font-weight:600;letter-spacing:-.02em}
 .chead .nm s{display:block;font-size:var(--t-13);color:var(--muted);text-decoration:none;margin-top:2px}
-.cstrip{display:flex;gap:4px;margin-top:8px}
-.cstrip>div{flex:0 0 calc(25% - 3px);aspect-ratio:1;border-radius:var(--r-sm);background-size:cover;background-position:center;background-color:#DDE3DC}
-.cthumb{width:44px;height:44px;border-radius:var(--r-sm);background-size:cover;background-position:center;flex:none}
+.cstrip{display:flex;gap:4px;margin-top:8px;overflow-x:auto;scrollbar-width:none;
+      overscroll-behavior-inline:contain;scroll-snap-type:x proximity}
+.cstrip::-webkit-scrollbar{display:none}
+.cstrip>div{flex:0 0 calc(25% - 3px);aspect-ratio:1;border-radius:var(--r-sm);background-size:cover;
+      background-position:center;background-color:#DDE3DC;scroll-snap-align:start}
 .st-pill{background:#EAF5EE}
 .st-pill.st-warn{background:#FDF3E0}.st-pill.st-bad{background:#FDEBE2}
-.cal i.m-water{background:#2E5C3A;color:#fff}
-.cmore{display:flex;align-items:center;justify-content:center;background:#E8EDE6!important;
-       color:var(--muted);font-size:var(--t-14);font-weight:700}
 .cempty{display:flex;align-items:center;gap:8px;margin-top:8px;padding:12px;border-radius:var(--r-sm);
         background:var(--ground);color:var(--muted);font-size:var(--t-13);font-weight:600;cursor:pointer}
 .cempty svg{flex:none}
@@ -504,8 +521,8 @@ body.is-pro .ofr{display:none}
 .br-row:active,.chip:active,.ofr:active .ofr-in,.zip:active,.seg div:active,
 .cempty:active,.ccard:active .chead{transform:scale(.985)}
 .ni:active{opacity:.6}
-.xbtn:active,.avbtn:active .av{transform:scale(.92)}
-.btn,.btn-dash,.opt,.pl,.plcard,.chead,.br-row,.ofr-in,.xbtn,.av,.zip,.seg div{
+.xbtn:active{transform:scale(.92)}
+.btn,.btn-dash,.opt,.pl,.plcard,.chead,.br-row,.ofr-in,.xbtn,.zip,.seg div{
      transition:transform .16s cubic-bezier(.32,.72,0,1),background-color .16s ease-out,
                 opacity .16s ease-out}
 
@@ -575,13 +592,12 @@ def nav(active='Week', badge=False):
                    f'{b}{ic(icon, "currentColor", 23)}<span>{name}</span></div>')
     return '<nav class="nav" aria-label="Main">' + ''.join(out) + '</nav>'
 
-def hd(initial='Y', back=None):
+def hd(initial=None, back=None):
     """Шапка: лого всегда по центру, «назад» слева, аватар справа."""
     left = (f'<div class="back" role="button" tabindex="0" aria-label="Back" '
             f'data-go="{back}">{ic("caret-right", "var(--ink)", 20)}</div>'
             if back else '')
-    right = ('' if back else f'<div class="avbtn" role="button" tabindex="0" aria-label="Settings" '
-             f'data-go="settings"><span class="av">{initial}</span></div>')
+    right = ''
     return (f'<div class="hd"><div class="hd-l">{left}</div>'
             f'<div class="wm">HOMEGROWN</div>'
             f'<div class="hd-r">{right}</div></div>')
@@ -784,11 +800,15 @@ screen('add-plant',
  '<div class="h1" style="margin-top:16px">Add a plant</div>'
  '<div style="font-size:var(--t-14);color:var(--muted);margin-top:4px">'
  '<span id="libsub"></span> &middot; <span data-addcount>nothing selected</span></div>'
+ '<div class="searchrow">'
  '<div class="search"><span class="si" aria-hidden="true">' + ic('search', '#8E9A93', 19, '2') + '</span>'
  '<input id="spq" type="search" inputmode="search" autocomplete="off" spellcheck="false" '
- 'aria-label="Search the plant library" '
- 'placeholder="Search by name or latin — monstera, basil…">'
+ 'aria-label="Search the plant library" placeholder="Search by name or latin…">'
  '<span class="sx" id="spx" role="button" tabindex="0" aria-label="Clear search">' + ic('x', '#8E9A93', 17, '2.4') + '</span></div>'
+ '<div class="scanbtn" role="button" tabindex="0" aria-label="Identify a plant by photo" '
+ 'data-scan>' + ic('camera', '#fff', 22) + '</div></div>'
+ '<div class="scanhint">Don&rsquo;t know what it is? '
+ '<b role="button" tabindex="0" data-scan>Point the camera at it</b></div>'
  '<div id="splist"></div>'
  '<div class="note is-hidden" data-limit style="margin:12px 0 4px"><b>That&rsquo;s the free limit</b>'
  '<p>Free plans keep 3 plants. Pro keeps everything your light and space allow &mdash; '
@@ -939,24 +959,17 @@ screen('settings',
  f'{sb()}{hd()}<div class="bd">'
  '<div class="h1" style="margin-top:16px">Settings</div>'
  '<div id="planbox"></div>'
- '<div class="sl">Your setup</div><div id="spacebox"></div>'
- '<div class="sl">Email</div><div class="plist">'
- '<div class="pl tglrow" role="switch" tabindex="0" aria-label="Weekly tasks" '
- 'aria-checked="true"><div class="nm"><b>Weekly tasks</b></div>'
- '<div class="tgl on" aria-hidden="true"><i></i></div></div>'
- '<div class="pl tglrow" role="switch" tabindex="0" aria-label="Watering reminders" '
- 'aria-checked="true"><div class="nm"><b>Watering reminders</b></div>'
- '<div class="tgl on" aria-hidden="true"><i></i></div></div>'
- '<div class="pl tglrow" role="switch" tabindex="0" aria-label="Product updates" '
- 'aria-checked="false"><div class="nm"><b>Product updates</b></div>'
- '<div class="tgl" aria-hidden="true"><i></i></div></div></div>'
- '<div class="sl">Data</div><div class="plist">'
- '<div class="pl"><div class="nm"><b>Units</b><s>Imperial</s></div>' + ic('chevron-right', '#B4BEB8', 18) + '</div>'
- '<div class="pl"><div class="nm"><b>Delete account</b><s>Requires typing DELETE</s></div>' + ic('chevron-right', '#B4BEB8', 18) + '</div></div>'
+ '<div id="setupbox"></div>'
+ '<div id="carebox"></div>'
+ '<div id="remindbox"></div>'
+ '<div id="databox"></div>'
  '</div>' + nav('Settings'),
- 'Settings', 'Блок «Your setup» <b>рендерится из ответов онбординга</b>: строка ZIP появляется только '
- 'на уличном треке, последняя строка называет трек. Смена света или усилия <b>предлагает</b> '
- 'пересчёт, но не делает его сама — §20.', 'Система')
+ 'Settings', 'Экран собирается из состояния целиком, и <b>каждая строка что-то меняет</b>. '
+ '«Your setup» — ответы онбординга: тап циклит значение, ZIP появляется только на уличном треке, '
+ 'Units переводит объёмы и диаметры по всему приложению (настоящий пересчёт, не подпись). '
+ '«What goes on the week card» — тумблеры, которые реально фильтруют движок задач; полив не '
+ 'отключается, это ядро. «Reminders» — время и письма. Export отдаёт настоящий JSON файлом. '
+ 'Delete account вынесен из блока и подан серым секондари: это выход, а не пункт меню.', 'Система')
 
 # ═════════════════════════════ 7. ПОДОКОННИК
 screen('indoor',
@@ -1068,8 +1081,8 @@ const ICONS = __ICONS__;
 const SPECIES = __SPECIES__;
 const RING_TRACK = '#DDE3DC', RING_ON = '#22A559';
 /* track: house | edible | both. outdoor решает, спрашиваем ли ZIP и есть ли конец сезона. */
-const CHOICES = {track:'house', space:'living room', outdoor:false, sun:'bright indirect light',
-                 sunRank:2, goals:[], effort:4, zip:null};
+const CHOICES = {track:'house', space:'living room', outdoor:false,
+                 sun:'an east or west window', sunRank:2, goals:[], effort:4, zip:null};
 const anA  = w => (/^[aeiou]/i.test(w) ? 'an ' : 'a ') + w;
 const inOn = () => CHOICES.outdoor ? 'on your ' : 'in your ';
 
@@ -1115,7 +1128,7 @@ function photoTile(s, cls, style){
 /* ─────────── библиотека: строка вида ─────────── */
 function spSub(s){
   if(s.kind === 'edible')
-    return s.days + (s.daysMax !== s.days ? '–' + s.daysMax : '') + ' days · ' + s.pot;
+    return s.days + (s.daysMax !== s.days ? '–' + s.daysMax : '') + ' days · ' + fmtPot(s.pot);
   return 'Water every ' + s.water + 'd · ' + s.light;
 }
 function spRow(s){
@@ -1425,16 +1438,18 @@ function renderDashHome(){
   acc.innerHTML =
      '<div class="score">'
    + '<div class="score-ph" style="' + photoStyle(MY_PLANTS[0].s) + '"></div>'
-   + '<div class="score-in"><div class="score-top">' + ringBig(sc, 56)
-   + '<span>' + ICONS._leaf + '</span></div>'
-   + '<div class="score-n"><b>' + sc + '</b><s>/100</s></div>'
-   + '<div class="score-v">' + v[0] + '</div><div class="score-s">' + v[1] + '</div></div></div>'
+   + '<div class="score-sc"></div>'
+   + '<div class="score-in"><div class="score-row">'
+   + '<div class="score-top">' + ringBig(sc, 56) + '<span>' + ICONS._leaf + '</span></div>'
+   + '<div><div class="score-n"><b>' + sc + '</b><s>/100</s></div>'
+   + '<div class="score-v">' + v[0] + '</div></div></div>'
+   + '<div class="score-s">' + v[1] + '</div></div></div>'
    + '<div class="wgrid" style="margin-top:8px">'
    + '<div class="wg wg-dark"><div class="wg-top"><div class="num">' + due.length + '</div>'
    + ICONS._dropbig + '</div><div class="lbl">Water today</div>'
    + metricRow([['Soon', soon.length], ['Plants', MY_PLANTS.length]]) + '</div>'
    + '<div class="wg wg-lite"><div class="wg-top"><div class="num">'
-   + Math.max(0, wDue(nextP)) + '<span>d</span></div>' + arc(wPct(nextP), 44, false) + '</div>'
+   + Math.max(0, wDue(nextP)) + '<span>d</span></div>' + ICONS._dropp + '</div>'
    + '<div class="lbl">' + (wDue(nextP) <= 0 ? nextP.s.name + ' is thirsty'
                                              : 'Until ' + lc(nextP.s.name)) + '</div>'
    + metricRow([['Light', lightShort(nextP.s)],
@@ -1456,13 +1471,13 @@ function weekTasks(){
       p.since + ' days since the last drink — it wants one every ' + p.s.water + '.',
       'water:' + i]);
   });
-  MY_PLANTS.forEach(function(p, i){
+  if(CARE.pick) MY_PLANTS.forEach(function(p, i){
     if(isEdible(p) && hPct(p) >= 100)
       out.push(['Pick from the ' + lc(p.s.name), '4 min',
         'It is ready. Picking keeps it producing.', 'pick:' + i]);
   });
   const si = MY_PLANTS.findIndex(function(p){ return p.s.tags.indexOf('statement') > -1; });
-  if(si > -1) out.push(['Wipe the ' + lc(MY_PLANTS[si].s.name) + ' leaves', '3 min',
+  if(CARE.leaf && si > -1) out.push(['Wipe the ' + lc(MY_PLANTS[si].s.name) + ' leaves', '3 min',
     'Dust cuts the light it gets.', 'wipe:' + si]);
   MY_PLANTS.forEach(function(p, i){
     const d = wDue(p);
@@ -1470,10 +1485,10 @@ function weekTasks(){
       'check:' + i]);
   });
   const ti = MY_PLANTS.findIndex(function(p){ return p.s.sun >= 2; });
-  if(ti > -1) out.push(['Rotate the ' + lc(MY_PLANTS[ti].s.name) + ' a quarter turn', '1 min',
-    'Keeps it growing even on all sides.', 'rotate:' + ti]);
-  out.push([MY_PLANTS.some(isEdible) ? 'Feed the edible pots once this month'
-                                     : 'Feed everything once this month', '4 min',
+  if(CARE.rotate && ti > -1) out.push(['Rotate the ' + lc(MY_PLANTS[ti].s.name) + ' a quarter turn',
+    '1 min', 'Keeps it growing even on all sides.', 'rotate:' + ti]);
+  if(CARE.feed) out.push([MY_PLANTS.some(isEdible) ? 'Feed the edible pots once this month'
+                                                   : 'Feed everything once this month', '4 min',
     'Container soil runs out faster than a bed.', 'feed']);
   return out.slice(0, 6);
 }
@@ -1596,7 +1611,7 @@ function renderDetail(){
       ? '<div class="wg wg-lite"><div class="wg-top"><div class="num">' + hPct(p)
         + '<span>%</span></div>' + arc(hPct(p), 44, false) + '</div>'
         + '<div class="lbl">' + (hPct(p) >= 100 ? 'Ready to pick' : 'To first pick') + '</div>'
-        + metricRow([['Day', p.day], ['Typical', p.s.days
+        + metricRow([['Pot', fmtPot(p.s.pot)], ['Typical', p.s.days
           + (p.s.daysMax !== p.s.days ? '–' + p.s.daysMax : '') + 'd']]) + '</div>'
       : '<div class="wg wg-lite"><div class="wg-h"><b>Conditions</b></div>'
         + metricRow([['Light', p.s.light]]) + metricRow([['Humidity', p.s.hum]]) + '</div>')
@@ -1657,26 +1672,166 @@ function renderLock(){
     +'<div class="sub">The dates and the workload are real — only the wording is hidden.</div>'
     +'<div class="btn b-lime" data-go="paywall">Unlock the full plan</div></div>';
 }
-function renderSettingsPlan(){
-  const el=document.getElementById('planbox'); if(!el) return;
-  el.innerHTML = IS_PRO
-   ? '<div class="acc" style="margin-top:16px"><div class="row1"><span class="tag">Pro · full plan</span></div>'
-     +'<div class="big" style="font-size:var(--t-24);margin-top:16px">Everything is open</div>'
-     +'<div class="sub">Every week planned, unlimited plants and photos, up to 5 spaces. Renews Mar 14, 2027.</div>'
-     +'<div class="btn" style="background:#17492F;color:#fff" data-unpro>Back to Free (demo)</div></div>'
-   : '<div class="acc" style="margin-top:16px"><div class="row1"><span class="tag">Free plan</span></div>'
-     +'<div class="big" style="font-size:var(--t-24);margin-top:16px">1 space · 3 plants<br>this week only</div>'
-     +'<div class="btn b-lime" data-go="paywall">Compare with Pro</div></div>';
+/* ═════════ НАСТРОЙКИ: каждая строка реально меняет поведение ═════════ */
+let UNITS = 'imperial';
+let REMIND = 3;                                   // индекс в REMIND_AT
+const REMIND_AT = ['07:00', '09:00', '12:00', '18:00', '21:00'];
+/* какие типы задач попадают в недельную карточку. Полив не отключается —
+   это ядро продукта. Остальное — выбор пользователя. */
+const CARE = { pick: true, leaf: true, rotate: true, feed: true };
+const MAIL = { weekly: true, water: true, news: false };
+
+/* перевод объёмов и диаметров. Настоящие пересчёты, не подписи «на глаз». */
+const POT_METRIC = {'6 inch':'15 cm', '8 inch':'20 cm', '10 inch':'25 cm', '12 inch':'30 cm',
+  '1 pint':'0.5 L', '1 quart':'1 L', '0.5 gal':'2 L', '1 gal':'4 L',
+  '2 gal':'7.5 L', '3 gal':'11 L', '5 gal':'19 L', 'tray':'tray'};
+const fmtPot = v => UNITS === 'metric' ? (POT_METRIC[v] || v) : v;
+
+const SPACE_OPTS = {
+  house: ['living room','bedroom','kitchen','bathroom','home office','windowsill'],
+  edible: ['patio','deck','porch','backyard','raised bed','balcony','windowsill'],
+  both: ['living room','kitchen','windowsill','patio','balcony','backyard']
+};
+const LIGHT_IN  = ['a south-facing window','an east or west window','a north window'];
+const LIGHT_OUT = ['3–5 hours of sun','6–8 hours of sun','8+ hours of sun'];
+const LIGHT_RANK_IN  = {'a south-facing window':2,'an east or west window':1,'a north window':1};
+const LIGHT_RANK_OUT = {'3–5 hours of sun':1,'6–8 hours of sun':2,'8+ hours of sun':3};
+
+function cycle(list, cur){ const i = list.indexOf(cur); return list[(i + 1) % list.length]; }
+
+function setRow(key, label, value){
+  return '<div class="pl" role="button" tabindex="0" data-set="' + key + '" '
+   + 'aria-label="' + label + ': ' + value + '. Tap to change">'
+   + '<div class="nm"><b>' + label + '</b><s>' + value + '</s></div>'
+   + ICONS._chev + '</div>';
 }
-function renderSettingsSpace(){
-  const el = document.getElementById('spacebox'); if(!el) return;
-  const rows = [['Space', CHOICES.space], ['Light', CHOICES.sun]];
-  if(CHOICES.outdoor) rows.splice(1, 0, ['ZIP', (CHOICES.zip || '78704') + ' · Austin, TX']);
-  rows.push(['Time per week', (CHOICES.effort === 3 ? 10 : CHOICES.effort === 4 ? 20 : 30) + ' minutes']);
-  rows.push(['Growing', TRACKWORD[CHOICES.track]]);
-  el.innerHTML = '<div class="plist">' + rows.map(function(r){
-    return '<div class="pl"><div class="nm"><b>' + r[0] + '</b><s>' + r[1] + '</s></div>'
-         + ICONS._chev + '</div>'; }).join('') + '</div>';
+function swRow(key, label, on, sub){
+  return '<div class="pl tglrow" role="switch" tabindex="0" aria-label="' + label + '" '
+   + 'aria-checked="' + (on ? 'true' : 'false') + '" data-sw="' + key + '">'
+   + '<div class="nm"><b>' + label + '</b>' + (sub ? '<s>' + sub + '</s>' : '') + '</div>'
+   + '<div class="tgl' + (on ? ' on' : '') + '" aria-hidden="true"><i></i></div></div>';
+}
+function renderSettingsPlan(){
+  const el = document.getElementById('planbox'); if(!el) return;
+  const pic = MY_PLANTS.length && MY_PLANTS[0].s.img
+    ? 'img/' + MY_PLANTS[0].s.img + '.jpg' : 'img/hero-plants.jpg';
+  const shot = '<div class="acc-photo" style="background-image:url(' + pic + ')"></div>';
+  el.innerHTML = IS_PRO
+   ? '<div class="acc" style="margin-top:16px">' + shot
+     + '<div class="row1"><span class="tag">Pro · full plan</span></div>'
+     + '<div class="big" style="font-size:var(--t-24);margin-top:12px">Everything is open</div>'
+     + '<div class="sub">Every week planned, unlimited plants and photos, up to 5 spaces. '
+     + 'Renews Mar 14, 2027.</div>'
+     + '<div class="btn" style="background:#17492F;color:#fff" data-unpro>Back to Free (demo)</div></div>'
+   : '<div class="acc" style="margin-top:16px">' + shot
+     + '<div class="row1"><span class="tag">Free plan</span></div>'
+     + '<div class="big" style="font-size:var(--t-24);margin-top:12px">1 space · 3 plants<br>'
+     + 'this week only</div>'
+     + '<div class="sub">Pro opens every week ahead, the whole library and unlimited photos.</div>'
+     + '<div class="btn b-lime" data-go="paywall">Compare with Pro</div></div>';
+}
+function renderSettingsSetup(){
+  const el = document.getElementById('setupbox'); if(!el) return;
+  const mins = CHOICES.effort === 3 ? 10 : CHOICES.effort === 4 ? 20 : 30;
+  let h = setRow('track', 'Growing', TRACKWORD[CHOICES.track]);
+  h += setRow('space', 'Space', CHOICES.space);
+  if(CHOICES.outdoor) h += setRow('zip', 'ZIP', (CHOICES.zip || '78704') + ' · Austin, TX');
+  h += setRow('light', 'Light', CHOICES.sun);
+  h += setRow('effort', 'Time per week', mins + ' minutes');
+  h += setRow('units', 'Units', UNITS === 'metric' ? 'Metric · cm, litres' : 'Imperial · inches, gallons');
+  el.innerHTML = '<div class="sl">Your setup</div><div class="plist">' + h + '</div>';
+}
+function renderSettingsCare(){
+  const el = document.getElementById('carebox'); if(!el) return;
+  const hasEdible = MY_PLANTS.some(isEdible);
+  let h = '<div class="pl"><div class="nm"><b>Watering</b>'
+        + '<s>Always on — it is what keeps them alive</s></div>'
+        + '<span class="setval">Always</span></div>';
+  if(hasEdible) h += swRow('pick', 'Harvest reminders', CARE.pick, 'When something is ready to pick');
+  h += swRow('leaf', 'Leaf care', CARE.leaf, 'Wiping dust off the big leaves');
+  h += swRow('rotate', 'Rotating', CARE.rotate, 'A quarter turn so growth stays even');
+  h += swRow('feed', 'Feeding', CARE.feed, 'Once a month while they are growing');
+  el.innerHTML = '<div class="sl">What goes on the week card</div><div class="plist">' + h + '</div>';
+}
+function renderSettingsRemind(){
+  const el = document.getElementById('remindbox'); if(!el) return;
+  el.innerHTML = '<div class="sl">Reminders</div><div class="plist">'
+   + setRow('remind', 'Remind me at', REMIND_AT[REMIND])
+   + swRow('weekly', 'Weekly task email', MAIL.weekly)
+   + swRow('water', 'Watering reminders', MAIL.water)
+   + swRow('news', 'Product updates', MAIL.news)
+   + '</div>';
+}
+function renderSettingsData(){
+  const el = document.getElementById('databox'); if(!el) return;
+  el.innerHTML = '<div class="sl">Data</div><div class="plist">'
+   + '<div class="pl" role="button" tabindex="0" data-export>'
+   + '<div class="nm"><b>Export my plants</b><s>' + MY_PLANTS.length
+   + (MY_PLANTS.length === 1 ? ' plant' : ' plants') + ' and '
+   + allPhotos().length + ' photos as JSON</s></div>'
+   + '<span class="setval">Download</span>' + ICONS._chev + '</div></div>'
+   + '<div class="danger" role="button" tabindex="0" data-del-acct>Delete account</div>'
+   + '<div class="dangernote">Asks you to type DELETE first. Your plants go with it.</div>';
+}
+function renderSettings(){
+  renderSettingsPlan(); renderSettingsSetup(); renderSettingsRemind();
+  renderSettingsCare(); renderSettingsData();
+}
+function exportPlants(){
+  const payload = { app: 'HOMEGROWN', exported: 'prototype demo',
+    units: UNITS, track: CHOICES.track,
+    plants: MY_PLANTS.map(function(p){
+      return { id: p.s.id, name: p.s.name, kind: p.s.kind, latin: p.s.latin,
+               ageDays: p.day, daysSinceWater: p.since,
+               waterEvery: p.s.water, photos: p.photos.length }; }) };
+  try{
+    const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob); a.download = 'homegrown-plants.json';
+    document.body.appendChild(a); a.click();
+    setTimeout(function(){ URL.revokeObjectURL(a.href); a.remove(); }, 0);
+    toast('<span>Exported ' + MY_PLANTS.length
+      + (MY_PLANTS.length === 1 ? ' plant' : ' plants') + '</span>');
+  }catch(e){
+    toast('<span>Export is not available in this browser</span>');
+  }
+}
+function bumpSetting(key){
+  if(key === 'track'){
+    CHOICES.track = cycle(['house','edible','both'], CHOICES.track);
+    CHOICES.space = SPACE_OPTS[CHOICES.track][0];
+    CHOICES.outdoor = false;
+    toast('<span>Library now shows ' + TRACKWORD[CHOICES.track].toLowerCase() + '</span>');
+  }
+  if(key === 'space'){
+    CHOICES.space = cycle(SPACE_OPTS[CHOICES.track], CHOICES.space);
+    CHOICES.outdoor = isOutdoorSpace(CHOICES.space.charAt(0).toUpperCase() + CHOICES.space.slice(1));
+    if(!CHOICES.outdoor && LIGHT_IN.indexOf(CHOICES.sun) < 0){
+      CHOICES.sun = LIGHT_IN[1]; CHOICES.sunRank = LIGHT_RANK_IN[CHOICES.sun];
+    }
+    if(CHOICES.outdoor && LIGHT_OUT.indexOf(CHOICES.sun) < 0){
+      CHOICES.sun = LIGHT_OUT[1]; CHOICES.sunRank = LIGHT_RANK_OUT[CHOICES.sun];
+    }
+  }
+  if(key === 'zip'){ CHOICES.zip = CHOICES.zip === '78704' ? '97214' : '78704';
+    toast('<span>Frost dates updated for ' + CHOICES.zip + '</span>'); }
+  if(key === 'light'){
+    const list = CHOICES.outdoor ? LIGHT_OUT : LIGHT_IN;
+    CHOICES.sun = list.indexOf(CHOICES.sun) < 0 ? list[0] : cycle(list, CHOICES.sun);
+    CHOICES.sunRank = (CHOICES.outdoor ? LIGHT_RANK_OUT : LIGHT_RANK_IN)[CHOICES.sun] || 1;
+    toast('<span>Light changed. The library now shows what fits</span>');
+  }
+  if(key === 'effort') CHOICES.effort = CHOICES.effort === 3 ? 4 : CHOICES.effort === 4 ? 5 : 3;
+  if(key === 'units'){ UNITS = UNITS === 'metric' ? 'imperial' : 'metric'; }
+  if(key === 'remind'){ REMIND = (REMIND + 1) % REMIND_AT.length;
+    toast('<span>Reminders at ' + REMIND_AT[REMIND] + '</span>'); }
+  renderSettings(); renderAll();
+}
+function toggleSetting(key){
+  if(CARE.hasOwnProperty(key)) CARE[key] = !CARE[key];
+  else if(MAIL.hasOwnProperty(key)) MAIL[key] = !MAIL[key];
+  DONE = {};
+  renderSettings(); renderAll();
 }
 const TRACKWORD = {house:'Houseplants', edible:'Edible crops', both:'Houseplants and edibles'};
 
@@ -1869,7 +2024,7 @@ function calWidget(){
     cells += '<i class="' + (m ? 'm-' + m : '') + (future ? ' fut' : '') + '">'
            + dayOffset(d).getDate() + '</i>';
   }
-  return '<div class="wg wg-dark span2"><div class="wg-h"><b>Care calendar</b>'
+  return '<div class="wg wg-lite span2"><div class="wg-h"><b>Care calendar</b>'
     + '<s>' + MON[START.getMonth()] + ' – ' + MON[dayOffset(34).getMonth()] + '</s></div>'
     + '<div class="cal">' + cells + '</div>'
     + '<div class="callg"><span><i class="m-water"></i>watered</span>'
@@ -1908,12 +2063,10 @@ function renderDash(){
 function plantRow(p, i){
   const st = pState(p);
   const strip = p.photos.length
-    ? '<div class="cstrip">' + p.photos.slice(0,4).map(function(x){
-        return '<div style="background-image:url(' + phUrl(x) + ')"></div>'; }).join('')
-      + (p.photos.length > 4 ? '<div class="cmore">+' + (p.photos.length - 4) + '</div>' : '') + '</div>'
+    ? '<div class="cstrip">' + p.photos.map(function(x){
+        return '<div style="background-image:url(' + phUrl(x) + ')"></div>'; }).join('') + '</div>'
     : '<div class="cempty" data-shoot="' + i + '">' + ICONS._cam + '<span>No photos yet — take one</span></div>';
   return '<div class="ccard"><div class="chead" data-open="' + i + '">'
-    + photoTile(p.s, 'cthumb') + '</div>'
     + '<div class="nm"><b>' + p.s.name + '</b><s class="st-' + st[1] + '">' + st[0]
     + '</s></div>' + ICONS._chev + '</div>' + strip + '</div>';
 }
@@ -2010,7 +2163,7 @@ function renderShopping(){
   Object.keys(pots).forEach(function(k){
     const who = plan.filter(function(s){ return (s.pot || 'pot') === k; })
                     .map(function(s){ return lc(s.name); });
-    items.push([(k === 'tray' ? 'Seed tray' : 'Pot — ' + k) + (pots[k] > 1 ? ' ×' + pots[k] : ''),
+    items.push([(k === 'tray' ? 'Seed tray' : 'Pot — ' + fmtPot(k)) + (pots[k] > 1 ? ' ×' + pots[k] : ''),
       (POTPRICE[k] || 8) * pots[k],
       'For ' + (who.length > 1 ? who.slice(0,-1).join(', ') + ' and ' + who[who.length-1]
                                : who[0]) + '.']);
@@ -2165,7 +2318,7 @@ function renderQ5(){
 function renderAll(){
   renderHome(); renderDetail();
   try{ renderDash(); renderPlantCards(); }catch(e){}
-  try{ renderLock(); renderSettingsPlan(); renderSettingsSpace(); }catch(e){}
+  try{ renderLock(); renderSettings(); }catch(e){}
 }
 
 const SUNLABEL = {
@@ -2216,6 +2369,7 @@ ICON_JS['_check'] = ic('check', '#fff', 17, '3')
 ICON_JS['_check2'] = ic('check', '#fff', 16, '3')
 ICON_JS['_drop'] = ic('drop', '#fff', 15)
 ICON_JS['_dropbig'] = ic('drop', 'var(--lime)', 30)
+ICON_JS['_dropp'] = ic('drop', 'var(--bright)', 28)
 ICON_JS['_leaf'] = ic('leaf', 'var(--lime)', 20)
 ICON_JS['_chevd'] = ic('chevron-right', 'var(--muted)', 18, '2.4')
 ICON_JS['_circ'] = ('<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="#B4BEB8" '
@@ -2486,7 +2640,7 @@ function go(id){{
   if(id==='season-end') renderRecap();
   if(id==='shopping') renderShopping();
   if(id==='week-lock') renderLock();
-  if(id==='settings'){{ renderSettingsPlan(); renderSettingsSpace(); }}
+  if(id==='settings') renderSettings();
   stampRoles(el);
   el.classList.add('on'); el.querySelectorAll('.bd').forEach(b=>b.scrollTop=0);
   el.querySelectorAll('.dark,.overlay').forEach(b=>b.scrollTop=0);
@@ -2589,6 +2743,13 @@ document.addEventListener('click', e=>{{
                                             go('growth'); return; }}
   if(e.target.closest('[data-buy]')){{ buyPro(); return; }}
   if(e.target.closest('[data-unpro]')){{ dropPro(); return; }}
+  const sw = e.target.closest('[data-sw]');
+  if(sw){{ toggleSetting(sw.dataset.sw); return; }}
+  const st2 = e.target.closest('[data-set]');
+  if(st2){{ bumpSetting(st2.dataset.set); return; }}
+  if(e.target.closest('[data-export]')){{ exportPlants(); return; }}
+  if(e.target.closest('[data-del-acct]')){{
+    toast('<span>Type DELETE to confirm — not wired up in the prototype</span>', 4000); return; }}
   const row = e.target.closest('.tglrow');
   if(row){{ const t4 = row.querySelector('.tgl');
             const on = t4.classList.toggle('on');

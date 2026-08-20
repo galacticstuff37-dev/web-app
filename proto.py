@@ -391,6 +391,7 @@ body.is-pro .ofr{display:none}
 .scan-foot{background:var(--deepest);border-radius:28px;padding:20px;color:#fff;flex:none}
 .scan-foot b{display:block;font-family:Caprasimo,Georgia,serif;font-weight:400;font-size:28px;line-height:1.05}
 .scan-foot s{display:block;font-size:14.5px;color:#A9BCB0;text-decoration:none;margin-top:8px;line-height:1.4}
+.scan-foot s em{color:#CFE0D4;font-style:italic}
 .scan-dots{display:flex;gap:6px;margin-bottom:12px}
 .scan-dots i{width:8px;height:8px;border-radius:50%;background:var(--lime);opacity:.35;
      animation:dot 1s infinite}
@@ -744,9 +745,9 @@ screen('season-end',
 screen('scan',
  '<div class="dark" style="padding:0">'
  '<div id="scanbody"></div></div>',
- 'Scan a plant', 'Кнопка Add открывает камеру и «узнаёт» растение. '
- '⚠ Распознавание в прототипе <b>заглушка</b>: настоящее определение вида требует модели или внешнего API, '
- 'выдумывать точность нельзя. Поэтому есть выход «Not it» — руками через поиск.', 'Plants')
+ 'Scan a plant', 'Кнопка Add открывает камеру и распознаёт растение <b>по-настоящему</b> — PlantNet через '
+ 'воркер-прокси (ключ в клиент не попадает). Латинское имя маппится на наши 21 культуру; процент — '
+ 'настоящий score от API. Состояния: не подключено, нет совпадения, не наша культура, нет сети.', 'Plants')
 
 screen('plants',
  f'{sb()}{hd()}<div class="bd">'
@@ -1243,42 +1244,117 @@ function renderSettingsPlan(){
 
 
 
-/* ─────────── скан растения (распознавание — заглушка) ─────────── */
-let SCAN_URL = null, SCAN_T = null;
-function renderScan(state, guess){
-  const el = document.getElementById('scanbody'); if(!el) return;
-  const shot = SCAN_URL
-    ? '<div class="scan-shot" style="background-image:url(' + SCAN_URL + ')"></div>'
-    : '<div class="scan-shot"></div>';
-  if(state === 'busy'){
-    el.innerHTML = shot + '<div class="scan-ov"><div class="scan-frame"></div>'
-      + '<div class="scan-foot"><div class="scan-dots"><i></i><i></i><i></i></div>'
-      + '<b>Looking at your plant\u2026</b>'
-      + '<s>Matching leaf shape against the 21 crops we grow</s></div></div>';
+/* ─────────── скан растения: настоящее распознавание через PlantNet ─────────── */
+// латинское имя → наша культура. Ключи — род или вид, как их отдаёт PlantNet.
+const SPECIES = {
+  'Ocimum basilicum':'Basil', 'Ocimum':'Basil',
+  'Raphanus sativus':'Radish', 'Raphanus':'Radish',
+  'Lactuca sativa':'Leaf lettuce', 'Lactuca':'Leaf lettuce',
+  'Coriandrum sativum':'Cilantro', 'Coriandrum':'Cilantro',
+  'Petroselinum crispum':'Parsley', 'Petroselinum':'Parsley',
+  'Allium tuberosum':'Garlic chives', 'Allium schoenoprasum':'Garlic chives',
+  'Allium fistulosum':'Green onions', 'Allium cepa':'Green onions', 'Allium':'Green onions',
+  'Solanum lycopersicum':'Cherry tomato', 'Lycopersicon esculentum':'Cherry tomato',
+  'Solanum melongena':'Eggplant',
+  'Capsicum annuum':'Bell pepper', 'Capsicum':'Bell pepper',
+  'Cucumis sativus':'Cucumber', 'Cucumis':'Cucumber',
+  'Cucurbita pepo':'Summer squash', 'Cucurbita':'Summer squash',
+  'Beta vulgaris':'Swiss chard', 'Beta':'Beets',
+  'Daucus carota':'Carrots', 'Daucus':'Carrots',
+  'Brassica oleracea':'Kale', 'Brassica juncea':'Mustard greens',
+  'Brassica rapa':'Turnips', 'Brassica':'Kale',
+  'Phaseolus vulgaris':'Bush beans', 'Phaseolus':'Bush beans',
+};
+function matchCrop(r){
+  const byLatin = SPECIES[r.latin] || SPECIES[r.genus];
+  if(byLatin) return crop(byLatin);
+  // подстраховка: совпадение по обиходному имени
+  const names = (r.common || []).map(function(n){ return n.toLowerCase(); });
+  for(let i = 0; i < CROPS.length; i++){
+    const n = CROPS[i][0].toLowerCase();
+    if(names.some(function(c){ return c.indexOf(n) > -1 || n.indexOf(c) > -1; })) return CROPS[i];
+  }
+  return null;
+}
+let SCAN_URL = null, SCAN_FILE = null;
+function scanShot(){
+  return SCAN_URL ? '<div class="scan-shot" style="background-image:url(' + SCAN_URL + ')"></div>'
+                  : '<div class="scan-shot"></div>';
+}
+function scanBusy(){
+  document.getElementById('scanbody').innerHTML = scanShot()
+    + '<div class="scan-ov"><div class="scan-frame"></div>'
+    + '<div class="scan-foot"><div class="scan-dots"><i></i><i></i><i></i></div>'
+    + '<b>Looking at your plant\u2026</b>'
+    + '<s>Sending the photo to PlantNet</s></div></div>';
+}
+function scanFoot(inner){
+  document.getElementById('scanbody').innerHTML = scanShot()
+    + '<div class="scan-ov"><div class="scan-frame ok"></div>'
+    + '<div class="scan-foot">' + inner + '</div></div>';
+}
+function scanManual(label){
+  return '<div class="btn" style="background:#1B3527;color:#fff" data-go="add-plant">'
+    + (label || 'Choose manually') + '</div>';
+}
+function scanRetry(){
+  return '<div class="btn b-lime" data-scan>Try another photo</div>';
+}
+async function identify(file){
+  const url = window.HG_SCAN_ENDPOINT;
+  if(!url){
+    scanFoot('<span class="pill" style="background:#3A3020;color:#F0C674;align-self:flex-start">'
+      + 'Not connected</span>'
+      + '<b style="margin-top:12px">Recognition is off</b>'
+      + '<s>No identification service is wired up yet, so we won\u2019t guess. '
+      + 'Pick the crop yourself \u2014 it takes one tap.</s>'
+      + scanManual('Choose from 21 crops'));
     return;
   }
-  el.innerHTML = shot + '<div class="scan-ov"><div class="scan-frame ok"></div>'
-    + '<div class="scan-foot">'
-    + '<span class="pill b-lime" style="align-self:flex-start">Best match</span>'
-    + '<b style="margin-top:12px">' + guess[0] + '</b>'
-    + '<s>' + guess[2] + (guess[3] !== guess[2] ? '\u2013' + guess[3] : '') + ' days &middot; '
-    + guess[4] + ' &middot; fits your light</s>'
-    + '<div class="btn b-lime" data-scanadd="' + guess[0] + '">Add ' + guess[0].toLowerCase() + ' to my plan</div>'
-    + '<div class="btn" style="background:#1B3527;color:#fff" data-go="add-plant">Not it &mdash; choose manually</div>'
-    + '</div></div>';
+  try{
+    const fd = new FormData();
+    fd.append('images', file, 'plant.jpg');
+    fd.append('organs', 'auto');
+    const res = await fetch(url, { method:'POST', body: fd });
+    const data = await res.json();
+    if(data.error || !data.results || !data.results.length){
+      scanFoot('<b>No match</b><s>PlantNet didn\u2019t recognise this one. '
+        + 'Try a closer shot of a single leaf, or pick the crop yourself.</s>'
+        + scanRetry() + scanManual());
+      return;
+    }
+    const top = data.results[0];
+    const pct = Math.round((top.score || 0) * 100);
+    const c = matchCrop(top);
+    const latin = '<em>' + (top.latin || '\u2014') + '</em>';
+    const common = (top.common && top.common[0]) ? top.common[0] : '';
+    if(!c){
+      scanFoot('<span class="pill" style="background:#3A3020;color:#F0C674;align-self:flex-start">'
+        + pct + '% ' + (common || 'identified') + '</span>'
+        + '<b style="margin-top:12px">Not something we plan</b>'
+        + '<s>' + latin + ' isn\u2019t one of the 21 edible crops HOMEGROWN schedules. '
+        + 'You can still add a crop yourself.</s>' + scanRetry() + scanManual());
+      return;
+    }
+    scanFoot('<span class="pill b-lime" style="align-self:flex-start">' + pct + '% match</span>'
+      + '<b style="margin-top:12px">' + c[0] + '</b>'
+      + '<s>' + latin + (common ? ' \u00b7 ' + common : '') + '<br>'
+      + c[2] + (c[3] !== c[2] ? '\u2013' + c[3] : '') + ' days \u00b7 ' + c[4]
+      + (c[5] > CHOICES.sunRank ? ' \u00b7 needs more sun than you have' : '') + '</s>'
+      + '<div class="btn b-lime" data-scanadd="' + c[0] + '">Add ' + c[0].toLowerCase()
+      + ' to my plan</div>' + scanManual('Not it \u2014 choose manually'));
+  }catch(err){
+    scanFoot('<b>Couldn\u2019t reach the service</b>'
+      + '<s>Check the connection and try again \u2014 the photo is still here.</s>'
+      + scanRetry() + scanManual());
+  }
 }
 function startScan(file){
+  SCAN_FILE = file || null;
   SCAN_URL = file ? URL.createObjectURL(file) : null;
-  go('scan'); renderScan('busy');
-  clearTimeout(SCAN_T);
-  SCAN_T = setTimeout(function(){
-    const pool = CROPS.filter(function(c){ return c[5] <= CHOICES.sunRank
-      && !MY_PLANTS.some(function(p){ return p.c[0] === c[0]; }); });
-    const guess = pool.length ? pool[0] : CROPS[0];
-    renderScan('done', guess);
-  }, 1600);
+  go('scan'); scanBusy();
+  identify(file);
 }
-
 /* ─────────── камера: снимок с устройства попадает в журнал ─────────── */
 let CAM_TARGET = null, CAM_MODE = 'photo';
 function openCamera(target, mode){
@@ -1940,6 +2016,7 @@ PWA_HEAD = (
  '<meta name="apple-mobile-web-app-title" content="HOMEGROWN">\n'
  '<link rel="apple-touch-icon" href="img/apple-touch-icon.png">\n'
  '<link rel="icon" href="img/icon-192.png">\n'
+ '<script src="scan-config.js"></script>\n'
  '<link rel="preload" as="font" type="font/woff2" crossorigin href="fonts/Caprasimo-400-latin.woff2">\n'
  '<link rel="preload" as="font" type="font/woff2" crossorigin href="fonts/InterTight-400-latin.woff2">')
 
@@ -1960,7 +2037,7 @@ import hashlib
 BUILD = hashlib.sha1(MOBILE.encode()).hexdigest()[:10]
 SW_SRC = """const CACHE = 'homegrown-%s';
 const ASSETS = [
-  './', './index.html', './manifest.webmanifest',
+  './', './index.html', './manifest.webmanifest', './scan-config.js',
   './img/hero.jpg', './img/garden.jpg', './img/radish.jpg', './img/basil.jpg',
   './img/flowers.jpg', './img/containers.jpg',
   './img/leaves1.jpg', './img/leaves2.jpg', './img/leaves3.jpg',

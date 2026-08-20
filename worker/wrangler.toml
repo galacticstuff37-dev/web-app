@@ -1,0 +1,6 @@
+name = "homegrown-plantid"
+main = "plantnet-proxy.js"
+compatibility_date = "2026-01-01"
+
+# Ключ задаётся секретом, в файл его не писать:
+#   npx wrangler secret put PLANTNET_KEY

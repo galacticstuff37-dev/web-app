@@ -199,6 +199,27 @@ h1,h2,h3{font-weight:600;letter-spacing:-.015em}
 .tt .b{font-size:14px;color:var(--ink-2);line-height:1.42;margin-top:4px}
 .min{font-size:13px;color:var(--muted);flex:none;margin-top:2px;font-weight:500}
 .task.done .t{color:#9EA8A2;text-decoration:line-through;text-decoration-color:#C9D2CC}
+.pbar{display:flex;align-items:center;gap:10px;background:var(--surface);border-radius:999px;
+      height:48px;padding:0 16px 0 12px;margin-top:16px;cursor:pointer;
+      box-shadow:0 1px 3px rgba(11,31,20,.07)}
+.pb-ic{display:flex;flex:none}
+.pb-n{font-size:14px;font-weight:700;letter-spacing:-.02em;flex:none}
+.pb-track{flex:1;height:8px;border-radius:999px;background:#E4E8E2;overflow:hidden;min-width:0}
+.pb-track i{display:block;height:100%;background:var(--bright);border-radius:999px;transition:width .3s}
+.pb-pct{font-size:14px;font-weight:700;color:var(--muted);flex:none;letter-spacing:-.02em}
+.pb-chev{display:flex;flex:none;transition:transform .2s}
+.pbar.open .pb-chev{transform:rotate(90deg)}
+.branch{position:relative;margin:12px 0 0 20px;padding-left:20px}
+.branch:before{content:"";position:absolute;left:0;top:4px;bottom:24px;width:2px;border-radius:2px;background:#DDE3DC}
+.br-row{display:flex;align-items:center;gap:12px;padding:12px 0;cursor:pointer;position:relative}
+.br-row:before{content:"";position:absolute;left:-20px;top:50%;width:16px;height:2px;border-radius:2px;background:#DDE3DC}
+.br-dot{width:24px;height:24px;border-radius:50%;flex:none;box-shadow:inset 0 0 0 2px #C9D2CC;
+      display:flex;align-items:center;justify-content:center;background:var(--surface)}
+.br-dot.on{background:var(--primary);box-shadow:none}
+.br-t{flex:1;font-size:15.5px;font-weight:600;letter-spacing:-.02em;line-height:1.25}
+.br-t.done{color:#9EA8A2;text-decoration:line-through;text-decoration-color:#C9D2CC}
+.br-m{font-size:13px;color:var(--muted);flex:none;font-weight:500}
+.moretap{font-size:14px;font-weight:600;color:var(--primary);padding:12px 4px 0;cursor:pointer;letter-spacing:-.02em}
 .prog{display:flex;align-items:center;gap:12px;margin:16px 2px 0}
 .bar{flex:1;height:8px;border-radius:999px;background:#DDE3DC;overflow:hidden}
 .bar i{display:block;height:100%;background:var(--bright);border-radius:999px;transition:width .35s}
@@ -964,7 +985,11 @@ const WEEK_TASKS = [
   ['Thin radish to 1 inch apart','2 min','Pull the smallest seedlings so each root has room.'],
   ['Sow second round of lettuce','10 min',''],
   ['Water check: soil top dry?','2 min',''],
-  ['Feed tomato','3 min','']];
+  ['Feed tomato','3 min',''],
+  ['Stake the tomato','5 min',''],
+  ['Pinch basil tops','2 min','']];
+const CARDS_SHOWN = 4;
+let DONE = [], WEEK_OPEN = false;
 function taskHTML(t){
   return '<div class="task" data-task><div class="box">'+ICONS._check2+'</div><div class="tt">'
     +'<div class="t">'+t[0]+'</div>'+(t[2]?'<div class="b">'+t[2]+'</div>':'')
@@ -1003,10 +1028,7 @@ function renderHome(){
     +'border-top:1px solid rgba(255,255,255,.12);position:relative">'
     +'<span style="font-size:13px;color:#B7C7BD">Next harvest <b style="color:#fff;font-weight:600">Apr 12</b></span>'
     +'<span style="font-size:13px;color:var(--lime);font-weight:600">11-week streak</span></div></div>';
-  pr.innerHTML='<div class="prog"><div class="bar"><i style="width:0%"></i></div><div class="pct">0 of '
-    +WEEK_TASKS.length+' done</div></div>';
-  tk.innerHTML='<div class="sl">This week</div>'+WEEK_TASKS.map(taskHTML).join('')
-    +'<div style="font-size:14px;color:var(--muted);padding:8px 4px 0" data-go="week-lock">+2 more this week &rarr;</div>';
+  renderWeek();
 }
 
 /* ─────────── PLANTS + удаление ─────────── */
@@ -1176,6 +1198,44 @@ function attachShot(file){
 }
 
 
+
+/* ─────────── прогресс-пилюля с раскрывающимся чеклистом ─────────── */
+function progHTML(){
+  const n = DONE.filter(Boolean).length, m = WEEK_TASKS.length;
+  const pct = m ? Math.round(n / m * 100) : 0;
+  return '<div class="pbar' + (WEEK_OPEN ? ' open' : '') + '" data-progtoggle>'
+    + '<span class="pb-ic">' + (n ? ICONS._checkp : ICONS._circ) + '</span>'
+    + '<span class="pb-n">' + n + ' of ' + m + '</span>'
+    + '<span class="pb-track"><i style="width:' + pct + '%"></i></span>'
+    + '<span class="pb-pct">' + pct + '%</span>'
+    + '<span class="pb-chev">' + ICONS._chevd + '</span></div>'
+    + (WEEK_OPEN ? branchHTML() : '');
+}
+function branchHTML(){
+  return '<div class="branch">' + WEEK_TASKS.map(function(t, i){
+    return '<div class="br-row" data-brtoggle="' + i + '">'
+      + '<span class="br-dot' + (DONE[i] ? ' on' : '') + '">'
+      + (DONE[i] ? ICONS._check2 : '') + '</span>'
+      + '<span class="br-t' + (DONE[i] ? ' done' : '') + '">' + t[0] + '</span>'
+      + '<span class="br-m">' + t[1] + '</span></div>';
+  }).join('') + '</div>';
+}
+function renderWeek(){
+  const pr = document.getElementById('homeprog'), tk = document.getElementById('hometasks');
+  if(!pr || !tk) return;
+  pr.innerHTML = progHTML();
+  if(WEEK_OPEN){ tk.innerHTML = ''; return; }
+  tk.innerHTML = '<div class="sl">This week</div>'
+    + WEEK_TASKS.slice(0, CARDS_SHOWN).map(function(t, i){
+        return '<div class="task' + (DONE[i] ? ' done' : '') + '" data-wtask="' + i + '">'
+          + '<div class="box">' + ICONS._check2 + '</div><div class="tt"><div class="t">' + t[0] + '</div>'
+          + (t[2] ? '<div class="b">' + t[2] + '</div>' : '') + '</div>'
+          + '<div class="min">' + t[1] + '</div></div>';
+      }).join('')
+    + '<div class="moretap" data-progtoggle>+' + (WEEK_TASKS.length - CARDS_SHOWN)
+    + ' more this week &mdash; see all</div>';
+}
+
 /* ─────────── GROWTH: дашборд + карточки культур с их фото ─────────── */
 function seasonStats(){
   const harvested = MY_PLANTS.filter(p=>p.day >= p.c[2]);
@@ -1234,6 +1294,9 @@ function renderCropCards(){
   el.innerHTML = h;
 }
 
+function checkWeekDone(){
+  if(DONE.filter(Boolean).length === WEEK_TASKS.length) setTimeout(function(){{ go('week-done'); }}, 600);
+}
 function renderAll(){ renderHome(); renderPlants(); renderDetail(); renderJournal();
                       try{ renderDash(); renderCropCards(); }catch(e){}
                       try{ renderLock(); renderSettingsPlan(); }catch(e){} }
@@ -1264,6 +1327,12 @@ ICON_JS = {n: ic(n, 'var(--primary)', 15, '1.9') for n in ICONSET}
 ICON_JS['_plus'] = ic('plus', 'var(--primary)', 17, '2.4')
 ICON_JS['_check'] = ic('check', '#fff', 17, '3')
 ICON_JS['_check2'] = ic('check', '#fff', 16, '3')
+ICON_JS['_chevd'] = ic('chevron-right', 'var(--muted)', 18, '2.4')
+ICON_JS['_circ'] = ('<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="#B4BEB8" '
+                    'stroke-width="2"><circle cx="12" cy="12" r="9"/></svg>')
+ICON_JS['_checkp'] = ('<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="var(--primary)" '
+                      'stroke-width="2" stroke-linecap="round" stroke-linejoin="round">'
+                      '<circle cx="12" cy="12" r="9"/><path d="M8 12.4 10.8 15.2 16 9.6"/></svg>')
 ICON_JS['_chev'] = ic('chevron-right', '#B4BEB8', 20, '2.2')
 ICON_JS['_plusd'] = ic('plus', 'var(--deepest)', 16, '2.4')
 ICON_JS['_checkg'] = ic('check', 'var(--bright)', 17, '3')
@@ -1526,6 +1595,11 @@ document.addEventListener('click', e=>{{
   const pick = e.target.closest('[data-pick]');
   if(pick){{ pick.parentElement.querySelectorAll('.opt').forEach(o=>o.classList.remove('sel'));
             pick.classList.add('sel'); return; }}
+  if(e.target.closest('[data-progtoggle]')){{ WEEK_OPEN = !WEEK_OPEN; renderWeek(); return; }}
+  const br = e.target.closest('[data-brtoggle]');
+  if(br){{ const i = +br.dataset.brtoggle; DONE[i] = !DONE[i]; renderWeek(); checkWeekDone(); return; }}
+  const wt = e.target.closest('[data-wtask]');
+  if(wt){{ const i = +wt.dataset.wtask; DONE[i] = !DONE[i]; renderWeek(); checkWeekDone(); return; }}
   if(e.target.closest('[data-addphoto]')){{ openCamera(); return; }}
   const sh = e.target.closest('[data-shoot]');
   if(sh){{ openCamera(+sh.dataset.shoot); return; }}

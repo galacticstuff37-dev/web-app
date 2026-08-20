@@ -201,7 +201,10 @@ h1,h2,h3{font-weight:600;letter-spacing:-.015em}
 .task.done .t{color:#9EA8A2;text-decoration:line-through;text-decoration-color:#C9D2CC}
 .wk{background:var(--surface);border-radius:28px;margin-top:16px;overflow:hidden;
      box-shadow:0 1px 3px rgba(11,31,20,.07)}
-.wk-h{display:flex;align-items:center;gap:10px;height:56px;padding:0 16px 0 12px;cursor:pointer}
+.wk-h{padding:16px 16px 4px;cursor:pointer}
+.wk-title{font-family:Caprasimo,Georgia,serif;font-weight:400;font-size:24px;line-height:1.05;
+     letter-spacing:0;margin-bottom:12px}
+.wk-row{display:flex;align-items:center;gap:10px}
 .pb-ic{display:flex;flex:none}
 .pb-n{font-size:15px;font-weight:700;letter-spacing:-.02em;flex:none}
 .pb-track{flex:1;height:8px;border-radius:999px;background:#E4E8E2;overflow:hidden;min-width:0}
@@ -209,13 +212,8 @@ h1,h2,h3{font-weight:600;letter-spacing:-.015em}
 .pb-pct{font-size:15px;font-weight:700;color:var(--muted);flex:none;letter-spacing:-.02em}
 .pb-chev{display:flex;flex:none;transition:transform .2s}
 .wk.open .pb-chev{transform:rotate(90deg)}
-.wk-list{padding:4px 16px 8px;border-top:1px solid var(--hair)}
-.branch{position:relative;margin-left:12px;padding-left:20px}
-.branch:before{content:"";position:absolute;left:0;top:20px;bottom:24px;width:2px;
-     border-radius:2px;background:#E4E8E2}
-.br-row{display:flex;align-items:center;gap:12px;padding:12px 0;cursor:pointer;position:relative}
-.br-row:before{content:"";position:absolute;left:-20px;top:50%;width:14px;height:2px;
-     border-radius:2px;background:#E4E8E2}
+.wk-list{padding:4px 16px 12px}
+.br-row{display:flex;align-items:center;gap:12px;padding:12px 0;cursor:pointer}
 .br-dot{width:24px;height:24px;border-radius:50%;flex:none;box-shadow:inset 0 0 0 2px #C9D2CC;
      display:flex;align-items:center;justify-content:center;background:var(--surface)}
 .br-dot.on{background:var(--primary);box-shadow:none}
@@ -248,12 +246,12 @@ h1,h2,h3{font-weight:600;letter-spacing:-.015em}
 .ni.on{color:var(--primary)}
 .ni.on span{font-weight:700}
 .bdg{position:absolute;top:-4px;left:calc(50% + 8px);width:8px;height:8px;border-radius:50%;background:var(--flame)}
-.ofr{position:absolute;left:0;right:0;bottom:calc(56px + env(safe-area-inset-bottom));
+.ofr{position:absolute;left:0;right:0;bottom:calc(72px + env(safe-area-inset-bottom));
      padding:0 12px;cursor:pointer;z-index:20}
-.ofr:last-child{bottom:calc(12px + env(safe-area-inset-bottom))}
-.screen:has(.ofr) .bd{padding-bottom:84px}
-.screen:has(.foot) .ofr{bottom:calc(88px + env(safe-area-inset-bottom))}
-.screen:has(.foot):has(.nav) .ofr{bottom:calc(144px + env(safe-area-inset-bottom))}
+.ofr:last-child{bottom:calc(16px + env(safe-area-inset-bottom))}
+.screen:has(.ofr) .bd{padding-bottom:100px}
+.screen:has(.foot) .ofr{bottom:calc(100px + env(safe-area-inset-bottom))}
+.screen:has(.foot):has(.nav) .ofr{bottom:calc(156px + env(safe-area-inset-bottom))}
 body.is-pro .ofr{display:none}
 body.is-pro .ofr{display:none}
 .ofr-in{display:flex;align-items:center;gap:12px;border-radius:999px;height:52px;padding:0 8px 0 8px;
@@ -369,9 +367,9 @@ body.is-pro .ofr{display:none}
           display:flex;align-items:center;gap:16px;padding:0 20px;border:2px dashed #C2CCC5}
 .herostub b{display:block;font-size:16px;font-weight:600}
 .herostub s{display:block;font-size:13.5px;color:var(--muted);text-decoration:none;margin-top:4px;line-height:1.4}
-#toast{position:absolute;left:16px;right:16px;bottom:160px;background:var(--deepest);color:#fff;
+#toast{position:absolute;left:12px;right:12px;top:calc(8px + env(safe-area-inset-top));background:var(--deepest);color:#fff;
        border-radius:16px;padding:16px 16px;display:flex;justify-content:space-between;align-items:center;
-       font-size:14.5px;opacity:0;transform:translateY(10px);pointer-events:none;transition:.22s;z-index:20}
+       font-size:14.5px;opacity:0;transform:translateY(-12px);pointer-events:none;transition:.22s;z-index:70}
 #toast.on{opacity:1;transform:none;pointer-events:auto}
 #toast b{color:var(--lime);font-weight:700;cursor:pointer}
 .zip{background:var(--surface);border-radius:var(--r-md);padding:16px 16px;font-size:32px;font-weight:700;letter-spacing:.08em}
@@ -636,9 +634,9 @@ screen('home',
  '<div class="greet" id="homegreet">Good morning</div>'
  '<div class="h1" id="homeh1">Let&rsquo;s get you growing.</div>'
  '<div id="homeacc"></div>'
+ '<div id="wkwid"></div>'
  '<div id="homeprog"></div>'
  '<div id="hometasks"></div>'
- '<div id="wkwid"></div>'
  '</div>' + ofr() + nav('Week', badge=True),
  'Home', 'Один экран, два состояния. Пусто → акцентный блок зовёт добавить растение. '
  'Есть растения → в том же блоке они сами. Всё рендерится из <b>MY_PLANTS</b>, '
@@ -1059,8 +1057,8 @@ function renderHome(){
     return;
   }
   const n=MY_PLANTS.length;
-  g.textContent='Good morning · Week 3 · Mar 28 – Apr 3';
-  h.innerHTML=WEEK_TASKS.length+' things to do';
+  g.textContent='Good morning · Mar 28 – Apr 3';
+  h.innerHTML='Week 3';
   acc.innerHTML='<div class="acc"><div class="row1"><span class="tag">Your plants &middot; '+n+'</span>'
     +'<div class="addtop" data-go="add-plant">'+ICONS._plusd+'<span>Add</span></div></div>'
     +'<div class="plants">'+MY_PLANTS.map((p,i)=>
@@ -1248,19 +1246,19 @@ function progHTML(){
   const pct = m ? Math.round(n / m * 100) : 0;
   return '<div class="wk' + (WEEK_OPEN ? ' open' : '') + '">'
     + '<div class="wk-h" data-progtoggle>'
-    + '<span class="pb-ic">' + (n ? ICONS._checkp : ICONS._circ) + '</span>'
-    + '<span class="pb-n">' + n + ' of ' + m + '</span>'
+    + '<div class="wk-title">' + m + ' things to do</div>'
+    + '<div class="wk-row"><span class="pb-n">' + n + ' of ' + m + '</span>'
     + '<span class="pb-track"><i style="width:' + pct + '%"></i></span>'
     + '<span class="pb-pct">' + pct + '%</span>'
-    + '<span class="pb-chev">' + ICONS._chevd + '</span></div>'
-    + (WEEK_OPEN ? '<div class="wk-list"><div class="branch">' + WEEK_TASKS.map(function(t, i){
+    + '<span class="pb-chev">' + ICONS._chevd + '</span></div></div>'
+    + (WEEK_OPEN ? '<div class="wk-list">' + WEEK_TASKS.map(function(t, i){
         return '<div class="br-row" data-brtoggle="' + i + '">'
           + '<span class="br-dot' + (DONE[i] ? ' on' : '') + '">'
           + (DONE[i] ? ICONS._check2 : '') + '</span>'
           + '<span class="br-t' + (DONE[i] ? ' done' : '') + '">' + t[0]
           + (t[2] && !DONE[i] ? '<s>' + t[2] + '</s>' : '') + '</span>'
           + '<span class="br-m">' + t[1] + '</span></div>';
-      }).join('') + '</div></div>' : '')
+      }).join('') + '</div>' : '')
     + '</div>';
 }
 function renderWeek(){
@@ -1269,8 +1267,7 @@ function renderWeek(){
   pr.innerHTML = progHTML();
   if(tk) tk.innerHTML = '';
   const w = document.getElementById('wkwid');
-  if(w) w.innerHTML = MY_PLANTS.length
-    ? '<div class="sl">At a glance</div>' + weekWidgets() : '';
+  if(w) w.innerHTML = MY_PLANTS.length ? weekWidgets() : '';
 }
 
 /* ─────────── виджет-сетка дашборда (по референсу с карточками) ─────────── */
@@ -1841,7 +1838,7 @@ MOBILE_CSS = """
 #a2x{width:44px;height:44px;border-radius:50%;background:rgba(11,31,20,.12);display:flex;align-items:center;
   justify-content:center;font-size:22px;color:var(--deepest);flex:none;cursor:pointer;line-height:1}
 body.a2-open .bd{padding-bottom:172px}
-body.a2-open #toast{bottom:calc(196px + env(safe-area-inset-bottom))}
+
 
 html,body{height:100%}
 body{display:block;padding:0;background:var(--ground);overflow:hidden}
@@ -1855,7 +1852,7 @@ body{display:block;padding:0;background:var(--ground);overflow:hidden}
 .overlay,.dark{padding-top:calc(24px + env(safe-area-inset-top))}
 .shot,.scrim{top:0!important}
 .nav{padding-bottom:env(safe-area-inset-bottom);height:calc(56px + env(safe-area-inset-bottom))}
-#toast{bottom:calc(160px + env(safe-area-inset-bottom))}
+#toast{top:calc(8px + env(safe-area-inset-top));bottom:auto}
 @media (min-width:768px){
   body{background:#DDE2DA;display:flex;align-items:center;justify-content:center;height:100vh;overflow:hidden}
   .mob{position:relative;inset:auto;width:375px;height:812px;flex:none;border-radius:40px;overflow:hidden;

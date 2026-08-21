@@ -1,4 +1,4 @@
-const CACHE = 'homegrown-315dddbec2';
+const CACHE = 'homegrown-bd6a0bce1d';
 const ASSETS = [
   './', './index.html', './manifest.webmanifest', './scan-config.js',
   './img/hero.jpg', './img/hero-basket.jpg', './img/hero-garden.jpg', './img/garden.jpg',

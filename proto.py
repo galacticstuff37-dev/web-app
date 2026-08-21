@@ -609,10 +609,10 @@ body.is-pro .ofr{display:none}
 .spic.has{background-size:cover;background-position:center;background-color:#DDE3DC}
 .acc .spic{background:rgba(255,255,255,.10)}
 .acc .spic svg{fill:var(--lime)}
-.addbtn svg:last-child{display:none}
+.addbtn svg:nth-child(2){display:none}
 .pl.added .addbtn{background:var(--bright)}
 .pl.added .addbtn svg:first-child{display:none}
-.pl.added .addbtn svg:last-child{display:block}
+.pl.added .addbtn svg:nth-child(2){display:block}
 .pl.locked{opacity:.42;pointer-events:none}
 .note{background:var(--surface);border-radius:var(--r-lg);padding:16px}
 .note b{font-size:var(--t-16);font-weight:600;display:block;line-height:1.3}
@@ -780,11 +780,11 @@ screen('landing',
  '<div class="overlay" style="top:48px">'
  '<div class="wm" style="color:#fff">HOMEGROWN</div>'
  '<div style="flex:1"></div>'
- '<div class="cap-f" style="font-size:var(--t-40);line-height:1.02">Keep every plant<br>'
- '<span style="color:var(--lime)">alive and growing</span></div>'
+ '<div class="cap-f" style="font-size:var(--t-40);line-height:1.02">Green thumb<br>'
+ '<span style="color:var(--lime)">not required.</span></div>'
  '<div style="font-size:var(--t-16);line-height:1.5;margin-top:16px;color:#DCE7DE">'
- 'Radishes in a pot, basil on the sill, a monstera in the corner. Tell us what you have and '
- 'how much light it gets &mdash; we&rsquo;ll tell you exactly what it needs this week.</div>'
+ 'Tell us what you have and how much light it gets. We&rsquo;ll tell you what it '
+ 'needs this week.</div>'
  '<div class="btn b-lime" style="margin-top:24px" data-go="q0">Get started free</div>'
  '<div style="font-size:var(--t-13);color:#C3D2C7;text-align:center;margin-top:12px">No card. Takes 90 seconds.</div></div>',
  'Landing', 'Фото на весь экран, лайм-кнопка. Никаких попапов и логина — §4.2. '
@@ -3319,9 +3319,12 @@ const STEPS = {{plan_out:['q0','qwhat','q1','q2','q3','q4','q5'],
 function renderPg(id){{
   const key = (ONB_MODE === 'own' ? 'own_' : 'plan_') + (CHOICES.outdoor ? 'out' : 'in');
   const path = STEPS[key];
-  const k = path.indexOf(id); if(k < 0) return;
+  const k = path.indexOf(id);
+  /* Экрана нет в текущем пути (например q3 на комнатном треке) — полосу надо
+     ГАСИТЬ, а не выходить: иначе на ней остаются шаги от прошлого прохода
+     и экран показывает чужой прогресс. */
   document.querySelectorAll('#s-'+id+' [data-pg]').forEach(function(el){{
-    el.innerHTML = path.map(function(_, i){{
+    el.innerHTML = k < 0 ? '' : path.map(function(_, i){{
       return '<i class="'+(i <= k ? 'on' : '')+'"></i>'; }}).join('');
   }});
 }}

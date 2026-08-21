@@ -30,11 +30,11 @@ export function LandingScreen({ go }: { go: Go }) {
         <div className="wm" style={{ color: '#fff' }}>HOMEGROWN</div>
         <div style={{ flex: 1 }} />
         <div className="cap-f" style={{ fontSize: 'var(--t-40)', lineHeight: 1.02 }}>
-          Keep every plant<br /><span style={{ color: 'var(--lime)' }}>alive and growing</span>
+          Green thumb<br /><span style={{ color: 'var(--lime)' }}>not required.</span>
         </div>
         <div style={{ fontSize: 'var(--t-16)', lineHeight: 1.5, marginTop: 16, color: '#DCE7DE' }}>
-          Radishes in a pot, basil on the sill, a monstera in the corner. Tell us what you
-          have and how much light it gets — we’ll tell you exactly what it needs this week.
+          Tell us what you have and how much light it gets. We’ll tell you what it needs
+          this week.
         </div>
         <div className="btn b-lime" style={{ marginTop: 24 }} role="button" tabIndex={0}
              onClick={() => go('q0')}>Get started free</div>

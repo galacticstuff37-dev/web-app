@@ -95,10 +95,12 @@ export function SpThumb({ s }: { s: Species }) {
     : <div className="spic"><Icon name={s.icon} color="var(--primary)" size={15} sw={1.9} /></div>
 }
 
-export function Note({ title, children, cta }:
-                     { title: string; children?: ReactNode; cta?: ReactNode }) {
+export function Note({ title, children, cta, mt = 16 }:
+                     { title: string; children?: ReactNode; cta?: ReactNode; mt?: number }) {
+  // Отступ сверху в прототипе проставлен по месту, а не один на все вызовы:
+  // в пустой ветке week-back его нет вовсе.
   return (
-    <div className="note" style={{ marginTop: 16 }}>
+    <div className="note" style={{ marginTop: mt }}>
       <b>{title}</b>
       {children && <p>{children}</p>}
       {cta}

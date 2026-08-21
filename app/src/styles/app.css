@@ -507,10 +507,10 @@ body.is-pro .ofr{display:none}
 .spic.has{background-size:cover;background-position:center;background-color:#DDE3DC}
 .acc .spic{background:rgba(255,255,255,.10)}
 .acc .spic svg{fill:var(--lime)}
-.addbtn svg:last-child{display:none}
+.addbtn svg:nth-child(2){display:none}
 .pl.added .addbtn{background:var(--bright)}
 .pl.added .addbtn svg:first-child{display:none}
-.pl.added .addbtn svg:last-child{display:block}
+.pl.added .addbtn svg:nth-child(2){display:block}
 .pl.locked{opacity:.42;pointer-events:none}
 .note{background:var(--surface);border-radius:var(--r-lg);padding:16px}
 .note b{font-size:var(--t-16);font-weight:600;display:block;line-height:1.3}

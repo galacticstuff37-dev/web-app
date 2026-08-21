@@ -1,0 +1,131 @@
+/* Дашборд Home: фото во всю ширину до самого верха экрана, контент листом
+   проезжает поверх него. Файл НОВЫЙ — это не перенос из прототипа, поэтому
+   лежит отдельно от app.css и ничего в нём не переопределяет по мелочи.
+
+   Параллакс и блюр считаются из --p (0…1) и --hero-h (px) — их пишет
+   Chrome.tsx на скролле через style.setProperty, без ререндера React.
+   Цвета только из токенов и из той же шкалы скрима, что у .score-sc. */
+
+.screen.has-hero { --p: 0; --hero-h: 380px; --hero-pad: 300px; --hero-blur: 18px }
+
+/* ─────────── Сетка экрана: шаг 8, две роли и только они.
+   --s1  8px  внутри пары: подпись и её значение, ярлык и его содержимое
+   --s2 16px  всё остальное: боковой отступ экрана, между блоками,
+              между элементами одной группы
+   Больше на этом экране отступов нет: ни 10, ни 12, ни 14, ни 20, ни 24.
+   Общий отступ страницы (.bd = 20px) здесь погашен — две сетки на одном
+   экране и давали ту кашу, из которой «непонятно какая логика». */
+.screen.has-hero { --s1: 8px; --s2: 16px }
+.has-hero .bd { padding-left: 0; padding-right: 0 }
+
+/* Слой вне потока: под шапкой и под .bd, поэтому контент едет поверх фото. */
+.hero {
+  position: absolute; left: 0; right: 0; top: 0; height: var(--hero-h);
+  overflow: hidden; background: var(--deepest); z-index: 0;
+}
+/* Запас по краям: блюр иначе затягивает внутрь прозрачную кромку. */
+.hero-ph {
+  position: absolute; inset: -48px;
+  /* кадрируем по низу: корзина с урожаем внизу кадра, по центру был бы портрет */
+  background-size: cover; background-position: center bottom;
+  transform: translateY(calc(var(--p) * var(--hero-h) * -0.3))
+             scale(calc(1 + var(--p) * .06));
+  filter: blur(calc(var(--p) * var(--hero-blur)));
+  will-change: transform, filter;
+}
+/* Верхний скрим — чтобы шапка читалась на любом фото. */
+.hero-sc {
+  position: absolute; inset: 0;
+  background: linear-gradient(180deg,
+    rgba(11, 31, 20, .58) 0%, rgba(11, 31, 20, .16) 28%, rgba(11, 31, 20, 0) 52%);
+}
+/* Затемнение по мере уезда: фото уходит на второй план, а не просто мылится. */
+.hero-dim { position: absolute; inset: 0; background: rgba(11, 31, 20, .55); opacity: var(--p) }
+
+/* Шапка и статус-бар лежат НА фото. У .hd свой градиентный фон и z-index:5 —
+   фон надо снять, иначе он закрашивает верх фотографии светлой полосой. */
+.has-hero .sb { position: relative; z-index: 2; color: #fff }
+.has-hero .hd { background: none }
+.has-hero .hd .wm { color: #fff; opacity: calc(1 - var(--p) * 1.7) }
+.has-hero .bd { position: relative; z-index: 1; padding-top: var(--hero-pad) }
+
+/* Лист контента: во всю ширину, скруглён сверху, всегда есть чем прокрутить
+   фото — иначе на коротком контенте параллакса не увидеть. */
+.dash {
+  margin: 0; padding: var(--s2) var(--s2) 0;
+  background: var(--ground);
+  border-radius: var(--r-2xl) var(--r-2xl) 0 0;
+  min-height: 100%;
+}
+.dash-sec { margin-top: 0 }
+
+/* Блок дашборда стоит НА фото: приветствие, счёт, вердикт и две карточки.
+   Едет быстрее фотографии и мылится вместе с ней — это и есть параллакс.
+
+   Собственный скрим блока — по рецепту .score-sc, но привязан к БЛОКУ и в
+   пикселях, а не к высоте героя в процентах: доля блока в герое разная на
+   320 и на 430, процентная шкала не прошла бы контраст на узких.
+   padding-top — зона растушёвки: блок прибит к низу, поэтому она растёт
+   вверх и текст не сдвигается. */
+.hero-in {
+  position: absolute; left: 0; right: 0; bottom: 0;
+  padding: 96px var(--s2) 32px;   /* 32 = нахлёст листа 16 + просвет 16 */
+  background: linear-gradient(180deg,
+    rgba(11, 31, 20, 0) 0, rgba(11, 31, 20, .68) 96px,
+    rgba(11, 31, 20, .78) 60%, rgba(11, 31, 20, .88) 100%);
+  transform: translateY(calc(var(--p) * var(--hero-h) * -0.6));
+  filter: blur(calc(var(--p) * var(--hero-blur)));
+  will-change: transform, filter;
+}
+
+/* Ритм блока. Логика читается по значениям: приветствие и заголовок — пара
+   (s1), между смысловыми группами — s3, внутри группы — s2. */
+.hero-k { font-size: var(--t-14); line-height: 16px; color: #D2DFD6 }
+.hero-in .eh-h { margin-top: var(--s1); line-height: 32px }
+.hero-in .score-row { margin-top: var(--s2); gap: var(--s2) }
+.hero-in .score-v { margin-top: 0; line-height: 24px }      /* колонка счёта = 40 + 24 */
+.hero-in .score-s { margin-top: var(--s1); line-height: 24px }
+.hero-in .wgrid { margin-top: var(--s2); gap: var(--s1) }
+
+/* Внутренности карточки на сетке. Разделитель переведён с border-top на
+   inset-тень: рамка занимала 1px в потоке и одна ломала всю арифметику. */
+#s-home .wg .num { line-height: 40px }
+#s-home .wg .lbl { margin-top: var(--s1); line-height: 16px }
+#s-home .mrow {
+  border-top: 0; box-shadow: inset 0 1px 0 var(--hair);
+  gap: var(--s2); margin-top: var(--s2); padding-top: var(--s2);
+}
+#s-home .wg-dark .mrow { box-shadow: inset 0 1px 0 rgba(255, 255, 255, .14) }
+#s-home .mrow s { line-height: 16px }
+#s-home .mrow b { margin-top: 0; line-height: 24px }        /* ячейка = 16 + 24 */
+
+/* Лист: ярлык и его карусель — пара (s1), блок недели — новая группа (s3). */
+.dash-sec { margin: 0 0 var(--s1); height: 24px; line-height: 24px }
+.dash-sec i { padding: var(--s2) var(--s1); margin: calc(-1 * var(--s2)) calc(-1 * var(--s1));
+              line-height: 24px }
+.dash .prow-scroll {
+  gap: var(--s1); margin: 0 calc(-1 * var(--s2)); padding: 0 var(--s2) var(--s1);
+}
+.dash .wk { margin-top: var(--s2) }
+
+/* Типографические 2px внутри одного числа (97 /100, 0 d) — на сетку их не
+   посадить, 8 там разорвёт число, поэтому 0. */
+#s-home .score-n { gap: 0 }
+#s-home .wg .num span { margin-left: 0 }
+
+/* Карточка карусели: 3px и 4px внутри — на сетку. Высота становится
+   натуральной 208, подпорка min-height больше не нужна. */
+#s-home .plcard { padding: var(--s1) }
+#s-home .plcard b { margin: var(--s1) 0 0; line-height: 16px }
+#s-home .plcard s { margin: 0; line-height: 16px }
+
+/* Блок недели: 4, 10 и 12 — на сетку. */
+#s-home .wk-h { padding: var(--s2) }
+#s-home .wk.open .wk-h { padding-bottom: var(--s1) }
+#s-home .wk-title { margin-bottom: var(--s1); line-height: 32px }
+#s-home .wk-row { gap: var(--s1) }
+#s-home .wk-list { padding: 0 var(--s2) var(--s1) }
+#s-home .br-row { gap: var(--s2); padding: var(--s1) 0 }
+#s-home .br-t { line-height: 24px }
+#s-home .br-t s { margin-top: 0; line-height: 16px }
+#s-home .br-m { margin-top: 0; line-height: 24px }

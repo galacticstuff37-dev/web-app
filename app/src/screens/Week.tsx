@@ -8,7 +8,7 @@ import { Task } from '../components/parts'
 import { Icon } from '../icons/Icon'
 import { inDays } from '../lib/plan'
 import {
-  hEta, hPct, isEdible, lc, wDue, weekTasks, type Plant,
+  hEta, hPct, hStage, isEdible, lc, wDue, weekTasks, type Plant,
 } from '../lib/plants'
 import { MON, TODAY, dayOffset } from '../lib/season'
 import { useStore } from '../state/store'
@@ -19,7 +19,7 @@ const WORDNUM = ['No', 'One', 'Two', 'Three', 'Four', 'Five', 'Six']
 const pPct = (p: Plant) => (isEdible(p) ? hPct(p)
   : Math.max(0, Math.min(100, Math.round((p.since / p.s.water) * 100))))
 const pSub = (p: Plant) => isEdible(p)
-  ? `Day ${p.day} · ${hPct(p) >= 100 ? 'ready' : 'growing'}`
+  ? `Day ${p.day} · ${hStage(p)}`
   : `${p.s.light} · every ${p.s.water}d`
 
 // ─────────────────────────────────────────── Week · пусто
@@ -82,7 +82,7 @@ export function WeekBackScreen({ go }: { go: Go }) {
       <div className="sl">Still worth doing</div>
       {t.length
         ? t.map((x, i) => <Task key={i} t={[x[0], x[1], x[2]]} />)
-        : <Note title="Nothing is waiting">Your plants held out fine.</Note>}
+        : <Note title="Nothing is waiting" mt={0}>Your plants held out fine.</Note>}
       <div className="btn b-pri" role="button" tabIndex={0} onClick={() => go('home')}>
         Continue with this week
       </div>
@@ -156,9 +156,9 @@ export function WeekLockScreen({ go }: { go: Go }) {
         : <>
             <div className="sl">What they are</div>
             {/* Даты и объём видны, скрыты только формулировки. Это не стена. */}
-            <Task t={['', '4 min']} locked />
-            <Task t={['', '3 min']} locked />
-            <Task t={['', '10 min']} locked />
+            <Task t={['', '4 min']} locked bars={[76, 52]} />
+            <Task t={['', '3 min']} locked bars={[60]} />
+            <Task t={['', '10 min']} locked bars={[68]} />
             <div className="acc" style={{ marginTop: 16 }}>
               <div className="row1"><span className="tag">Locked</span></div>
               <div className="big" style={{ fontSize: 'var(--t-24)', marginTop: 16 }}>

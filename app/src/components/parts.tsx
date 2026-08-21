@@ -47,15 +47,21 @@ export function Dark({ id, children, className = 'dark', style }:
   </div>
 }
 
-export function Task({ t, done, onToggle, locked }:
-    { t: [string, string, string?]; done?: boolean; onToggle?: () => void; locked?: boolean }) {
+export function Task({ t, done, onToggle, locked, bars }:
+    { t: [string, string, string?]; done?: boolean; onToggle?: () => void; locked?: boolean
+      bars?: number[] }) {
   if (locked) {
+    // Ширины полос задаёт вызывающий: у трёх строк soft-lock они разные, и
+    // одинаковый скелетон читается как три копии одной задачи.
+    const w = bars || [76, 52]
     return (
       <div className="task">
         <div className="box" />
         <div className="tt">
-          <div className="blur" style={{ width: '76%', marginBottom: 8 }} />
-          <div className="blur" style={{ width: '52%' }} />
+          {w.map((x, i) => (
+            <div key={i} className="blur"
+                 style={{ width: `${x}%`, ...(i < w.length - 1 ? { marginBottom: 8 } : null) }} />
+          ))}
         </div>
         <div className="min">{t[1]}</div>
       </div>

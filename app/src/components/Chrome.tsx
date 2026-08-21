@@ -93,9 +93,15 @@ interface ScreenProps {
   foot?: ReactNode
   /** сбрасывать прокрутку при смене этого значения (в прототипе — при go()) */
   scrollKey?: string
+  /**
+   * Слой под шапкой: фото во всю ширину до самого верха экрана. Лежит вне
+   * потока, поэтому контент .bd проезжает поверх него. Высота — в --hero-h,
+   * прогресс прокрутки — в --p (0…1), из них CSS считает параллакс и блюр.
+   */
+  hero?: ReactNode
 }
 
-export function Screen({ id, children, back, nav, offer, foot, scrollKey }: ScreenProps) {
+export function Screen({ id, children, back, nav, offer, foot, scrollKey, hero }: ScreenProps) {
   const root = useRef<HTMLDivElement>(null)
   const bd = useRef<HTMLDivElement>(null)
 
@@ -115,8 +121,48 @@ export function Screen({ id, children, back, nav, offer, foot, scrollKey }: Scre
 
   useLayoutEffect(() => { if (bd.current) bd.current.scrollTop = 0 }, [scrollKey])
 
+  // Высота героя и прогресс прокрутки идут в CSS-переменные, а не в state:
+  // перерисовывать React на каждый кадр скролла незачем.
+  useLayoutEffect(() => {
+    const el = root.current, box = bd.current
+    if (!hero || !el || !box) return
+    let h = 0, raf = 0
+    const measure = () => {
+      // 0.68 — фото должно вместить и шапку, и весь блок дашборда на себе,
+      // и при этом остаться фотографией: сверху видна чистая полоса кадра.
+      // высота героя тоже кратна 8: иначе верхняя кромка листа встаёт вне сетки
+      h = Math.round(el.clientHeight * 0.68 / 8) * 8
+      el.style.setProperty('--hero-h', h + 'px')
+      // .bd начинается ниже статус-бара и шапки, а фото — от нуля экрана.
+      // Отступ считаем от РЕАЛЬНОГО верха .bd: в приложении статус-бара нет,
+      // в ревью он есть, и захардкоженное число сдвинуло бы лист.
+      el.style.setProperty('--hero-pad', Math.max(0, h - 16 - box.offsetTop) + 'px')
+    }
+    const onScroll = () => {
+      if (raf) return
+      raf = requestAnimationFrame(() => {
+        raf = 0
+        const p = h ? Math.min(1, Math.max(0, box.scrollTop / h)) : 0
+        el.style.setProperty('--p', p.toFixed(3))
+      })
+    }
+    measure(); onScroll()
+    box.addEventListener('scroll', onScroll, { passive: true })
+    // ResizeObserver, а не window.resize: событие окна не приходит при смене
+    // метрик вьюпорта (эмуляция устройства), и высота героя оставалась от
+    // прежнего размера — блок и скрим считались по чужой геометрии.
+    const ro = new ResizeObserver(() => { measure(); onScroll() })
+    ro.observe(el)
+    return () => {
+      if (raf) cancelAnimationFrame(raf)
+      box.removeEventListener('scroll', onScroll)
+      ro.disconnect()
+    }
+  }, [hero])
+
   return (
-    <div className="screen on" id={'s-' + id} ref={root}>
+    <div className={'screen on' + (hero ? ' has-hero' : '')} id={'s-' + id} ref={root}>
+      {hero && <div className="hero">{hero}</div>}
       <StatusBar />
       <Header back={!!back} onBack={back} />
       <div className="bd" ref={bd}>{children}</div>

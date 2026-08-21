@@ -34,8 +34,10 @@ function SpRow({ sp, have, pick, onAdd, note }:
          }}>
       <SpThumb s={sp} />
       <div className="nm"><b>{sp.name}</b><s>{note}</s></div>
+      {/* Обе иконки лежат в разметке, как в прототипе: какая видна — решает CSS
+          по классу .added. С одной иконкой правило гасило её саму. */}
       <div className="addbtn" aria-hidden="true">
-        {have ? <IcCheckG /> : <>{pick ? <IcCheck /> : <IcPlus />}</>}
+        {have ? <IcCheckG /> : <><IcPlus /><IcCheck /></>}
       </div>
     </div>
   )
@@ -143,7 +145,10 @@ export function AddPlantScreen({ go }: { go: Go }) {
               <div className="gsec">{label}</div>
               <div className="plist" style={dim ? { opacity: .5 } : undefined}>
                 {list.map(sp => (
-                  <SpRow key={sp.id} sp={sp} note={spSub(sp, s.units, fmtPot)}
+                  <SpRow key={sp.id} sp={sp}
+                         note={spSub(sp, s.units, fmtPot)
+                               + (fitsLight(sp, s.choices.sunRank)
+                                  ? '' : ' · needs more light')}
                          have={s.plants.some(p => p.s.id === sp.id)}
                          pick={s.pending.indexOf(sp.id) > -1}
                          onAdd={() => d({ t: 'pendingToggle', v: sp.id, limit: lim })} />

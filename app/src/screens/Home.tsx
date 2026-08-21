@@ -3,7 +3,7 @@
 // Задачи недели СЧИТАЮТСЯ из растений, а не захардкожены.
 
 import { Screen } from '../components/Chrome'
-import { MetricRow, PhotoTile, RingBig, photoStyle } from '../components/bits'
+import { MetricRow, PhotoTile, RingBig } from '../components/bits'
 import { IcCheck2, IcChevD, IcDrop, IcDropBig, IcDropP, IcLeafLime } from '../icons/Icon'
 import { bg } from '../lib/assets'
 import {
@@ -11,6 +11,7 @@ import {
   healthScore, type Plant, type Task,
 } from '../lib/plants'
 import { useStore } from '../state/store'
+import '../styles/dash.css'
 
 function PlantCard({ p, i, onOpen }: { p: Plant; i: number; onOpen: (i: number) => void }) {
   const st = pState(p)
@@ -58,59 +59,17 @@ function EmptyHero({ go }: { go: (id: string) => void }) {
 
 function Dash({ go, onOpen }: { go: (id: string) => void; onOpen: (i: number) => void }) {
   const { s } = useStore()
-  const plants = s.plants
-  const sc = healthScore(plants)
-  const due = plants.filter(p => wDue(p) <= 0)
-  const v = verdict(sc, due.length)
-  const soon = plants.filter(p => { const d = wDue(p); return d > 0 && d <= 2 })
-  const nextP = plants.slice().sort((a, b) => wDue(a) - wDue(b))[0]
-
   return (
-    <>
-      <div className="score">
-        <div className="score-ph" style={photoStyle(plants[0].s)} />
-        <div className="score-sc" />
-        <div className="score-in">
-          <div className="score-row">
-            <div className="score-top"><RingBig pct={sc} sz={56} /><span><IcLeafLime /></span></div>
-            <div>
-              <div className="score-n"><b>{sc}</b><s>/100</s></div>
-              <div className="score-v">{v[0]}</div>
-            </div>
-          </div>
-          <div className="score-s">{v[1]}</div>
-        </div>
-      </div>
-
-      <div className="wgrid" style={{ marginTop: 8 }}>
-        <div className="wg wg-dark">
-          <div className="wg-top"><div className="num">{due.length}</div><IcDropBig /></div>
-          <div className="lbl">Water today</div>
-          <MetricRow items={[['Soon', soon.length], ['Plants', plants.length]]} />
-        </div>
-        <div className="wg wg-lite">
-          <div className="wg-top">
-            <div className="num">{Math.max(0, wDue(nextP))}<span>d</span></div><IcDropP />
-          </div>
-          <div className="lbl">
-            {wDue(nextP) <= 0 ? `${nextP.s.name} is thirsty` : `Until ${lc(nextP.s.name)}`}
-          </div>
-          <MetricRow items={[
-            ['Light', lightShort(nextP.s)],
-            [isEdible(nextP) ? 'Harvest' : 'Humidity',
-             isEdible(nextP) ? hEta(nextP) : nextP.s.hum],
-          ]} />
-        </div>
-      </div>
-
-      <div className="sec-h">
+    <div className="dash">
+      <div className="sec-h dash-sec">
         <span>My plants</span>
         <i role="button" tabIndex={0} onClick={() => go('add-plant')}>Add</i>
       </div>
       <div className="prow-scroll">
-        {plants.map((p, i) => <PlantCard key={i} p={p} i={i} onOpen={onOpen} />)}
+        {s.plants.map((p, i) => <PlantCard key={i} p={p} i={i} onOpen={onOpen} />)}
       </div>
-    </>
+      <Week />
+    </div>
   )
 }
 
@@ -155,16 +114,75 @@ function Week() {
   )
 }
 
+/** Герой дашборда: общее фото урожая во всю ширину до верха экрана, а на нём —
+ *  приветствие, счёт, вердикт и две карточки. Фото едет медленнее блока, и
+ *  оба уходят в блюр: параллакс считает CSS из --p. */
+function Hero() {
+  const { s } = useStore()
+  const plants = s.plants
+  const sc = healthScore(plants)
+  const due = plants.filter(p => wDue(p) <= 0)
+  const v = verdict(sc, due.length)
+  const soon = plants.filter(p => { const d = wDue(p); return d > 0 && d <= 2 })
+  const nextP = plants.slice().sort((a, b) => wDue(a) - wDue(b))[0]
+
+  return (
+    <>
+      <div className="hero-ph" style={{ backgroundImage: bg('hero-basket') }} />
+      <div className="hero-dim" />
+      <div className="hero-sc" />
+      <div className="hero-in">
+        <div className="hero-k">Good morning</div>
+        <div className="eh-h">Plant parent</div>
+        <div className="score-row">
+          <div className="score-top"><RingBig pct={sc} sz={56} /><span><IcLeafLime /></span></div>
+          <div>
+            <div className="score-n"><b>{sc}</b><s>/100</s></div>
+            <div className="score-v">{v[0]}</div>
+          </div>
+        </div>
+        <div className="score-s">{v[1]}</div>
+
+        <div className="wgrid">
+          <div className="wg wg-dark">
+            <div className="wg-top"><div className="num">{due.length}</div><IcDropBig /></div>
+            <div className="lbl">Water today</div>
+            <MetricRow items={[['Soon', soon.length], ['Plants', plants.length]]} />
+          </div>
+          <div className="wg wg-lite">
+            <div className="wg-top">
+              <div className="num">{Math.max(0, wDue(nextP))}<span>d</span></div><IcDropP />
+            </div>
+            <div className="lbl">
+              {wDue(nextP) <= 0 ? `${nextP.s.name} is thirsty` : `Until ${lc(nextP.s.name)}`}
+            </div>
+            <MetricRow items={[
+              ['Light', lightShort(nextP.s)],
+              [isEdible(nextP) ? 'Harvest' : 'Humidity',
+               isEdible(nextP) ? hEta(nextP) : nextP.s.hum],
+            ]} />
+          </div>
+        </div>
+      </div>
+    </>
+  )
+}
+
 export function HomeScreen({ go }: { go: (id: string) => void }) {
   const { s, d } = useStore()
   const has = s.plants.length > 0
   const open = (i: number) => { d({ t: 'select', v: i }); go('plant') }
   return (
     <Screen id="home" nav={{ active: 'Week', badge: true, go }}
-            offer={{ onClick: () => go('paywall') }} scrollKey="home">
-      <div className="greet">{has ? 'Good morning' : ''}</div>
-      <div className="h1">{has ? 'Plant parent' : 'Let’s get you growing.'}</div>
-      {has ? <><Dash go={go} onOpen={open} /><Week /></> : <EmptyHero go={go} />}
+            offer={{ onClick: () => go('paywall') }} scrollKey="home"
+            hero={has ? <Hero /> : undefined}>
+      {has ? <Dash go={go} onOpen={open} /> : (
+        <>
+          <div className="greet" />
+          <div className="h1">Let’s get you growing.</div>
+          <EmptyHero go={go} />
+        </>
+      )}
     </Screen>
   )
 }

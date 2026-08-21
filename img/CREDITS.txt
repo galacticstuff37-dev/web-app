@@ -41,9 +41,19 @@ mustard.jpg      photo-1644261863177-5b45b44e3790  a close up of a green leafy p
 
 БЕЗ ФОТО: не осталось. Все 29 видов справочника с настоящим снимком.
 
-hero-farm.jpg   photo-1755692881020-97b6ca876ecc  young woman with hair in a bun smiles outdoors
-                — Landing и Save Plan, full-bleed. Заменила photo-1729009511314
-                (та же тема, но заказчик попросил помоложе).
+hero-basket.jpg  Pexels 7994388, Dziana Hasanbekava — ЕДИНСТВЕННОЕ фото проекта не с Unsplash.
+                Pexels License: свободно, включая коммерческое, атрибуция не требуется.
+                pexels.com/photo/a-woman-holding-a-basket-of-fresh-fruits-and-vegetables-7994388
+                «Young woman with a basket of fruits and vegetables». Landing и Save Plan, full-bleed.
+                Кроп 880x1905 — ровно 375:812, поэтому CSS cover ничего не срезает.
+                Заменила hero-farm.jpg (photo-1755692881020): там был портрет с зелёным
+                боке, без растения и без ухода в кадре — картинка не подтверждала
+                заголовок «Keep every plant alive and growing».
+                Почему не Unsplash: в нужном регистре свободных кадров не нашлось.
+                Ближайший подходящий сет (Amie Roussel, photo-1728706613xxx /
+                photo-1729009511xxx) — та же модель, что уже была забракована,
+                а первый выбранный кадр оказался Unsplash+ (платная подписка).
+                Оговорка про модель-релиз ниже действует и здесь.
 hero-garden.jpg photo-1620477017908-01bef31b896b  woman in blue t-shirt sitting on ground
                 surrounded by greens — пустое состояние Home, full-bleed.
                Unsplash License.

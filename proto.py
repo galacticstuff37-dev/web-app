@@ -505,6 +505,7 @@ body.is-pro .ofr{display:none}
 .callg i{font-style:normal;flex:none;width:18px;height:7px;border-radius:999px}
 .callg i.s-sow{background:#B9E3C6}
 .callg i.s-pick{background:var(--primary)}
+.callg i.s-any{background:#DCE7DE}
 .callg i.l-today{width:2px;height:14px;background:var(--flame)}
 .callg i.l-frost{width:0;height:14px;border-radius:0;border-left:1px dashed #8FA697}
 .ccard{background:var(--surface);border-radius:var(--r-lg);padding:12px;margin-bottom:8px}
@@ -774,7 +775,7 @@ IMG = 'img/'
 
 # ═════════════════════════════ 1. ОНБОРДИНГ
 screen('landing',
- f'{sb()}<div class="shot" style="background-image:url({IMG}hero-farm.jpg);top:48px"></div>'
+ f'{sb()}<div class="shot" style="background-image:url({IMG}hero-basket.jpg);top:48px"></div>'
  '<div class="scrim" style="top:48px"></div>'
  '<div class="overlay" style="top:48px">'
  '<div class="wm" style="color:#fff">HOMEGROWN</div>'
@@ -905,7 +906,7 @@ screen('preview',
  'Строки плана: съедобным показываем дату первого сбора, комнатным — интервал полива.', 'Онбординг')
 
 screen('save',
- f'<div class="shot" style="background-image:url({IMG}hero-farm.jpg)"></div><div class="scrim"></div>'
+ f'<div class="shot" style="background-image:url({IMG}hero-basket.jpg)"></div><div class="scrim"></div>'
  '<div class="overlay">'
  f'{sb().replace("var(--ink)","#fff")}'
  '<div style="flex:1"></div>'
@@ -2502,12 +2503,15 @@ function calYearView(){
   if(groups.length)
     h += '<div class="sl">' + (mineU.length ? 'Could also go in' : 'What can go in') + '</div>'
        + calTable(null, groups);
-  h += '<div class="callg"><span><i class="s-sow"></i>sow</span>'
-     + '<span><i class="s-pick"></i>pick</span>'
-     + (noSeason() ? ''
-        : '<span><i class="l-frost"></i>frost dates</span>'
+  /* Легенда обязана описывать то, что нарисовано: без сезона полос посева и
+     сбора на экране нет вообще, обещать их нельзя. */
+  h += '<div class="callg">' + (noSeason() || calHouse()
+      ? '<span><i class="s-any"></i>open all year</span>'
+      : '<span><i class="s-sow"></i>sow</span>'
+        + '<span><i class="s-pick"></i>pick</span>'
+        + '<span><i class="l-frost"></i>frost dates</span>'
         + '<span><i class="l-today"></i>today</span>')
-     + '</div>';
+    + '</div>';
   return h;
 }
 /* ── вид «этот месяц»: плитки с настоящими снимками вместо зелёных клеток */
@@ -2627,13 +2631,18 @@ function calHero(){
 }
 function renderCalendar(){
   const box = document.getElementById('calbody'); if(!box) return;
+  /* У комнатных года нет: восемь строк по двенадцать одинаковых полос ничего не
+     сообщают. На этом треке переключателя вида нет вовсе — заодно нижняя
+     оговорка про карточки перестаёт врать, карточки теперь единственный вид. */
+  if(calHouse()) CAL_VIEW = 'month';
   const y = CAL_VIEW === 'year';
   box.innerHTML = calHero()
-    + '<div class="calseg" role="radiogroup" aria-label="Calendar view">'
-    + '<div' + (y ? '' : ' class="on"') + ' role="radio" aria-checked="' + (y ? 'false' : 'true')
-    + '" tabindex="0" data-calview="month">This month</div>'
-    + '<div' + (y ? ' class="on"' : '') + ' role="radio" aria-checked="' + (y ? 'true' : 'false')
-    + '" tabindex="0" data-calview="year">Whole year</div></div>'
+    + (calHouse() ? ''
+      : '<div class="calseg" role="radiogroup" aria-label="Calendar view">'
+      + '<div' + (y ? '' : ' class="on"') + ' role="radio" aria-checked="' + (y ? 'false' : 'true')
+      + '" tabindex="0" data-calview="month">This month</div>'
+      + '<div' + (y ? ' class="on"' : '') + ' role="radio" aria-checked="' + (y ? 'true' : 'false')
+      + '" tabindex="0" data-calview="year">Whole year</div></div>')
     + (y ? calYearView() : calMonthView())
     + '<div class="setnote">' + (calHouse()
       ? 'A harvest calendar has nothing to plan for a houseplant: there is no sowing '
@@ -3714,7 +3723,7 @@ BUILD = hashlib.sha1(MOBILE.encode()).hexdigest()[:10]
 SW_SRC = """const CACHE = 'homegrown-%s';
 const ASSETS = [
   './', './index.html', './manifest.webmanifest', './scan-config.js',
-  './img/hero.jpg', './img/hero-farm.jpg', './img/hero-garden.jpg', './img/garden.jpg',
+  './img/hero.jpg', './img/hero-basket.jpg', './img/hero-garden.jpg', './img/garden.jpg',
   './img/radish.jpg', './img/basil.jpg', './img/lettuce.jpg', './img/cherrytomato.jpg',
   './img/flowers.jpg', './img/containers.jpg',
   './img/leaves1.jpg', './img/leaves2.jpg', './img/leaves3.jpg',

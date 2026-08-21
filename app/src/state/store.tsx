@@ -5,14 +5,19 @@
 // (календарь зависит от zip+outdoor+track, дашборд от MY_PLANTS+isPro), и
 // дробление дало бы связность без выгоды.
 
-import { createContext, useContext, useEffect, useMemo, useReducer, type ReactNode } from 'react'
-import { mkPlant, type Plant, type Task, tkey } from '../lib/plants'
+import {
+  createContext, useContext, useEffect, useMemo, useReducer, type ReactNode,
+} from 'react'
+import { mkPlant, tkey, type Plant, type Task } from '../lib/plants'
 import { speciesPool, type Ctx, type Pool } from '../lib/season'
 import type { Species } from '../data/species'
+import type { Track } from '../data/onboarding'
 
-export type Track = 'house' | 'edible' | 'both'
+export type { Track }
 export type Units = 'imperial' | 'metric'
 export type CalView = 'month' | 'year'
+/** 'own' — у человека уже есть растения, 'plan' — начинает с нуля, null — не в онбординге */
+export type OnbMode = 'own' | 'plan' | null
 
 export interface Choices {
   track: Track
@@ -25,22 +30,46 @@ export interface Choices {
   zip: string
 }
 
+/** какие типы задач попадают в недельную карточку. Полив не отключается — это ядро. */
+export interface Care { pick: boolean; leaf: boolean; rotate: boolean; feed: boolean }
+export interface Mail { weekly: boolean; water: boolean; news: boolean }
+
+export interface ToastMsg { html: string; ms: number; at: number; undo?: boolean; unpro?: boolean }
+
 export interface State {
   choices: Choices
   plants: Plant[]
   selected: number
   isPro: boolean
   units: Units
+  /** индекс в REMIND_AT */
+  remind: number
+  care: Care
+  mail: Mail
   /** отмеченные задачи недели, ключ = tkey(task) */
   done: Record<string, boolean>
   weekOpen: boolean
   calView: CalView
-  /** выбранный месяц; null — текущий */
   calMonth: number | null
-  /** id раскрытой строки годового вида */
   calOpen: string | null
   /** одноразовая передача вида из календаря в библиотеку */
   libSeek: string | null
+  onbMode: OnbMode
+  /** выбранное в библиотеке, но ещё не добавленное */
+  pending: string[]
+  /** снимок из камеры: показывается на экране скана */
+  scanUrl: string | null
+  /** снимок, ждущий, пока человек выберет вид в библиотеке */
+  scanKeep: string | null
+  /** какая настройка открыта на экране выбора */
+  pickKey: string
+  /** откуда пришли в пейволл — туда и вернёмся */
+  pwFrom: string
+  /** удалённое растение для Undo */
+  undo: { p: Plant; i: number } | null
+  toast: ToastMsg | null
+  /** поисковый запрос библиотеки */
+  query: string
 }
 
 // Съедобное — основной трек продукта. Комнатные остаются полноценной ветвью.
@@ -74,12 +103,24 @@ const INIT: State = {
   selected: 0,
   isPro: false,
   units: 'imperial',
+  remind: 3,
+  care: { pick: true, leaf: true, rotate: true, feed: true },
+  mail: { weekly: true, water: true, news: false },
   done: {},
   weekOpen: true,
   calView: 'month',
   calMonth: null,
   calOpen: null,
   libSeek: null,
+  onbMode: null,
+  pending: [],
+  scanUrl: null,
+  scanKeep: null,
+  pickKey: 'space',
+  pwFrom: 'home',
+  undo: null,
+  toast: null,
+  query: '',
 }
 
 export type Action =
@@ -88,31 +129,60 @@ export type Action =
   | { t: 'select'; v: number }
   | { t: 'water'; v: number }
   | { t: 'remove'; v: number }
+  | { t: 'undo' }
   | { t: 'pro'; v: boolean }
   | { t: 'units'; v: Units }
+  | { t: 'remind'; v: number }
+  | { t: 'care'; v: keyof Care }
+  | { t: 'mail'; v: keyof Mail }
   | { t: 'toggleTask'; v: Task }
   | { t: 'weekOpen'; v: boolean }
   | { t: 'calView'; v: CalView }
   | { t: 'calMonth'; v: number | null }
   | { t: 'calOpen'; v: string | null }
   | { t: 'libSeek'; v: string | null }
+  | { t: 'onb'; v: OnbMode }
+  | { t: 'onbReset'; v: OnbMode }
+  | { t: 'pendingToggle'; v: string; limit: number }
+  | { t: 'pending'; v: string[] }
+  | { t: 'addPending' }
+  | { t: 'applyPlan'; v: Species[]; room: number }
+  | { t: 'scanUrl'; v: string | null }
+  | { t: 'scanKeep'; v: string | null }
+  | { t: 'pickKey'; v: string }
+  | { t: 'pwFrom'; v: string }
+  | { t: 'toast'; v: ToastMsg | null }
+  | { t: 'query'; v: string }
+  | { t: 'addPhoto'; v: { i: number; url: string } }
   | { t: 'enterCalendar' }
+  | { t: 'enterLibrary'; seek: string | null }
 
 function reducer(s: State, a: Action): State {
   switch (a.t) {
     case 'choices': return { ...s, choices: { ...s.choices, ...a.v } }
     case 'plants': return { ...s, plants: a.v, selected: 0 }
     case 'select': return { ...s, selected: a.v }
-    case 'water': {
-      const plants = s.plants.map((p, i) => (i === a.v ? { ...p, since: 0 } : p))
-      return { ...s, plants }
-    }
+    case 'water': return { ...s, plants: s.plants.map((p, i) => (i === a.v ? { ...p, since: 0 } : p)) }
     case 'remove': {
+      const p = s.plants[a.v]
+      if (!p) return s
       const plants = s.plants.filter((_, i) => i !== a.v)
-      return { ...s, plants, selected: Math.min(s.selected, Math.max(0, plants.length - 1)) }
+      return { ...s, plants, undo: { p, i: a.v },
+               selected: Math.min(s.selected, Math.max(0, plants.length - 1)) }
+    }
+    case 'undo': {
+      if (!s.undo) return s
+      const plants = s.plants.slice()
+      plants.splice(s.undo.i, 0, s.undo.p)
+      return { ...s, plants, undo: null, toast: null }
     }
     case 'pro': return { ...s, isPro: a.v }
     case 'units': return { ...s, units: a.v }
+    case 'remind': return { ...s, remind: a.v }
+    // Смена состава задач обнуляет отметки: ключи привязаны к позиции растения,
+    // и старая галочка после фильтра означала бы уже другую задачу.
+    case 'care': return { ...s, care: { ...s.care, [a.v]: !s.care[a.v] }, done: {} }
+    case 'mail': return { ...s, mail: { ...s.mail, [a.v]: !s.mail[a.v] }, done: {} }
     case 'toggleTask': {
       const k = tkey(a.v)
       return { ...s, done: { ...s.done, [k]: !s.done[k] } }
@@ -122,10 +192,46 @@ function reducer(s: State, a: Action): State {
     case 'calMonth': return { ...s, calMonth: a.v }
     case 'calOpen': return { ...s, calOpen: s.calOpen === a.v ? null : a.v }
     case 'libSeek': return { ...s, libSeek: a.v }
-    // Вход на экран календаря всегда про «сейчас»: пролистанный месяц и
-    // раскрытая строка не должны переживать уход с экрана. Вид вида — привычка
-    // человека, его сохраняем.
+    case 'onb': return { ...s, onbMode: a.v }
+    // Онбординг начинается с чистого листа: демо-набор не должен притворяться
+    // растениями, которые человек занёс сам.
+    case 'onbReset': return { ...s, onbMode: a.v, plants: [], pending: [], selected: 0,
+                              done: {}, scanKeep: null }
+    case 'pendingToggle': {
+      const k = s.pending.indexOf(a.v)
+      if (k > -1) return { ...s, pending: s.pending.filter(x => x !== a.v) }
+      if (s.plants.length + s.pending.length >= a.limit) return s
+      return { ...s, pending: [...s.pending, a.v] }
+    }
+    case 'pending': return { ...s, pending: a.v }
+    case 'addPending': {
+      const add = s.pending.map(id => mkPlant(id, 0, 0,
+        s.scanKeep ? [{ u: s.scanKeep, day: 0 }] : []))
+      return { ...s, plants: [...s.plants, ...add], pending: [], scanKeep: null,
+               onbMode: null, selected: s.plants.length }
+    }
+    // План — предложение. Раньше он строился, показывался и молча выбрасывался:
+    // после save→paywall на Home лежал демо-набор, а не то, что человек видел.
+    case 'applyPlan': return { ...s, onbMode: null,
+      plants: a.v.slice(0, a.room).map(sp => mkPlant(sp.id, 0, 0, [])) }
+    case 'scanUrl': return { ...s, scanUrl: a.v }
+    case 'scanKeep': return { ...s, scanKeep: a.v }
+    case 'pickKey': return { ...s, pickKey: a.v }
+    case 'pwFrom': return { ...s, pwFrom: a.v }
+    case 'toast': return { ...s, toast: a.v }
+    case 'query': return { ...s, query: a.v }
+    case 'addPhoto': return { ...s, plants: s.plants.map((p, i) =>
+      i === a.v.i ? { ...p, photos: [{ u: a.v.url, day: p.day }, ...p.photos] } : p) }
+    // Вход на календарь всегда про «сейчас»: пролистанный месяц и раскрытая
+    // строка не переживают уход с экрана. Вид — привычка человека, его храним.
     case 'enterCalendar': return { ...s, calMonth: null, calOpen: null }
+    // Роутер прототипа на входе в библиотеку чистил и поиск, и выбор; передача
+    // вида из календаря — единственное, что переживает вход.
+    case 'enterLibrary': {
+      const sk = a.seek
+      const own = sk ? s.plants.some(p => p.s.id === sk) : false
+      return { ...s, libSeek: null, query: '', pending: sk && !own ? [sk] : [] }
+    }
   }
 }
 
@@ -140,7 +246,8 @@ interface Store {
 
 const Ctx0 = createContext<Store | null>(null)
 
-export function StoreProvider({ children, initial }: { children: ReactNode; initial?: Partial<State> }) {
+export function StoreProvider({ children, initial }:
+    { children: ReactNode; initial?: Partial<State> }) {
   const [s, d] = useReducer(reducer, { ...INIT, ...initial })
   const value = useMemo<Store>(() => {
     const ctx: Ctx = { zip: s.choices.zip, outdoor: s.choices.outdoor }

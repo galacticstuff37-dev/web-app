@@ -85,11 +85,17 @@ interface ScreenProps {
   back?: () => void
   nav?: { active: string; badge?: boolean; go: (id: string) => void }
   offer?: { txt?: string; sub?: string; onClick?: () => void }
+  /**
+   * Подвал: прибит к низу и НЕ скроллится с контентом. Обязан быть соседом
+   * .bd, а не его потомком: .bd — скролл-контейнер, и absolute внутри него
+   * уезжает вместе с содержимым и обрезается.
+   */
+  foot?: ReactNode
   /** сбрасывать прокрутку при смене этого значения (в прототипе — при go()) */
   scrollKey?: string
 }
 
-export function Screen({ id, children, back, nav, offer, scrollKey }: ScreenProps) {
+export function Screen({ id, children, back, nav, offer, foot, scrollKey }: ScreenProps) {
   const root = useRef<HTMLDivElement>(null)
   const bd = useRef<HTMLDivElement>(null)
 
@@ -114,6 +120,7 @@ export function Screen({ id, children, back, nav, offer, scrollKey }: ScreenProp
       <StatusBar />
       <Header back={!!back} onBack={back} />
       <div className="bd" ref={bd}>{children}</div>
+      {foot && <div className="foot">{foot}</div>}
       {offer && <Offer {...offer} />}
       {nav && <Nav {...nav} />}
     </div>

@@ -1,0 +1,224 @@
+// Библиотека и скан.
+//
+// Библиотека — ОДИН справочник на 29 видов: 8 комнатных и 21 съедобная культура.
+// Показывается подмножество под трек и место; тем, чему не хватает света, ставим
+// блок «Needs more light than you have» — погашено, а не спрятано.
+//
+// Скан: распознавание идёт по-настоящему через воркер-прокси, но если endpoint
+// не задан, мы НЕ выдумываем ответ и не притворяемся, что это ошибка. Снимок
+// сделан, человек выбирает вид сам, фото уезжает в журнал вместе с растением.
+
+import { useMemo } from 'react'
+import { Screen } from '../components/Chrome'
+import { useCamera } from '../components/parts'
+import { Note, SpThumb } from '../components/bits'
+import { Icon, IcCheck, IcCheckG, IcPlus } from '../icons/Icon'
+import { LIBNOTE } from '../data/onboarding'
+import { SPECIES, ofKind, type Species } from '../data/species'
+import { fitsLight, spSub } from '../lib/plan'
+import { fmtPot, limit } from '../lib/plants'
+import { useStore } from '../state/store'
+
+type Go = (id: string) => void
+
+function SpRow({ sp, have, pick, onAdd, note }:
+    { sp: Species; have: boolean; pick: boolean; onAdd: () => void; note: string }) {
+  const label = have ? `${sp.name} — already in your plants`
+    : pick ? `Remove ${sp.name} from the selection` : `Add ${sp.name} to your plants`
+  return (
+    <div className={'pl' + (pick ? ' added' : '') + (have ? ' have' : '')}
+         {...(have ? { 'aria-disabled': true } : { role: 'button', tabIndex: 0, onClick: onAdd })}
+         aria-label={label}
+         onKeyDown={e => {
+           if (!have && (e.key === 'Enter' || e.key === ' ')) { e.preventDefault(); onAdd() }
+         }}>
+      <SpThumb s={sp} />
+      <div className="nm"><b>{sp.name}</b><s>{note}</s></div>
+      <div className="addbtn" aria-hidden="true">
+        {have ? <IcCheckG /> : <>{pick ? <IcCheck /> : <IcPlus />}</>}
+      </div>
+    </div>
+  )
+}
+
+export function AddPlantScreen({ go }: { go: Go }) {
+  const { s, d, pool } = useStore()
+  const q = s.query.trim().toLowerCase()
+  const own = s.onbMode === 'own'
+  const lim = limit(s.isPro)
+
+  const groups = useMemo(() => {
+    const match = (x: Species) => !q || x.name.toLowerCase().indexOf(q) > -1
+      || (x.latin || '').toLowerCase().indexOf(q) > -1
+      || x.tags.some(t => t.indexOf(q) > -1)
+    const hit = pool.filter(match)
+    const lit = hit.filter(x => fitsLight(x, s.choices.sunRank))
+    const dim = hit.filter(x => !fitsLight(x, s.choices.sunRank))
+    const house = lit.filter(x => x.kind === 'house')
+    const edible = lit.filter(x => x.kind === 'edible')
+    const out: Array<[string, Species[], boolean]> = []
+    if (own || s.choices.track === 'both') {
+      // трек ещё не выбран или выбраны оба — показываем обе группы, иначе
+      // половина справочника не попадала ни в одну секцию
+      out.push(['Houseplants', house, false])
+      out.push([own ? 'Edible'
+        : s.choices.outdoor ? 'Edible — container crops' : 'Edible — windowsill crops',
+        edible, false])
+    } else if (s.choices.track === 'house') {
+      out.push(['Hard to kill', house.filter(x => x.water >= 12), false])
+      out.push(['A bit more attention', house.filter(x => x.water < 12), false])
+    } else {
+      out.push(['Fast wins', edible.filter(x => x.days <= 35), false])
+      out.push(['Worth the wait', edible.filter(x => x.days > 35), false])
+    }
+    if (dim.length) out.push(['Needs more light than you have', dim, true])
+    return { out: out.filter(g => g[1].length), empty: !hit.length }
+  }, [pool, q, own, s.choices.track, s.choices.outdoor, s.choices.sunRank])
+
+  const atLimit = !s.isPro && s.plants.length + s.pending.length >= lim
+  const cta = own
+    // в онбординге пустой выбор не тупик: можно пройти дальше и добавить позже
+    ? (s.pending.length ? `Add ${s.pending.length} and continue` : 'Skip for now')
+    : (s.pending.length ? `Add ${s.pending.length} to my plants` : 'Add to my plants')
+
+  const submit = () => {
+    if (!own && !s.pending.length) return
+    d({ t: 'addPending' })
+    go('home')
+  }
+
+  return (
+    <Screen id="add-plant" back={() => go(own ? 'q0' : 'home')}
+            nav={{ active: 'Week', go }} scrollKey="add-plant"
+            foot={
+              <div className={'btn b-pri' + (own || s.pending.length ? '' : ' off')}
+                   role="button" tabIndex={0} onClick={submit}>{cta}</div>
+            }>
+      <div className="h1" style={{ marginTop: 16 }}>{own ? 'What do you have?' : 'Add a plant'}</div>
+      <div style={{ fontSize: 'var(--t-14)', color: 'var(--muted)', marginTop: 4 }}>
+        {own ? 'Everything we know how to look after' : (LIBNOTE[s.choices.track] || LIBNOTE.both)}
+        {' · '}{s.pending.length ? `${s.pending.length} selected` : 'nothing selected'}
+      </div>
+
+      <div className="searchrow">
+        <div className={'search' + (s.query ? ' has' : '')}>
+          <span className="si" aria-hidden="true">
+            <Icon name="search" color="#8E9A93" size={19} sw={2} />
+          </span>
+          <input type="search" inputMode="search" autoComplete="off" spellCheck={false}
+                 aria-label="Search the plant library"
+                 placeholder="Search by name or latin…"
+                 value={s.query} onChange={e => d({ t: 'query', v: e.target.value })} />
+          <span className="sx" role="button" tabIndex={0} aria-label="Clear search"
+                onClick={() => d({ t: 'query', v: '' })}>
+            <Icon name="x" color="#8E9A93" size={17} sw={2.4} />
+          </span>
+        </div>
+        <div className="scanbtn" role="button" tabIndex={0}
+             aria-label="Identify a plant by photo" onClick={() => go('scan')}>
+          <Icon name="camera" color="#fff" size={22} />
+        </div>
+      </div>
+      <div className="scanhint">
+        Don’t know what it is?{' '}
+        <b role="button" tabIndex={0} onClick={() => go('scan')}>Point the camera at it</b>
+      </div>
+
+      {s.scanKeep && (
+        <div className="scanwait">
+          <div className="sw-ph" style={{ backgroundImage: `url(${s.scanKeep})` }} />
+          <div className="sw-tx"><b>Your photo is waiting</b>
+            <s>Pick what it is and the shot goes into its journal.</s></div>
+        </div>
+      )}
+
+      {groups.empty
+        ? <div className="empty">
+            Nothing matches “{s.query}”.<br />
+            We know {SPECIES.length} plants — {ofKind('house').length} houseplants
+            and {ofKind('edible').length} edible.
+          </div>
+        : groups.out.map(([label, list, dim]) => (
+            <div key={label}>
+              <div className="gsec">{label}</div>
+              <div className="plist" style={dim ? { opacity: .5 } : undefined}>
+                {list.map(sp => (
+                  <SpRow key={sp.id} sp={sp} note={spSub(sp, s.units, fmtPot)}
+                         have={s.plants.some(p => p.s.id === sp.id)}
+                         pick={s.pending.indexOf(sp.id) > -1}
+                         onAdd={() => d({ t: 'pendingToggle', v: sp.id, limit: lim })} />
+                ))}
+              </div>
+            </div>
+          ))}
+
+      {atLimit && (
+        <Note title="That’s the free limit"
+              cta={<div className="btn b-pri" role="button" tabIndex={0}
+                        onClick={() => go('paywall')}>Unlock — $29/yr</div>}>
+          Free plans keep 3 plants. Pro keeps everything your light and space allow —
+          and the whole care calendar for all of them.
+        </Note>
+      )}
+
+    </Screen>
+  )
+}
+
+export function ScanScreen({ go }: { go: Go }) {
+  const { s, d } = useStore()
+  const cam = useCamera(url => d({ t: 'scanUrl', v: url }))
+  // Распознавание подключается адресом воркера; в прототипе он пуст.
+  const endpoint = (window as unknown as { HG_SCAN_ENDPOINT?: string }).HG_SCAN_ENDPOINT
+
+  return (
+    <div className="screen on" id="s-scan">
+      <div className="dark" style={{ padding: 0 }}>
+        {cam.input}
+        <div className="scan-shot"
+             style={s.scanUrl ? { backgroundImage: `url(${s.scanUrl})` } : undefined} />
+        <div className="scan-ov">
+          <div className={'scan-frame' + (s.scanUrl ? ' ok' : '')} />
+          <div className="scan-foot">
+            {!s.scanUrl ? (
+              <>
+                <b>Point the camera at the plant</b>
+                <s>One clear leaf fills the frame. We send the photo to PlantNet and match
+                   the answer against our 29 species.</s>
+                <div className="btn b-lime" role="button" tabIndex={0} onClick={cam.open}>
+                  Take a photo
+                </div>
+                <div className="btn" style={{ background: '#1B3527', color: '#fff' }}
+                     role="button" tabIndex={0} onClick={() => go('add-plant')}>
+                  Choose manually
+                </div>
+              </>
+            ) : (
+              <>
+                <span className="pill b-lime" style={{ alignSelf: 'flex-start' }}>Photo saved</span>
+                <b style={{ marginTop: 12 }}>Which one is it?</b>
+                <s>
+                  {endpoint
+                    ? 'Recognition is connected — pick the match below or choose manually.'
+                    : 'Automatic recognition is not switched on, so we won’t guess at your '
+                      + 'plant. Pick it from the library and this photo becomes its first '
+                      + 'journal shot.'}
+                </s>
+                {/* data-scanpick в прототипе: снимок надо донести до библиотеки,
+                    чтобы он стал первой фотографией растения */}
+                <div className="btn b-lime" role="button" tabIndex={0}
+                     onClick={() => {
+                       d({ t: 'scanKeep', v: s.scanUrl })
+                       d({ t: 'scanUrl', v: null })
+                       go('add-plant')
+                     }}>Choose from the library</div>
+                <div className="btn" style={{ background: '#1B3527', color: '#fff' }}
+                     role="button" tabIndex={0} onClick={cam.open}>Try another photo</div>
+              </>
+            )}
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+}

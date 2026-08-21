@@ -1,0 +1,315 @@
+// Экраны-моменты: milestone, recap, week complete, shopping, paywall.
+// Все цифры и формулировки берутся из настоящих растений, а не захардкожены —
+// один экран, две ветки: съедобное считается в сборах, комнатное в поливах.
+
+import { Screen } from '../components/Chrome'
+import { Task, useCamera } from '../components/parts'
+import { photoStyle } from '../components/bits'
+import { Icon } from '../icons/Icon'
+import { bg, img } from '../lib/assets'
+import { FEATS, POTPRICE } from '../data/onboarding'
+import { SPECIES } from '../data/species'
+import {
+  allPhotos, careStats, fmtPot, hPct, isEdible, lc, wDue,
+  weekTasks, type Photo,
+} from '../lib/plants'
+import { buildPlan, cap, inDays, inOn, listNames } from '../lib/plan'
+import { zipInfo } from '../lib/season'
+import { useStore } from '../state/store'
+import { usePlanCtx } from './Preview'
+
+type Go = (id: string) => void
+export const phUrl = (x: Photo) => x.u || img(x.f || '')
+
+const Close = ({ onClick }: { onClick: () => void }) => (
+  <div className="xbtn" role="button" tabIndex={0} aria-label="Close"
+       style={{ alignSelf: 'flex-end' }} onClick={onClick}>
+    <Icon name="x" color="#CFE0D4" size={20} sw={2} />
+  </div>
+)
+
+// ─────────────────────────────────────────── Milestone
+export function HarvestScreen({ go }: { go: Go }) {
+  const { s, d } = useStore()
+  const cam = useCamera(url => d({ t: 'addPhoto', v: { i: s.selected, url } }))
+  const ready = s.plants.filter(p => isEdible(p) && hPct(p) >= 100)[0]
+  const p = ready || s.plants.slice().sort((a, b) => b.day - a.day)[0]
+
+  if (!p) {
+    return (
+      <div className="screen on" id="s-harvest">
+        <div className="dark" style={{ padding: 0 }}>
+          <div className="mile-tx">
+            <span className="pill b-lime">Nothing yet</span>
+            <div className="cap-f mile-h">Add a plant<br />and this fills up.</div>
+            <div className="mile-s">Every first — a new leaf, a first pick — lands here.</div>
+            <div className="btn b-lime" role="button" tabIndex={0}
+                 onClick={() => go('add-plant')}>Add a plant</div>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
+  const pic = p.photos[0] ? phUrl(p.photos[0]) : (p.s.img ? img(p.s.img) : null)
+  const edible = isEdible(p) && hPct(p) >= 100
+  const st = careStats(s.plants)
+
+  return (
+    <div className="screen on" id="s-harvest">
+      <div className="dark" style={{ padding: 0 }}>
+        {cam.input}
+        {pic
+          ? <div className="shot" style={{ backgroundImage: `url(${pic})`, height: '58%' }} />
+          : <div className="shot" style={{ height: '58%', ...photoStyle(p.s) }} />}
+        <div className="scrim mile-scrim" />
+        <div className="mile-ov">
+          <Close onClick={() => go('growth')} />
+          <div style={{ flex: 1 }} />
+          <span className="pill b-lime" style={{ alignSelf: 'flex-start' }}>
+            {edible ? `Day ${p.day}` : p.s.name}
+          </span>
+          <div className="cap-f mile-h">{edible ? 'First harvest.' : 'It is thriving.'}</div>
+          <div className="mile-s">
+            {edible
+              ? `You grew this ${inOn(s.choices.outdoor)}${s.choices.space}. ${p.s.name} `
+                + 'is ready — pick it and it keeps producing.'
+              : `${p.s.name} has been with you ${p.day} days and ${st.waterings} waterings. `
+                + 'That is the whole trick: showing up.'}
+          </div>
+          <div className="btn b-lime" role="button" tabIndex={0} onClick={cam.open}>Add a photo</div>
+          <div className="btn" style={{ background: '#1B3527', color: '#fff' }}
+               role="button" tabIndex={0} onClick={() => go('growth')}>Back to my plants</div>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+// ─────────────────────────────────────────── Recap
+export function SeasonEndScreen({ go }: { go: Go }) {
+  const { s } = useStore()
+  const st = careStats(s.plants)
+  // На уличном треке итог в сборах; для комнатных сезон не кончается никогда,
+  // поэтому итог считается в поливах, растениях и снимках.
+  const outdoor = s.choices.outdoor && st.edible > 0
+  const pic = allPhotos(s.plants)[0]
+  const names = s.plants.map(p => p.s.name)
+
+  return (
+    <div className="screen on" id="s-season-end">
+      <div className="dark">
+        <div className="glow" />
+        <Close onClick={() => go('growth')} />
+        <div className="recap-in">
+          {pic
+            ? <div className="recap-ph" style={{ backgroundImage: `url(${phUrl(pic)})` }} />
+            : <div className="recap-ph"
+                   style={photoStyle(s.plants[0] ? s.plants[0].s : SPECIES[0])} />}
+          <span className="pill b-lime" style={{ alignSelf: 'flex-start', marginTop: 20 }}>
+            {outdoor ? `SEASON 2026 · ${zipInfo(s.choices.zip).city.toUpperCase()}`
+                     : 'YOUR YEAR · YEAR-ROUND'}
+          </span>
+          <div className="cap-f recap-h">
+            {outdoor
+              ? <>{st.ready} {st.ready === 1 ? 'harvest.' : 'harvests.'}<br />{st.oldest} days.</>
+              : <>{st.waterings} waterings.<br />{st.plants} {st.plants === 1 ? 'plant.' : 'plants.'}</>}
+          </div>
+          <div className="recap-s">
+            {outdoor
+              ? `${listNames(names) || 'Nothing yet'} all made it to the table. `
+                + 'Next season starts in the fall window.'
+              : `${listNames(names) || 'Nothing yet'} are all still alive — that is the whole `
+                + `scoreboard. ${st.photos} ${st.photos === 1 ? 'photo shows' : 'photos show'} `
+                + 'how they changed.'}
+          </div>
+        </div>
+        <div className="btn b-lime" role="button" tabIndex={0} onClick={() => go('paywall')}>
+          {outdoor ? 'Plan next season now' : 'Keep the whole calendar'}
+        </div>
+        <div className="btn" style={{ background: '#1B3527', color: '#fff' }}
+             role="button" tabIndex={0} onClick={() => go('growth')}>Download recap</div>
+      </div>
+    </div>
+  )
+}
+
+// ─────────────────────────────────────────── Week complete
+export function WeekDoneScreen({ go }: { go: Go }) {
+  const { s } = useStore()
+  const st = careStats(s.plants)
+  const tasks = weekTasks(s.plants).length
+  const nextP = s.plants.slice().sort((a, b) => wDue(a) - wDue(b))[0]
+  const line = nextP
+    ? (isEdible(nextP) && hPct(nextP) < 100
+        ? `Your ${lc(nextP.s.name)} is ${nextP.s.days - nextP.day} days out.`
+        : `${cap(lc(nextP.s.name))} needs water ${inDays(wDue(nextP))}.`)
+    : 'Add a plant and next week fills itself in.'
+
+  return (
+    <div className="screen on" id="s-week-done">
+      <div className="dark">
+        <div className="glow" />
+        <Close onClick={() => go('home')} />
+        <div className="recap-in">
+          <div className="recap-ph" style={{ backgroundImage: bg('hero-plants') }} />
+          <span className="pill b-lime" style={{ alignSelf: 'flex-start', marginTop: 20 }}>
+            Week complete
+          </span>
+          <div className="done-h">Everything<br /><span style={{ color: 'var(--lime)' }}>on time.</span></div>
+          <div className="recap-s">
+            {line} Pro maps every week ahead so you never wonder what’s next.
+          </div>
+          <div className="sg2">
+            <div className="stat"><b style={{ color: 'var(--lime)' }}>{st.waterings}</b>
+              <s>waterings logged</s></div>
+            <div className="stat"><b>{tasks}/{tasks}</b><s>tasks this week</s></div>
+          </div>
+        </div>
+        <div className="btn b-lime" role="button" tabIndex={0} onClick={() => go('paywall')}>
+          See the whole calendar
+        </div>
+        <div className="btn" style={{ background: '#1B3527', color: '#fff' }}
+             role="button" tabIndex={0} onClick={() => go('home')}>Not now</div>
+      </div>
+    </div>
+  )
+}
+
+// ─────────────────────────────────────────── Shopping list
+export function ShoppingScreen({ go }: { go: Go }) {
+  const { s } = useStore()
+  const c = usePlanCtx()
+  // Собирается ИЗ ПЛАНА, сумма считается, а не написана.
+  const plan = s.plants.length ? s.plants.map(p => p.s) : buildPlan(c)
+  const edible = plan.filter(x => x.kind === 'edible')
+
+  const pots: Record<string, number> = {}
+  plan.forEach(x => { const k = x.pot || 'pot'; pots[k] = (pots[k] || 0) + 1 })
+  const items: Array<[string, number, string]> = []
+  Object.keys(pots).forEach(k => {
+    const who = plan.filter(x => (x.pot || 'pot') === k).map(x => lc(x.name))
+    items.push([
+      (k === 'tray' ? 'Seed tray' : `Pot — ${fmtPot(k, s.units)}`)
+        + (pots[k] > 1 ? ` ×${pots[k]}` : ''),
+      (POTPRICE[k] || 8) * pots[k],
+      `For ${listNames(who)}.`,
+    ])
+  })
+  items.push([`Saucers ×${plan.length}`, 2 * plan.length, 'Keeps water off the floor.'])
+  items.push(['Potting mix, 1 cu ft', 12, 'Not garden soil — too much clay for a pot.'])
+  items.push(['Watering can, 1 gal', 11, ''])
+  items.push(['Liquid fertilizer', 9, 'Container soil runs out in about six weeks.'])
+  // строка семян только если в плане есть съедобное
+  if (edible.length) items.push([
+    `Seed — ${edible.map(x => lc(x.name)).join(', ')}`, 3 * edible.length, '',
+  ])
+  const total = items.reduce((a, x) => a + x[1], 0)
+  const gear = items.slice(0, items.length - (edible.length ? 1 : 0))
+
+  return (
+    <Screen id="shopping" back={() => go('home')} nav={{ active: 'Week', go }}
+            scrollKey="shopping">
+      <div className="h1" style={{ marginTop: 16 }}>Shopping list</div>
+      <div style={{ fontSize: 'var(--t-14)', color: 'var(--muted)', marginTop: 4 }}>
+        Everything for {plan.length} {plan.length === 1 ? 'plant' : 'plants'} · about ${total}
+      </div>
+      <div className="sl">Pots and soil</div>
+      {gear.map((x, i) => <Task key={i} t={[x[0], `~$${x[1]}`, x[2]]} />)}
+      {edible.length > 0 && <>
+        <div className="sl">Seed</div>
+        <Task t={[items[items.length - 1][0], `~$${items[items.length - 1][1]}`, '']} />
+      </>}
+      <div className="btn b-ghost" role="button" tabIndex={0} onClick={() => go('paywall')}>
+        Printable PDF — Pro
+      </div>
+    </Screen>
+  )
+}
+
+// ─────────────────────────────────────────── Paywall
+export function PaywallScreen({ go }: { go: Go }) {
+  const { s, d } = useStore()
+  const yearly = s.pickKey !== 'pw-monthly'   // сегмент живёт локально в pickKey
+  const back = () => go(s.pwFrom === 'paywall' ? 'home' : s.pwFrom)
+
+  const buy = () => {
+    d({ t: 'pro', v: true })
+    d({ t: 'toast', v: { html: '<span>Pro unlocked — the whole calendar is open</span>',
+                         ms: 5000, at: Date.now(), unpro: true } })
+    // Кнопки обещают «весь календарь», поэтому ведём в календарь. Исключения:
+    // лимит растений обещал библиотеку, а без растений календарь показывать нечем.
+    go(s.pwFrom === 'add-plant' || !s.plants.length ? s.pwFrom : 'week-lock')
+  }
+
+  return (
+    <div className="screen on" id="s-paywall">
+      <div className="dark">
+        <div className="glow" /><div className="glow b" />
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+                      position: 'relative' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+            <Icon name="sprout" color="var(--lime)" size={24} sw={2} />
+            <span style={{ fontSize: 'var(--t-14)', fontWeight: 700, letterSpacing: '.1em' }}>
+              HOMEGROWN
+            </span>
+          </div>
+          <div className="xbtn" role="button" tabIndex={0} aria-label="Close" onClick={back}>
+            <Icon name="x" color="#CFE0D4" size={17} sw={2} />
+          </div>
+        </div>
+
+        <div style={{ textAlign: 'center', marginTop: 24, position: 'relative' }}>
+          <div style={{ fontSize: 'var(--t-31)', fontWeight: 600, lineHeight: 1.14,
+                        letterSpacing: '-.02em' }}>
+            Every plant,<br /><span style={{ color: 'var(--lime)' }}>planned all year.</span>
+          </div>
+          <div style={{ fontSize: 'var(--t-14)', color: '#A9BCB0', marginTop: 8 }}>
+            7 days free. Cancel anytime.
+          </div>
+        </div>
+
+        <div className="seg" role="radiogroup" aria-label="Billing period">
+          <div className={yearly ? 'on' : undefined} role="radio" tabIndex={0} aria-checked={yearly}
+               onClick={() => d({ t: 'pickKey', v: 'pw-yearly' })}>Year pass</div>
+          <div className={yearly ? undefined : 'on'} role="radio" tabIndex={0} aria-checked={!yearly}
+               onClick={() => d({ t: 'pickKey', v: 'pw-monthly' })}>Monthly</div>
+        </div>
+
+        {/* Карточка цены — .pcard. Раньше стояла классом карточки растения
+            (.plcard) и рисовалась белой полосой 132px. */}
+        <div className="pcard">
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+            <div>
+              <div className="pr">
+                {yearly ? '$29' : '$4'}
+                <span style={{ fontSize: 'var(--t-15)', fontWeight: 500, color: '#A9BCB0' }}>
+                  {yearly ? ' / year' : ' / month'}
+                </span>
+              </div>
+              <div className="pn">
+                Cheaper than one dead fiddle leaf fig. Covers every plant, all year.
+              </div>
+            </div>
+            {yearly && <span className="pill b-lime">Best</span>}
+          </div>
+          <div className="feat">
+            {FEATS.map(f => <div key={f}><i /><span>{f}</span></div>)}
+          </div>
+        </div>
+
+        <div style={{ flex: 1, minHeight: 16 }} />
+        <div className="btn b-white" role="button" tabIndex={0} onClick={buy}>
+          Start 7-day free trial
+        </div>
+        <div className="tlink" role="button" tabIndex={0} onClick={back}>
+          Continue with the free plan
+        </div>
+        <div style={{ fontSize: 'var(--t-12)', color: '#6E8175', textAlign: 'center',
+                      marginTop: 8, lineHeight: 1.45 }}>
+          No card for the trial. Your plants and photos stay yours either way.
+        </div>
+      </div>
+    </div>
+  )
+}

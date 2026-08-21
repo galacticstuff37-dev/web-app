@@ -1,26 +1,15 @@
 // Роутер на хеше. Хеш, а не history: GitHub Pages не умеет rewrite, а прототип
 // и так адресовал экраны через #id — ссылки остаются рабочими.
-//
-// Портированы четыре экрана. Всё остальное из 29 живёт в старом прототипе на
-// index.html и здесь честно помечено заглушкой, а не притворяется готовым.
 
 import { useCallback, useEffect, useState } from 'react'
-import { Screen } from './components/Chrome'
-import { Note } from './components/bits'
-import { CalendarScreen } from './screens/Calendar'
-import { GrowthScreen } from './screens/Growth'
-import { HomeScreen } from './screens/Home'
-import { PlantScreen } from './screens/Plant'
+import { Toast } from './components/parts'
 import { Review } from './review/Review'
+import { ROUTE, ROUTES } from './routes'
 import { useStore } from './state/store'
-import { ASSET_ROOT } from './lib/assets'
 import type { Species } from './data/species'
 
-export const DONE_SCREENS = ['home', 'growth', 'plant', 'calendar'] as const
-export type ScreenId = string
-
 export function useHash(): [string, (id: string) => void] {
-  const read = () => (location.hash.slice(1) || 'home')
+  const read = () => location.hash.slice(1) || 'home'
   const [id, setId] = useState(read)
   useEffect(() => {
     const on = () => setId(read())
@@ -34,49 +23,49 @@ export function useHash(): [string, (id: string) => void] {
   return [id, go]
 }
 
-/** Экран, которого в React ещё нет: не притворяемся, а говорим прямо. */
-function NotPorted({ id, go }: { id: string; go: (v: string) => void }) {
-  return (
-    <Screen id={id} back={() => go('home')} nav={{ active: 'Week', go }} scrollKey={id}>
-      <div className="h1" style={{ marginTop: 16 }}>Not ported yet</div>
-      <Note title={`Экран «${id}» пока живёт в прототипе`}
-            cta={<a className="btn b-pri" href={`${ASSET_ROOT}index.html#${id}`}>
-                   Открыть его в прототипе
-                 </a>}>
-        На React перенесены четыре экрана: Home, Growth, Plant detail и Harvest calendar.
-        Остальные 25 не тронуты и работают в исходном прототипе — так решено намеренно,
-        чтобы сначала проверить подход на самых сложных экранах.
-      </Note>
-    </Screen>
-  )
-}
-
 export function App() {
-  const [id, go] = useHash()
-  const { d } = useStore()
+  const [hash, go] = useHash()
+  const { s, d } = useStore()
+  const route = ROUTE(hash)
+  const id = route ? hash : 'home'
 
   // Режим для CSS: мобильные оверрайды применяются только к приложению,
   // на /review нужна рамка телефона со статус-баром и обычный скролл.
   useEffect(() => {
-    document.body.dataset.mode = id === 'review' ? 'review' : 'app'
+    document.body.dataset.mode = hash === 'review' ? 'review' : 'app'
+  }, [hash])
+
+  // Пейволл закрывается туда, откуда пришли. Запоминаем предыдущий экран.
+  useEffect(() => {
+    if (id !== 'paywall') return
+    const from = s.pwFrom
+    if (from === 'paywall') d({ t: 'pwFrom', v: 'home' })
+  }, [id, s.pwFrom, d])
+
+  // Вход на экран: сброс того, что не должно переживать уход.
+  useEffect(() => {
+    if (id === 'calendar') d({ t: 'enterCalendar' })
+    if (id === 'add-plant') d({ t: 'enterLibrary', seek: s.libSeek })
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id])
 
-  // Вход на календарь всегда про «сейчас»: пролистанный месяц не переживает
-  // уход с экрана.
-  useEffect(() => { if (id === 'calendar') d({ t: 'enterCalendar' }) }, [id, d])
+  const goTracked = useCallback((next: string) => {
+    // save ведёт в пейволл, но возвращаться из него надо на home, а не на save
+    if (next === 'paywall') d({ t: 'pwFrom', v: id === 'save' ? 'home' : id })
+    go(next)
+  }, [go, d, id])
 
-  if (id === 'review') return <Review />
+  if (hash === 'review') return <Review />
 
-  const openSpecies = (sp: Species) => { d({ t: 'libSeek', v: sp.id }); go('add-plant') }
-
-  const body = () => {
-    switch (id) {
-      case 'home': return <HomeScreen go={go} />
-      case 'growth': return <GrowthScreen go={go} />
-      case 'plant': return <PlantScreen go={go} />
-      case 'calendar': return <CalendarScreen go={go} openSpecies={openSpecies} />
-      default: return <NotPorted id={id} go={go} />
-    }
+  const openSpecies = (sp: Species) => {
+    d({ t: 'libSeek', v: sp.id })
+    goTracked('add-plant')
   }
-  return <main className="mob">{body()}</main>
+
+  return (
+    <main className="mob">
+      {(ROUTE(id) || ROUTES[0]).render({ go: goTracked, openSpecies })}
+      <Toast />
+    </main>
+  )
 }

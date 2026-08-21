@@ -1,15 +1,35 @@
-// Единый справочник растений. Извлечён из PLANTS в proto.py скриптом,
-// значения не редактировались. kind: house — декоративные, edible — съедобные.
-// cool=true у съедобных — холодостойкая культура: сеется до последних
-// заморозков и терпит их. img=null означает «настоящей фотографии нет».
+// Единый справочник растений. Извлечён из PLANTS в proto.py скриптом.
+// kind: house — декоративные, edible — съедобные. img=null означает
+// «настоящей фотографии нет».
+//
+// Поля сезона (добавлены после сверки с опубликованными календарями):
+//   hardiness      — класс морозостойкости, задаёт смещение окна от последних
+//                    заморозков: hardy −4…−2 нед., half 0…+2, tender +2…+4.
+//                    Правило совпало с Almanac для Остина и Чикаго день в день.
+//   direct         — сеется прямо в грунт. У паслёновых false: только рассадой.
+//   transplant     — выращивается рассадой, indoorsWeeks — за сколько недель
+//                    до высадки её начинают (диапазон).
+//   successionDays — интервал подсева, Johnny's Selected Seeds.
+//   fallWeeks      — конец осеннего окна: за столько недель до ПЕРВЫХ заморозков.
+//                    fallSpan — ширина окна в днях. Проверено: смещение,
+//                    снятое с Остина, предсказало Чикаго по 11 культурам без
+//                    расхождений, значит окно зависит только от даты заморозков.
+//   anyMonth       — сезона нет вовсе (микрозелень: лоток, любой месяц).
 
 export type Kind = "house" | "edible";
+export type Hardiness = "hardy" | "half" | "tender";
 
 export interface Species {
   id: string; name: string; kind: Kind; icon: string; latin: string;
   water: number; light: string; hum: string; img: string | null;
   days: number; daysMax: number; pot: string; sun: number;
   tags: string[]; sill: boolean; cool: boolean;
+  hardiness: Hardiness | null;
+  direct: boolean; transplant: boolean;
+  indoorsWeeks: [number, number] | null;
+  successionDays: number | null;
+  fallWeeks: number | null; fallSpan: number;
+  anyMonth: boolean;
 }
 
 export const SPECIES: Species[] = [
@@ -32,7 +52,15 @@ export const SPECIES: Species[] = [
       "trailing"
     ],
     "sill": false,
-    "cool": false
+    "cool": false,
+    "hardiness": null,
+    "direct": false,
+    "transplant": false,
+    "indoorsWeeks": null,
+    "successionDays": null,
+    "fallWeeks": null,
+    "fallSpan": 0,
+    "anyMonth": false
   },
   {
     "id": "snakeplant",
@@ -54,7 +82,15 @@ export const SPECIES: Species[] = [
       "air"
     ],
     "sill": false,
-    "cool": false
+    "cool": false,
+    "hardiness": null,
+    "direct": false,
+    "transplant": false,
+    "indoorsWeeks": null,
+    "successionDays": null,
+    "fallWeeks": null,
+    "fallSpan": 0,
+    "anyMonth": false
   },
   {
     "id": "pothos",
@@ -78,7 +114,15 @@ export const SPECIES: Species[] = [
       "kids"
     ],
     "sill": false,
-    "cool": false
+    "cool": false,
+    "hardiness": null,
+    "direct": false,
+    "transplant": false,
+    "indoorsWeeks": null,
+    "successionDays": null,
+    "fallWeeks": null,
+    "fallSpan": 0,
+    "anyMonth": false
   },
   {
     "id": "zzplant",
@@ -99,7 +143,15 @@ export const SPECIES: Species[] = [
       "lowlight"
     ],
     "sill": false,
-    "cool": false
+    "cool": false,
+    "hardiness": null,
+    "direct": false,
+    "transplant": false,
+    "indoorsWeeks": null,
+    "successionDays": null,
+    "fallWeeks": null,
+    "fallSpan": 0,
+    "anyMonth": false
   },
   {
     "id": "fiddleleaf",
@@ -119,7 +171,15 @@ export const SPECIES: Species[] = [
       "statement"
     ],
     "sill": false,
-    "cool": false
+    "cool": false,
+    "hardiness": null,
+    "direct": false,
+    "transplant": false,
+    "indoorsWeeks": null,
+    "successionDays": null,
+    "fallWeeks": null,
+    "fallSpan": 0,
+    "anyMonth": false
   },
   {
     "id": "peacelily",
@@ -140,7 +200,15 @@ export const SPECIES: Species[] = [
       "air"
     ],
     "sill": false,
-    "cool": false
+    "cool": false,
+    "hardiness": null,
+    "direct": false,
+    "transplant": false,
+    "indoorsWeeks": null,
+    "successionDays": null,
+    "fallWeeks": null,
+    "fallSpan": 0,
+    "anyMonth": false
   },
   {
     "id": "aloe",
@@ -161,7 +229,15 @@ export const SPECIES: Species[] = [
       "useful"
     ],
     "sill": false,
-    "cool": false
+    "cool": false,
+    "hardiness": null,
+    "direct": false,
+    "transplant": false,
+    "indoorsWeeks": null,
+    "successionDays": null,
+    "fallWeeks": null,
+    "fallSpan": 0,
+    "anyMonth": false
   },
   {
     "id": "calathea",
@@ -182,7 +258,15 @@ export const SPECIES: Species[] = [
       "petsafe"
     ],
     "sill": false,
-    "cool": false
+    "cool": false,
+    "hardiness": null,
+    "direct": false,
+    "transplant": false,
+    "indoorsWeeks": null,
+    "successionDays": null,
+    "fallWeeks": null,
+    "fallSpan": 0,
+    "anyMonth": false
   },
   {
     "id": "radish",
@@ -204,7 +288,15 @@ export const SPECIES: Species[] = [
       "kids"
     ],
     "sill": false,
-    "cool": true
+    "cool": true,
+    "hardiness": "hardy",
+    "direct": true,
+    "transplant": false,
+    "indoorsWeeks": null,
+    "successionDays": 7,
+    "fallWeeks": 4,
+    "fallSpan": 14,
+    "anyMonth": false
   },
   {
     "id": "lettuce",
@@ -225,7 +317,18 @@ export const SPECIES: Species[] = [
       "fast"
     ],
     "sill": true,
-    "cool": true
+    "cool": true,
+    "hardiness": "hardy",
+    "direct": true,
+    "transplant": true,
+    "indoorsWeeks": [
+      6,
+      4
+    ],
+    "successionDays": 7,
+    "fallWeeks": 6,
+    "fallSpan": 14,
+    "anyMonth": false
   },
   {
     "id": "chard",
@@ -245,7 +348,15 @@ export const SPECIES: Species[] = [
       "salads"
     ],
     "sill": false,
-    "cool": true
+    "cool": true,
+    "hardiness": "hardy",
+    "direct": true,
+    "transplant": false,
+    "indoorsWeeks": null,
+    "successionDays": 30,
+    "fallWeeks": 8,
+    "fallSpan": 14,
+    "anyMonth": false
   },
   {
     "id": "mustard",
@@ -265,7 +376,15 @@ export const SPECIES: Species[] = [
       "salads"
     ],
     "sill": true,
-    "cool": true
+    "cool": true,
+    "hardiness": "hardy",
+    "direct": true,
+    "transplant": false,
+    "indoorsWeeks": null,
+    "successionDays": 21,
+    "fallWeeks": 6,
+    "fallSpan": 21,
+    "anyMonth": false
   },
   {
     "id": "microgreens",
@@ -287,7 +406,15 @@ export const SPECIES: Species[] = [
       "kids"
     ],
     "sill": true,
-    "cool": true
+    "cool": true,
+    "hardiness": "hardy",
+    "direct": true,
+    "transplant": false,
+    "indoorsWeeks": null,
+    "successionDays": 7,
+    "fallWeeks": null,
+    "fallSpan": 0,
+    "anyMonth": true
   },
   {
     "id": "cilantro",
@@ -308,7 +435,15 @@ export const SPECIES: Species[] = [
       "fast"
     ],
     "sill": true,
-    "cool": true
+    "cool": true,
+    "hardiness": "half",
+    "direct": true,
+    "transplant": false,
+    "indoorsWeeks": null,
+    "successionDays": 14,
+    "fallWeeks": null,
+    "fallSpan": 0,
+    "anyMonth": false
   },
   {
     "id": "basil",
@@ -328,7 +463,18 @@ export const SPECIES: Species[] = [
       "herbs"
     ],
     "sill": true,
-    "cool": false
+    "cool": false,
+    "hardiness": "tender",
+    "direct": true,
+    "transplant": true,
+    "indoorsWeeks": [
+      8,
+      6
+    ],
+    "successionDays": null,
+    "fallWeeks": null,
+    "fallSpan": 0,
+    "anyMonth": false
   },
   {
     "id": "beans",
@@ -349,7 +495,15 @@ export const SPECIES: Species[] = [
       "kids"
     ],
     "sill": false,
-    "cool": false
+    "cool": false,
+    "hardiness": "tender",
+    "direct": true,
+    "transplant": false,
+    "indoorsWeeks": null,
+    "successionDays": 10,
+    "fallWeeks": 9,
+    "fallSpan": 14,
+    "anyMonth": false
   },
   {
     "id": "beets",
@@ -369,7 +523,15 @@ export const SPECIES: Species[] = [
       "roots"
     ],
     "sill": false,
-    "cool": true
+    "cool": true,
+    "hardiness": "hardy",
+    "direct": true,
+    "transplant": false,
+    "indoorsWeeks": null,
+    "successionDays": 14,
+    "fallWeeks": 8,
+    "fallSpan": 28,
+    "anyMonth": false
   },
   {
     "id": "squash",
@@ -387,7 +549,18 @@ export const SPECIES: Species[] = [
     "sun": 2,
     "tags": [],
     "sill": false,
-    "cool": false
+    "cool": false,
+    "hardiness": "tender",
+    "direct": true,
+    "transplant": true,
+    "indoorsWeeks": [
+      6,
+      5
+    ],
+    "successionDays": 30,
+    "fallWeeks": null,
+    "fallSpan": 0,
+    "anyMonth": false
   },
   {
     "id": "cherrytomato",
@@ -408,7 +581,18 @@ export const SPECIES: Species[] = [
       "kids"
     ],
     "sill": false,
-    "cool": false
+    "cool": false,
+    "hardiness": "tender",
+    "direct": false,
+    "transplant": true,
+    "indoorsWeeks": [
+      10,
+      8
+    ],
+    "successionDays": null,
+    "fallWeeks": null,
+    "fallSpan": 0,
+    "anyMonth": false
   },
   {
     "id": "tomato",
@@ -428,7 +612,18 @@ export const SPECIES: Species[] = [
       "tomatoes"
     ],
     "sill": false,
-    "cool": false
+    "cool": false,
+    "hardiness": "tender",
+    "direct": false,
+    "transplant": true,
+    "indoorsWeeks": [
+      10,
+      8
+    ],
+    "successionDays": null,
+    "fallWeeks": null,
+    "fallSpan": 0,
+    "anyMonth": false
   },
   {
     "id": "kale",
@@ -448,7 +643,18 @@ export const SPECIES: Species[] = [
       "salads"
     ],
     "sill": false,
-    "cool": true
+    "cool": true,
+    "hardiness": "hardy",
+    "direct": true,
+    "transplant": true,
+    "indoorsWeeks": [
+      6,
+      4
+    ],
+    "successionDays": null,
+    "fallWeeks": 8,
+    "fallSpan": 14,
+    "anyMonth": false
   },
   {
     "id": "turnips",
@@ -468,7 +674,15 @@ export const SPECIES: Species[] = [
       "roots"
     ],
     "sill": false,
-    "cool": true
+    "cool": true,
+    "hardiness": "hardy",
+    "direct": true,
+    "transplant": false,
+    "indoorsWeeks": null,
+    "successionDays": 14,
+    "fallWeeks": 7,
+    "fallSpan": 14,
+    "anyMonth": false
   },
   {
     "id": "carrots",
@@ -489,7 +703,15 @@ export const SPECIES: Species[] = [
       "kids"
     ],
     "sill": false,
-    "cool": true
+    "cool": true,
+    "hardiness": "hardy",
+    "direct": true,
+    "transplant": false,
+    "indoorsWeeks": null,
+    "successionDays": 21,
+    "fallWeeks": 10,
+    "fallSpan": 7,
+    "anyMonth": false
   },
   {
     "id": "cucumber",
@@ -507,7 +729,18 @@ export const SPECIES: Species[] = [
     "sun": 2,
     "tags": [],
     "sill": false,
-    "cool": false
+    "cool": false,
+    "hardiness": "tender",
+    "direct": true,
+    "transplant": true,
+    "indoorsWeeks": [
+      6,
+      5
+    ],
+    "successionDays": 21,
+    "fallWeeks": null,
+    "fallSpan": 0,
+    "anyMonth": false
   },
   {
     "id": "onions",
@@ -527,7 +760,15 @@ export const SPECIES: Species[] = [
       "herbs"
     ],
     "sill": true,
-    "cool": true
+    "cool": true,
+    "hardiness": "hardy",
+    "direct": true,
+    "transplant": false,
+    "indoorsWeeks": null,
+    "successionDays": 21,
+    "fallWeeks": null,
+    "fallSpan": 0,
+    "anyMonth": false
   },
   {
     "id": "parsley",
@@ -547,7 +788,15 @@ export const SPECIES: Species[] = [
       "herbs"
     ],
     "sill": true,
-    "cool": true
+    "cool": true,
+    "hardiness": "hardy",
+    "direct": true,
+    "transplant": false,
+    "indoorsWeeks": null,
+    "successionDays": null,
+    "fallWeeks": null,
+    "fallSpan": 0,
+    "anyMonth": false
   },
   {
     "id": "eggplant",
@@ -565,7 +814,18 @@ export const SPECIES: Species[] = [
     "sun": 2,
     "tags": [],
     "sill": false,
-    "cool": false
+    "cool": false,
+    "hardiness": "tender",
+    "direct": false,
+    "transplant": true,
+    "indoorsWeeks": [
+      10,
+      8
+    ],
+    "successionDays": null,
+    "fallWeeks": null,
+    "fallSpan": 0,
+    "anyMonth": false
   },
   {
     "id": "chives",
@@ -585,7 +845,15 @@ export const SPECIES: Species[] = [
       "herbs"
     ],
     "sill": true,
-    "cool": true
+    "cool": true,
+    "hardiness": "hardy",
+    "direct": true,
+    "transplant": false,
+    "indoorsWeeks": null,
+    "successionDays": null,
+    "fallWeeks": 8,
+    "fallSpan": 28,
+    "anyMonth": false
   },
   {
     "id": "pepper",
@@ -605,7 +873,18 @@ export const SPECIES: Species[] = [
       "peppers"
     ],
     "sill": false,
-    "cool": false
+    "cool": false,
+    "hardiness": "tender",
+    "direct": false,
+    "transplant": true,
+    "indoorsWeeks": [
+      12,
+      10
+    ],
+    "successionDays": null,
+    "fallWeeks": null,
+    "fallSpan": 0,
+    "anyMonth": false
   }
 ];
 

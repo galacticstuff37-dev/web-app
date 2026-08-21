@@ -52,6 +52,10 @@ export interface State {
   calView: CalView
   calMonth: number | null
   calOpen: string | null
+  /** id вида на странице культуры */
+  cropId: string | null
+  /** развёрнутые полки сезонов, ключ — id полки */
+  shelves: Record<string, boolean>
   /** одноразовая передача вида из календаря в библиотеку */
   libSeek: string | null
   onbMode: OnbMode
@@ -111,6 +115,8 @@ const INIT: State = {
   calView: 'month',
   calMonth: null,
   calOpen: null,
+  cropId: null,
+  shelves: {},
   libSeek: null,
   onbMode: null,
   pending: [],
@@ -140,6 +146,9 @@ export type Action =
   | { t: 'calView'; v: CalView }
   | { t: 'calMonth'; v: number | null }
   | { t: 'calOpen'; v: string | null }
+  | { t: 'cropId'; v: string | null }
+  | { t: 'shelf'; v: string }
+  | { t: 'shelvesInit'; v: Record<string, boolean> }
   | { t: 'libSeek'; v: string | null }
   | { t: 'onb'; v: OnbMode }
   | { t: 'onbReset'; v: OnbMode }
@@ -191,6 +200,9 @@ function reducer(s: State, a: Action): State {
     case 'calView': return { ...s, calView: a.v, calOpen: null }
     case 'calMonth': return { ...s, calMonth: a.v }
     case 'calOpen': return { ...s, calOpen: s.calOpen === a.v ? null : a.v }
+    case 'cropId': return { ...s, cropId: a.v }
+    case 'shelf': return { ...s, shelves: { ...s.shelves, [a.v]: !s.shelves[a.v] } }
+    case 'shelvesInit': return { ...s, shelves: a.v }
     case 'libSeek': return { ...s, libSeek: a.v }
     case 'onb': return { ...s, onbMode: a.v }
     // Онбординг начинается с чистого листа: демо-набор не должен притворяться

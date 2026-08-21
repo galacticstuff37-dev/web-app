@@ -303,142 +303,6 @@ body.is-pro .ofr{display:none}
 .mrow s{display:block;font-size:var(--t-11);color:var(--muted);text-decoration:none;letter-spacing:-.02em}
 .wg-dark .mrow s{color:#A9BCB0}
 .mrow b{display:block;font-size:var(--t-15);font-weight:600;margin-top:2px;letter-spacing:-.02em}
-/* ───── Harvest calendar.
-   Виджет на Growth остаётся сеткой из 12 клеток — это превью года.
-   На самом экране окна рисуются НЕПРЕРЫВНЫМИ полосами: клетка с зазором
-   читается как шахматка, полоса — как отрезок времени. Посев и сбор идут
-   двумя дорожками, как в печатных календарях университетских extension-служб
-   (Iowa State, Foodwise), поэтому третий цвет под «и сеять, и снимать»
-   больше не нужен — видно сам сдвиг между посевом и сбором. */
-.calyear{display:grid;grid-template-columns:repeat(12,1fr);gap:3px;margin-top:12px}
-.calyear i{height:30px;border-radius:5px;background:#F0F3EF;font-style:normal;
-     font-size:var(--t-11);font-weight:600;color:var(--muted);display:flex;
-     align-items:flex-end;justify-content:center;padding-bottom:3px}
-.calyear i.c-sow{background:#B9E3C6;color:#0E6234}
-.calyear i.c-pick{background:var(--primary);color:#fff}
-.calyear i.c-both{background:linear-gradient(180deg,#B9E3C6 0 55%,var(--primary) 55% 100%);color:#fff}
-.calyear i.cnow{box-shadow:inset 0 0 0 1.5px var(--deep)}
-.calcta{margin-top:12px;padding-top:12px;border-top:1px solid var(--hair);
-     font-size:var(--t-13);font-weight:600;color:var(--primary)}
-
-/* переключатель вида: «этот месяц» отвечает на вопрос «что сажать сейчас»,
-   «весь год» — на вопрос «как устроен мой сезон» */
-.calseg{display:grid;grid-template-columns:1fr 1fr;gap:4px;background:var(--surface);
-     border-radius:999px;padding:4px;margin-top:16px}
-.calseg div{height:44px;display:flex;align-items:center;justify-content:center;border-radius:999px;
-     font-size:var(--t-14);font-weight:600;color:var(--muted);cursor:pointer;white-space:nowrap}
-.calseg div.on{background:var(--primary);color:#fff}
-
-/* ── вид «этот месяц» */
-.calmh{display:flex;align-items:center;gap:10px;margin-top:20px}
-.calmh b{font-family:Caprasimo,Georgia,serif;font-weight:400;font-size:var(--t-31);
-     line-height:1.05;letter-spacing:-.01em}
-/* Двенадцать клеток по 44px в 358px не влезают физически, поэтому рейка —
-   ускоритель, а обязательная тап-зона живёт здесь. */
-.calnav{margin-left:auto;display:flex;gap:4px;flex:none}
-.calnav i{width:44px;height:44px;border-radius:50%;background:var(--surface);
-     display:flex;align-items:center;justify-content:center;cursor:pointer;font-style:normal}
-.calnav i svg{fill:none;stroke:var(--primary)}
-.calnav i.prev svg{transform:rotate(180deg)}
-/* рейка года: и обзор двенадцати месяцев, и навигация по ним */
-.calrail{display:grid;grid-template-columns:repeat(12,1fr);gap:3px;margin-top:12px}
-/* пустой месяц на ground'е должен читаться как клетка, а не как дырка:
-   #F0F3EF почти совпадал с фоном экрана */
-.calrail i{height:44px;border-radius:var(--r-xs);background:var(--hair);font-style:normal;
-     font-size:var(--t-11);font-weight:600;color:var(--muted);display:flex;
-     align-items:flex-end;justify-content:center;padding-bottom:5px;cursor:pointer}
-.calrail i.c-sow{background:#B9E3C6;color:#0E6234}
-.calrail i.c-pick{background:var(--primary);color:#fff}
-.calrail i.c-both{background:linear-gradient(180deg,#B9E3C6 0 52%,var(--primary) 52% 100%);color:#fff}
-.calrail i{position:relative}
-.calrail i.on{box-shadow:inset 0 0 0 2px var(--deep)}
-/* «сейчас» тем же оранжевым, что линия сегодня в годовом виде — один язык */
-.calrail i.cnow:after{content:"";position:absolute;top:5px;left:50%;margin-left:-2.5px;
-     width:5px;height:5px;border-radius:50%;background:var(--flame)}
-.calgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:8px}
-.calcard{background:var(--surface);border-radius:var(--r-md);padding:6px;cursor:pointer}
-.calph{aspect-ratio:1;border-radius:var(--r-xs);background:#EDF3EE;background-size:cover;
-     background-position:center;display:flex;align-items:center;justify-content:center}
-.calph svg{width:22px;height:22px;fill:#8CA093}
-.calcard b{display:block;font-size:var(--t-12);font-weight:600;letter-spacing:-.02em;
-     line-height:1.15;height:2.3em;overflow:hidden;margin:5px 2px 0}
-.calcard s{display:block;font-size:var(--t-11);color:var(--muted);text-decoration:none;margin:1px 2px 2px}
-
-/* ── вид «весь год»: таблица непрерывных полос */
-.calbox{--cn:104px;background:var(--surface);border-radius:var(--r-lg);padding:12px}
-.calaxis{display:flex;gap:8px;padding-bottom:6px}
-.calaxis b{flex:0 0 var(--cn)}
-.calaxis div{flex:1;min-width:0;display:grid;grid-template-columns:repeat(12,1fr)}
-.calaxis i{font-style:normal;font-size:var(--t-11);font-weight:600;color:var(--muted);text-align:center}
-.calaxis i.on{color:var(--flame)}
-.caltl{position:relative}
-.calgrp{font-size:var(--t-11);font-weight:700;letter-spacing:.04em;color:var(--muted);
-     margin:10px 0 4px;position:relative;z-index:3;background:var(--surface)}
-.calgrp:first-child{margin-top:0}
-.calgrp s{text-decoration:none;font-weight:600;letter-spacing:0}
-.calrow{display:flex;align-items:center;gap:8px;padding:5px 0;cursor:pointer;
-     position:relative;z-index:1}
-.calname{flex:0 0 var(--cn);font-size:var(--t-12);font-weight:600;letter-spacing:-.02em;
-     white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.calrow.open .calname{color:var(--primary)}
-.caltrack{flex:1;min-width:0;height:17px;position:relative;border-radius:2px;
-     background:repeating-linear-gradient(90deg,#EDF0EB 0 1px,transparent 1px calc(100%/12))}
-.calbar{position:absolute;height:7px;border-radius:999px;font-style:normal}
-.calbar.s-sow{top:0;background:#B9E3C6}
-.calbar.s-pick{top:10px;background:var(--primary)}
-.calbar.s-any{top:5px;background:#DCE7DE}
-/* заморозки и «сегодня» — один слой на всю таблицу, а не по метке в строке */
-.calov{position:absolute;left:calc(var(--cn) + 8px);right:0;top:0;bottom:0;
-     pointer-events:none;z-index:2}
-.calov i{position:absolute;top:0;bottom:0;font-style:normal}
-.calov i.calfrost{border-left:1px dashed #8FA697}
-.calov i.caltoday{width:2px;margin-left:-1px;background:var(--flame);border-radius:999px}
-/* раскрытая строка перекрывает слой линий собой — иначе пунктир и «сегодня»
-   режут даты пополам */
-.caldet{font-size:var(--t-12);color:var(--muted);line-height:1.45;position:relative;z-index:3;
-     background:var(--surface);padding:1px 0 9px calc(var(--cn) + 8px);letter-spacing:-.01em}
-.caldet b{color:var(--ink);font-weight:600}
-.callg{display:flex;gap:14px;flex-wrap:wrap;font-size:var(--t-12);color:var(--muted);margin-top:12px}
-.callg span{display:flex;align-items:center;gap:6px}
-.callg i{font-style:normal;flex:none;width:18px;height:7px;border-radius:999px}
-.callg i.s-sow{background:#B9E3C6}
-.callg i.s-pick{background:var(--primary)}
-.callg i.s-any{background:#DCE7DE}
-.callg i.l-today{width:2px;height:14px;background:var(--flame)}
-.callg i.l-frost{width:0;height:14px;border-radius:0;border-left:1px dashed #8FA697}
-.ccard{background:var(--surface);border-radius:var(--r-lg);padding:12px;margin-bottom:8px}
-.chead{display:flex;align-items:center;gap:12px;cursor:pointer;padding:4px}
-.chead .nm b{display:block;font-size:var(--t-16);font-weight:600;letter-spacing:-.02em}
-.chead .nm s{display:block;font-size:var(--t-13);color:var(--muted);text-decoration:none;margin-top:2px}
-.cstrip{display:flex;gap:4px;margin-top:8px;overflow-x:auto;scrollbar-width:none;
-      overscroll-behavior-inline:contain;scroll-snap-type:x proximity}
-.cstrip::-webkit-scrollbar{display:none}
-.cstrip>div{flex:0 0 calc(25% - 3px);aspect-ratio:1;border-radius:var(--r-sm);background-size:cover;
-      background-position:center;background-color:#DDE3DC;scroll-snap-align:start}
-.st-pill{background:#EAF5EE}
-.st-pill.st-warn{background:#FDF3E0}.st-pill.st-bad{background:#FDEBE2}
-.cempty{display:flex;align-items:center;gap:8px;margin-top:8px;padding:12px;border-radius:var(--r-sm);
-        background:var(--ground);color:var(--muted);font-size:var(--t-13);font-weight:600;cursor:pointer}
-.cempty svg{flex:none}
-.jgrid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
-.jc{background:var(--surface);border-radius:var(--r-lg);padding:8px;margin:0}
-.jph{aspect-ratio:1;border-radius:var(--r-sm);background-size:cover;background-position:center;background-color:#DDE3DC}
-.jc figcaption{padding:8px 4px 4px}
-.jc figcaption b{display:block;font-size:var(--t-14);font-weight:600;line-height:1.2}
-.jc figcaption s{display:block;font-size:var(--t-12);color:var(--muted);text-decoration:none;margin-top:2px}
-.btn-dash{height:48px;border-radius:999px;border:2px dashed var(--primary);color:var(--primary);
-       display:flex;align-items:center;justify-content:center;gap:8px;margin-top:12px;
-       font-size:var(--t-15);font-weight:700;cursor:pointer}
-.btn-dash svg{fill:var(--primary)}
-.btn-dash:active{background:#EAF5EE}
-#toast{position:absolute;left:12px;right:12px;top:calc(8px + env(safe-area-inset-top));background:var(--deepest);color:#fff;
-       border-radius:var(--r-lg);padding:16px 16px;display:flex;justify-content:space-between;align-items:center;
-       font-size:var(--t-14);opacity:0;transform:translateY(-12px);pointer-events:none;
-       transition:opacity .22s ease-out,transform .22s cubic-bezier(.32,.72,0,1);z-index:70}
-#toast.on{opacity:1;transform:none;pointer-events:auto}
-#toast b{color:var(--lime);font-weight:700;cursor:pointer}
-.zip{background:var(--surface);border-radius:var(--r-lg);padding:16px 16px;font-size:var(--t-31);font-weight:700;letter-spacing:.08em}
-
 /* ───── full-bleed фото */
 .shot{position:absolute;inset:0;background-size:cover;background-position:center}
 .scrim{position:absolute;inset:0;background:linear-gradient(180deg,rgba(11,31,20,.55) 0%,rgba(11,31,20,.05) 32%,rgba(11,31,20,.82) 72%,rgba(11,31,20,.96) 100%)}
@@ -534,10 +398,10 @@ body.is-pro .ofr{display:none}
 /* ───── отклик на нажатие: было на трёх элементах из двадцати четырёх */
 .btn:active,.btn-dash:active,.opt:active,.pl:active,.plcard:active,.chead:active,
 .br-row:active,.chip:active,.ofr:active .ofr-in,.zip:active,.seg div:active,
-.cempty:active,.ccard:active .chead,.calseg div:active,.calcard:active{transform:scale(.985)}
+.cempty:active,.ccard:active .chead{transform:scale(.985)}
 .ni:active{opacity:.6}
 .xbtn:active{transform:scale(.92)}
-.btn,.btn-dash,.opt,.pl,.plcard,.chead,.br-row,.ofr-in,.xbtn,.zip,.seg div,.calseg div,.calcard{
+.btn,.btn-dash,.opt,.pl,.plcard,.chead,.br-row,.ofr-in,.xbtn,.zip,.seg div{
      transition:transform .16s cubic-bezier(.32,.72,0,1),background-color .16s ease-out,
                 opacity .16s ease-out}
 
@@ -590,3 +454,171 @@ body.is-pro .ofr{display:none}
 .recap-h{font-size:var(--t-40);line-height:1.02;margin-top:12px}
 .recap-s{font-size:var(--t-16);color:#A9BCB0;line-height:1.5;margin-top:12px}
 .done-h{font-size:var(--t-31);font-weight:600;line-height:1.15;margin-top:12px;letter-spacing:-.02em}
+
+/* ═════ Harvest calendar ═════
+   Светло-зелёный #B9E3C6 стоит литералом, как в proto.py: токена --pale
+   в системе нет, а tokens.css менять нельзя.
+   Пикер месяцев, лента с текстовыми табами и полки сезонов.
+   Шасси НЕ дублируется: карточка полки — это .wk с главного экрана, строка
+   внутри — геометрия .br-row, акцентный блок — .acc, фото на странице
+   культуры — .score. Здесь только то, чего в системе не было. */
+
+/* ── пикер месяцев: столбик = сколько культур требуют действия, кварталы 2×2 */
+.mcard{background:var(--surface);border-radius:var(--r-lg);padding:16px 12px 12px;
+  display:flex;flex-direction:column;gap:12px}
+.mtop{display:flex;align-items:baseline;gap:8px;padding:0 4px}
+.mtop b{font-size:var(--t-24);line-height:32px;font-weight:600;letter-spacing:-.025em}
+.mtop s{text-decoration:none;margin-left:auto;font-size:var(--t-12);line-height:16px;
+  color:var(--muted);letter-spacing:-.01em}
+.mbars{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.mq{min-width:0;display:flex;flex-direction:column;gap:8px}
+.mqb{display:grid;grid-template-columns:repeat(3,1fr);gap:4px}
+.mq>s{text-decoration:none;text-align:center;font-size:10px;font-weight:600;letter-spacing:.09em;
+  color:#9AA69E;padding-top:8px;border-top:1px solid var(--hair)}
+.mq.on>s{color:var(--ink-2)}
+.mbars button{border:0;background:none;padding:8px 0;cursor:pointer;font-family:inherit;
+  display:flex;flex-direction:column;align-items:center;justify-content:flex-end;
+  gap:8px;height:56px;border-radius:var(--r-sm)}
+.mbars button.on{background:var(--ground)}
+.mbars i{display:block;width:100%;max-width:26px;border-radius:3px;background:var(--hair)}
+.mbars button.has i{background:#B9E3C6}
+.mbars button.on i{background:var(--primary)}
+.mbars span{font-size:var(--t-12);line-height:16px;font-weight:600;color:var(--muted)}
+.mbars button.on span{color:var(--ink)}
+.mbars button.now span{color:var(--flame)}
+.mbars button:focus-visible{outline:2px solid var(--bright);outline-offset:2px}
+
+/* ── текстовые табы с подчёркиванием: прижаты влево, индикатор едет transform'ом */
+.ftabs{display:flex;gap:24px;position:relative;box-shadow:inset 0 -1px 0 var(--hair)}
+.ftabs button{background:none;border:0;padding:0 0 8px;height:44px;flex:none;
+  display:flex;align-items:center;gap:5px;cursor:pointer;font-family:inherit;
+  font-size:var(--t-14);line-height:20px;font-weight:500;color:var(--muted);
+  letter-spacing:-.01em;white-space:nowrap}
+.ftabs button em{font-style:normal;font-size:var(--t-12);font-weight:500;opacity:.6}
+.ftabs button.on{color:var(--ink);font-weight:600}
+.ftabs button:focus-visible{outline:2px solid var(--bright);outline-offset:2px;border-radius:6px}
+.ftabs .tl{position:absolute;left:0;bottom:0;height:2px;display:block;background:var(--primary);
+  border-radius:2px 2px 0 0;pointer-events:none}
+@media (prefers-reduced-motion:no-preference){
+  .ftabs .tl{transition:transform .28s cubic-bezier(.32,.72,0,1),width .28s cubic-bezier(.32,.72,0,1)}}
+
+/* ── строка ленты */
+.frow{display:flex;align-items:center;gap:12px;background:var(--surface);border:0;width:100%;
+  border-radius:var(--r-lg);padding:8px 12px 8px 8px;cursor:pointer;text-align:left;
+  font-family:inherit;color:var(--ink)}
+.frow:focus-visible{outline:2px solid var(--bright);outline-offset:2px}
+.frow .fth{width:48px;height:48px;border-radius:var(--r-md);background-size:cover;
+  background-position:center;background-color:var(--ground);flex:none}
+.frow .ftx{flex:1;min-width:0}
+.frow .ftx b{display:block;font-size:var(--t-15);line-height:20px;font-weight:600;
+  letter-spacing:-.02em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.frow .ftx s{display:block;text-decoration:none;font-size:var(--t-12);line-height:16px;
+  color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.frow .frt{flex:none;font-size:var(--t-12);font-weight:600;color:var(--muted);
+  font-variant-numeric:tabular-nums;white-space:nowrap}
+.frow .frt.hot{background:var(--deep);color:#fff;padding:5px 9px;border-radius:999px}
+.frow .frt.hot em{font-style:normal;color:var(--lime)}
+.frow .fca{flex:none;width:18px;height:18px;color:#9FAEA4;display:flex}
+
+/* ── полки сезонов: диапазон вместо выдуманного прогресса */
+.pb-range{margin-left:auto;font-size:var(--t-15);line-height:20px;font-weight:600;
+  color:var(--muted);letter-spacing:-.02em;white-space:nowrap;font-variant-numeric:tabular-nums;
+  overflow:hidden;text-overflow:ellipsis}
+.crow{display:flex;align-items:center;gap:12px;padding:12px 0;cursor:pointer;width:100%;
+  border:0;background:none;font-family:inherit;text-align:left;color:var(--ink)}
+.crow:focus-visible{outline:2px solid var(--bright);outline-offset:2px;border-radius:8px}
+.crow .cth{width:40px;height:40px;border-radius:var(--r-sm);flex:none;background-size:cover;
+  background-position:center;background-color:var(--ground)}
+.crow .crt{flex:1;min-width:0}
+.crow .crt b{display:block;font-size:var(--t-15);line-height:20px;font-weight:600;
+  letter-spacing:-.02em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.crow .crt s{display:block;font-size:var(--t-13);line-height:20px;font-weight:400;
+  color:var(--ink-2);text-decoration:none;margin-top:2px;white-space:nowrap;overflow:hidden;
+  text-overflow:ellipsis}
+.crow .cnow{flex:none;background:var(--deep);color:var(--lime);font-size:10px;font-weight:700;
+  letter-spacing:.02em;padding:4px 8px;border-radius:999px}
+.crow .cca{flex:none;width:16px;height:16px;color:#9FAEA4;display:flex}
+
+/* пустой сезон — строка между карточками, а не блок на треть экрана */
+.gapline{display:flex;align-items:center;gap:12px;padding:0 4px;font-size:var(--t-12);
+  line-height:16px;color:var(--muted)}
+.gapline i{flex:none;width:18px;height:18px;color:#9FAEA4;display:flex}
+.gapline b{color:var(--ink-2);font-weight:600}
+
+/* ── страница культуры */
+/* .box уже занят чекбоксом задачи 24×24 — здесь свой префикс */
+.wbox{background:var(--surface);border-radius:var(--r-lg);padding:16px;display:flex;
+  flex-direction:column;gap:16px}
+.wpill{display:inline-flex;align-items:center;gap:8px;align-self:flex-start;max-width:100%;
+  padding:8px 16px;border-radius:999px;font-size:var(--t-13);line-height:20px;font-weight:600;
+  letter-spacing:-.01em}
+.wpill em{font-style:normal;opacity:.72;font-weight:500}
+.wpill.go{background:var(--deep);color:#fff}
+.wpill.go em{color:var(--lime);opacity:1}
+.wpill.soon{background:#B9E3C6;color:var(--deep)}
+.wpill.shut{background:var(--ground);color:var(--muted)}
+.wchips{display:grid;gap:8px}
+.wchip{background:var(--surface);border-radius:var(--r-md);padding:12px;min-width:0}
+.wchip s{display:flex;align-items:center;gap:4px;line-height:16px;text-decoration:none;
+  font-size:var(--t-11);font-weight:600;letter-spacing:.04em;text-transform:uppercase;
+  color:var(--muted);white-space:nowrap;overflow:hidden}
+.wchip s i{width:7px;height:7px;border-radius:2px;flex:none}
+.wchip s u{text-decoration:none;overflow:hidden;text-overflow:ellipsis}
+.wchip s i.k-sow{background:var(--primary)}
+.wchip s i.k-pick{background:#B9E3C6}
+.wchip s i.k-plant{background:var(--deepest)}
+.wchip s i.k-ind{background:var(--surface);box-shadow:inset 0 0 0 1.2px var(--muted)}
+.wchip b{display:block;font-size:var(--t-13);line-height:20px;font-weight:600;margin-top:4px;
+  letter-spacing:-.03em;font-variant-numeric:tabular-nums;white-space:nowrap;overflow:hidden;
+  text-overflow:ellipsis}
+.wchip.na b{color:var(--muted);font-weight:500}
+.wchip.live{background:#B9E3C6}
+.wchip.live s{color:#276C46}
+.facts{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.fact{background:var(--surface);border-radius:var(--r-md);padding:12px;display:flex;
+  align-items:center;gap:12px;min-width:0}
+.fact .fi{width:32px;height:32px;border-radius:var(--r-sm);background:var(--ground);flex:none;
+  display:flex;align-items:center;justify-content:center;color:var(--primary)}
+.fact div{min-width:0}
+.fact s{display:block;text-decoration:none;font-size:var(--t-11);line-height:16px;
+  color:var(--muted);letter-spacing:.02em}
+.fact b{display:block;font-size:var(--t-15);line-height:20px;font-weight:600;
+  letter-spacing:-.02em;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.fact.warm .fi{background:var(--deep);color:var(--lime)}
+.fact.cold .fi{background:#B9E3C6;color:var(--deep)}
+.wnote{display:flex;gap:12px;align-items:flex-start;font-size:var(--t-13);line-height:20px;
+  color:var(--ink-2)}
+.wnote .fi{flex:none;width:24px;height:24px;border-radius:var(--r-sm);background:#B9E3C6;
+  display:flex;align-items:center;justify-content:center;color:var(--deep)}
+.wnote b{font-weight:600;color:var(--ink)}
+.wsrc{font-size:var(--t-11);line-height:16px;color:var(--muted);text-align:center;
+  letter-spacing:-.01em}
+
+/* ── годовая полоса на странице культуры */
+.ystrip{display:block;width:100%}
+.ystrip .mon{font:600 10px 'Inter Tight',sans-serif;fill:var(--muted);letter-spacing:.03em}
+.ystrip .mon.on{fill:var(--flame)}
+.ystrip .bandbg{fill:var(--ground)}
+.ystrip .frost{fill:var(--hair)}
+.ystrip .mgrid{stroke:#D8E0D7;stroke-width:1}
+.ystrip .fline{stroke:var(--muted);stroke-width:1;stroke-dasharray:2 3;opacity:.55}
+.ystrip .b-sow{fill:var(--primary)}
+.ystrip .b-pick{fill:#B9E3C6}
+.ystrip .b-plant{fill:var(--deepest)}
+.ystrip .b-ind{fill:var(--surface);stroke:var(--muted);stroke-width:1.2;stroke-dasharray:2.5 2.5}
+.ystrip .tick{fill:var(--surface);opacity:.9}
+.ystrip .now{stroke:var(--flame);stroke-width:2}
+.ystrip .nowdot{fill:var(--flame)}
+
+/* превью года в виджете на Growth — тот же язык столбиков, что и в пикере */
+.wgyear{display:grid;grid-template-columns:repeat(12,1fr);gap:3px;align-items:end;
+  height:20px;margin-top:12px}
+.wgyear i{display:block;width:100%;border-radius:2px;background:#B9E3C6}
+.wgyear i.now{background:var(--flame)}
+.wgcta{margin-top:12px;padding-top:12px;border-top:1px solid var(--hair);
+  font-size:var(--t-13);line-height:20px;font-weight:600;color:var(--primary)}
+
+/* .wk-h в системе — div; здесь это кнопка, а у неё нет ни ширины, ни сброса */
+button.wk-h{display:block;width:100%;border:0;background:none;font-family:inherit;
+  text-align:left;color:var(--ink)}
+button.wk-h:focus-visible{outline:2px solid var(--bright);outline-offset:-3px}

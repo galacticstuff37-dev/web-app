@@ -3,6 +3,7 @@
 
 import type { ReactElement } from 'react'
 import { CalendarScreen } from './screens/Calendar'
+import { CropScreen } from './screens/Crop'
 import { GrowthScreen } from './screens/Growth'
 import { HomeScreen } from './screens/Home'
 import { PlantScreen } from './screens/Plant'
@@ -138,6 +139,11 @@ export const ROUTES: Route[] = [
         + 'культуру, группы cool/warm-season, пунктир заморозков и оранжевая линия сегодня. '
         + 'Окна выводятся из даты заморозков ZIP, длины сезона и дней до сбора.',
     render: p => <CalendarScreen go={p.go} openSpecies={p.openSpecies} /> },
+  { id: 'crop', title: 'Crop', group: 'Growth',
+    note: 'Страница культуры из справочника — не растение из My plants. Три дорожки '
+        + '(рассада → высадка → прямой посев), два окна в году и «N/A» там, где способа '
+        + 'нет вовсе. Открывается из календаря: из ленты и из полки сезона.',
+    render: p => <CropScreen go={p.go} /> },
 
   // ── Деньги
   { id: 'paywall', title: 'Paywall', group: 'Деньги',

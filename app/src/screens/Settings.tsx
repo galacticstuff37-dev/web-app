@@ -15,7 +15,7 @@ import {
 import { ZIPS } from '../data/zips'
 import { allPhotos, isEdible } from '../lib/plants'
 import { cap } from '../lib/plan'
-import { zipInfo } from '../lib/season'
+import { seasonDays, zipInfo } from '../lib/season'
 import { useStore, type Units } from '../state/store'
 
 type Go = (id: string) => void
@@ -163,7 +163,7 @@ export function PickScreen({ go }: { go: Go }) {
       v, label: cap(v), sub: isOutdoorSpace(cap(v)) ? 'Outside' : 'Indoors' }))
     if (key === 'zip') return ZIPS.map(z => ({
       v: z.zip, label: `${z.zip} · ${z.city}`,
-      sub: `Zone ${z.zone} · last frost ${z.frost} · ${z.season}-day season` }))
+      sub: `Zone ${z.zone} · frost ${z.last} – ${z.first} · ${seasonDays(z.zip)}-day season` }))
     if (key === 'light') {
       const L = c.outdoor ? LIGHT_OUT : LIGHT_IN
       const R = c.outdoor ? LIGHT_RANK_OUT : LIGHT_RANK_IN

@@ -12,7 +12,7 @@ import {
   GOALS, Q4TITLE, SPACES, SUNLABEL, SUNRANK, TRACKOF, goalTag, isOutdoorSpace,
 } from '../data/onboarding'
 import { useStore, type Track } from '../state/store'
-import { zipInfo } from '../lib/season'
+import { seasonDays, zipInfo } from '../lib/season'
 
 type Go = (id: string) => void
 
@@ -153,8 +153,8 @@ export function Q2Screen({ go }: { go: Go }) {
             <div className="lbl">Climate profile</div>
             <div className="big">{z.city}</div>
             <div className="duo">
-              <div className="cell"><s>Last frost</s><b>{z.frost}</b></div>
-              <div className="cell"><s>Season</s><b>{z.season} days</b></div>
+              <div className="cell"><s>Last frost</s><b>{z.last}</b></div>
+              <div className="cell"><s>Season</s><b>{seasonDays(z.zip)} days</b></div>
             </div>
           </div>
         )}

@@ -58,8 +58,8 @@ export function App() {
   if (hash === 'review') return <Review />
 
   const openSpecies = (sp: Species) => {
-    d({ t: 'libSeek', v: sp.id })
-    goTracked('add-plant')
+    d({ t: 'cropId', v: sp.id })
+    goTracked('crop')
   }
 
   return (

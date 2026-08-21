@@ -7,7 +7,7 @@
 import { GOALWORD, SUNNEED, type Track } from '../data/onboarding'
 import type { Species } from '../data/species'
 import { lc } from './plants'
-import { speciesPool, zipInfo } from './season'
+import { seasonDays, speciesPool } from './season'
 
 export interface PlanCtx {
   track: Track
@@ -26,7 +26,7 @@ export const anA = (w: string) => (/^[aeiou]/i.test(w) ? 'an ' : 'a ') + w
 export const inOn = (outdoor: boolean) => (outdoor ? 'on your ' : 'in your ')
 export const cap = (s: string) => s.charAt(0).toUpperCase() + s.slice(1)
 export const inDays = (n: number) => (n <= 0 ? 'today' : n === 1 ? 'tomorrow' : `in ${n} days`)
-export const seasonWeeks = (zip: string) => Math.round(zipInfo(zip).season / 7)
+export const seasonWeeks = (zip: string) => Math.round(seasonDays(zip) / 7)
 
 const MONTH = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
 export function dateAfter(days: number) {

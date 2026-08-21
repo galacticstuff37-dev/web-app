@@ -91,12 +91,11 @@
    inset-тень: рамка занимала 1px в потоке и одна ломала всю арифметику. */
 #s-home .wg .num { line-height: 40px }
 #s-home .wg .lbl { margin-top: var(--s1); line-height: 16px }
-#s-home .mrow {
-  border-top: 0; box-shadow: inset 0 1px 0 var(--hair);
-  gap: var(--s2); margin-top: var(--s2); padding-top: var(--s2);
-}
-#s-home .wg-dark .mrow { box-shadow: inset 0 1px 0 rgba(255, 255, 255, .14) }
-#s-home .mrow s { line-height: 16px }
+/* Разделителя нет: группы внутри карточки разводят иконки, а не линейка.
+   Горизонтальный отступ карточки — 8. */
+#s-home .wg { padding: var(--s2) var(--s1) }
+#s-home .mrow { border-top: 0; gap: var(--s2); margin-top: var(--s2); padding-top: 0 }
+#s-home .mrow s { display: flex; align-items: center; gap: var(--s1); line-height: 16px }
 #s-home .mrow b { margin-top: 0; line-height: 24px }        /* ячейка = 16 + 24 */
 
 /* Лист: ярлык и его карусель — пара (s1), блок недели — новая группа (s3). */

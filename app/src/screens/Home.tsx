@@ -147,7 +147,8 @@ function Hero() {
           <div className="wg wg-dark">
             <div className="wg-top"><div className="num">{due.length}</div><IcDropBig /></div>
             <div className="lbl">Water today</div>
-            <MetricRow items={[['Soon', soon.length], ['Plants', plants.length]]} />
+            <MetricRow items={[['Soon', soon.length], ['Plants', plants.length]]}
+                      icons={['calendar-days', 'potted-plant']} />
           </div>
           <div className="wg wg-lite">
             <div className="wg-top">
@@ -160,7 +161,7 @@ function Hero() {
               ['Light', lightShort(nextP.s)],
               [isEdible(nextP) ? 'Harvest' : 'Humidity',
                isEdible(nextP) ? hEta(nextP) : nextP.s.hum],
-            ]} />
+            ]} icons={['sun', isEdible(nextP) ? 'basket' : 'droplets']} />
           </div>
         </div>
       </div>

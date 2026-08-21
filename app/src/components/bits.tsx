@@ -60,10 +60,19 @@ export function RingBig({ pct, sz }: { pct: number; sz: number }) {
   )
 }
 
-export function MetricRow({ items }: { items: Array<[string, ReactNode]> }) {
+export function MetricRow({ items, icons }:
+    { items: Array<[string, ReactNode]>; icons?: string[] }) {
   return (
     <div className="mrow">
-      {items.map(([k, v], i) => <div key={i}><s>{k}</s><b>{v}</b></div>)}
+      {items.map(([k, v], i) => (
+        <div key={i}>
+          <s>
+            {icons?.[i] && <Icon name={icons[i]} color="currentColor" size={14} />}
+            {k}
+          </s>
+          <b>{v}</b>
+        </div>
+      ))}
     </div>
   )
 }

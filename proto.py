@@ -3742,6 +3742,10 @@ self.addEventListener('activate', e => {
 self.addEventListener('fetch', e => {
   const req = e.request;
   if (req.method !== 'GET') return;
+  // React-порт живёт в /react/ и НЕ обслуживается этим воркером: иначе его
+  // страница попала бы в кэш под именем ./index.html и затёрла офлайн-копию
+  // прототипа — вернувшийся посетитель без сети получил бы чужое приложение.
+  if (new URL(req.url).pathname.indexOf('/react/') > -1) return;
   const isDoc = req.mode === 'navigate' || req.destination === 'document';
   if (isDoc) {
     // HTML — только из сети, кэш лишь как офлайн-запасной. Иначе обновления

@@ -1,0 +1,56 @@
+/* Обвязка маршрута /review. Всё под префиксом .rv — свои имена, чтобы не
+   столкнуться с классами прототипа: на коллизиях (.pro у пилюли и body.pro,
+   .dark у виджета и у полноэкранного блока) в этом проекте уже обжигались.
+   Токены берутся из tokens.css, новых цветов здесь не вводится. */
+
+.rv { display: flex; min-height: 100vh; background: #DDE2DA; }
+
+.rv-side {
+  width: 340px; flex: none; padding: 24px 20px 40px;
+  background: var(--surface); overflow-y: auto; max-height: 100vh;
+}
+.rv-wm {
+  font-family: Caprasimo, Georgia, serif; font-size: var(--t-12);
+  letter-spacing: .06em; color: var(--primary);
+}
+.rv-h {
+  font-family: Caprasimo, Georgia, serif; font-weight: 400;
+  font-size: var(--t-24); line-height: 1.1; margin: 8px 0 0;
+}
+.rv-p, .rv-note {
+  font-size: var(--t-13); color: var(--muted); line-height: 1.5; margin: 8px 0 0;
+  text-wrap: pretty;
+}
+.rv-lb {
+  font-size: var(--t-11); font-weight: 700; letter-spacing: .04em;
+  color: var(--muted); margin: 20px 0 8px; text-transform: uppercase;
+}
+.rv-chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.rv-chip {
+  border: 0; cursor: pointer; background: var(--ground); color: var(--ink);
+  border-radius: 999px; padding: 8px 14px; min-height: 36px;
+  font: 600 var(--t-13)/1 'Inter Tight', sans-serif; letter-spacing: -.01em;
+}
+.rv-chip:hover { background: var(--lime); }
+.rv-chip.on { background: var(--primary); color: #fff; }
+
+.rv-stage {
+  flex: 1; display: flex; gap: 32px; padding: 32px; align-items: flex-start;
+  overflow-x: auto;
+}
+.rv-cap {
+  font-size: var(--t-12); font-weight: 600; color: var(--muted);
+  margin-bottom: 10px; letter-spacing: -.01em;
+}
+/* .phone уже описан в перенесённом CSS (390x844, радиус 44) — здесь только тень */
+.rv .phone { box-shadow: 0 24px 64px rgba(11, 31, 20, .22); }
+.rv-frame {
+  width: 390px; height: 844px; border: 0; border-radius: 44px;
+  background: var(--ground); box-shadow: 0 24px 64px rgba(11, 31, 20, .22);
+}
+
+@media (max-width: 1100px) {
+  .rv { flex-direction: column; }
+  .rv-side { width: auto; max-height: none; }
+  .rv-stage { padding: 20px; }
+}

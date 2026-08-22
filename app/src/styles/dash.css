@@ -114,11 +114,14 @@
    то есть ровно под шапку. Фон — чтобы карусель уезжала под него. */
 .dash-sec {
   position: sticky; top: 0; z-index: 2;
-  margin: 0; padding-bottom: var(--s1);
+  /* во всю ширину, как карусель: полоса по ширине контента оставляла в
+     16px-полях щели, и карточки уезжали вверх прямо сквозь них */
+  margin: 0 calc(-1 * var(--s2)); padding: 0 var(--s2) var(--s1);
   line-height: 24px; background: var(--ground);
 }
-.dash-sec i { padding: var(--s2) var(--s1); margin: calc(-1 * var(--s2)) calc(-1 * var(--s1));
-              line-height: 24px }
+/* тап-зона 48px при полосе в 32: раздуваем на 12, а не на 16 — с 16 «Add»
+   вылезал за правый край полосы */
+.dash-sec i { padding: 12px var(--s1); margin: -12px calc(-1 * var(--s1)); line-height: 24px }
 .dash .prow-scroll {
   gap: var(--s1); margin: 0 calc(-1 * var(--s2)); padding: 0 var(--s2) var(--s1);
 }

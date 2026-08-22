@@ -280,8 +280,7 @@ export function CalendarScreen({ go, openSpecies }:
         </p>
       ) : (
         <>
-          <div className="seg" role="radiogroup" aria-label="Calendar view"
-               style={{ marginTop: 16 }}>
+          <div className="seg wide" role="radiogroup" aria-label="Calendar view">
             {(['month', 'year'] as const).map(v => (
               <div key={v} className={view === v ? 'on' : undefined} role="radio" tabIndex={0}
                    aria-checked={view === v}

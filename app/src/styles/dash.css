@@ -6,7 +6,7 @@
    Chrome.tsx на скролле через style.setProperty, без ререндера React.
    Цвета только из токенов и из той же шкалы скрима, что у .score-sc. */
 
-.screen.has-hero { --p: 0; --hero-h: 380px; --hero-pad: 300px; --hero-blur: 18px }
+.screen.has-hero { --p: 0; --q: 0; --hero-h: 380px; --hero-pad: 300px; --hero-blur: 18px }
 
 /* ─────────── Сетка экрана: шаг 8, две роли и только они.
    --s1  8px  внутри пары: подпись и её значение, ярлык и его содержимое
@@ -46,8 +46,19 @@
    фон надо снять, иначе он закрашивает верх фотографии светлой полосой. */
 .has-hero .sb { position: relative; z-index: 2; color: #fff }
 .has-hero .hd { background: none }
-.has-hero .hd .wm { color: #fff; opacity: calc(1 - var(--p) * 1.7) }
-.has-hero .bd { position: relative; z-index: 1; padding-top: var(--hero-pad) }
+/* Фон шапки проявляется, когда лист к ней подходит: без него в этой полосе
+   остаётся обрезанное .bd размытое фото — то самое пятно. */
+.has-hero .hd::before {
+  content: ''; position: absolute; inset: 0; z-index: -1;
+  background: var(--ground); opacity: var(--q);
+}
+/* Вордмарк не гаснет, а переходит из белого в фирменный вместе с фоном. */
+.has-hero .hd .wm {
+  color: #fff;
+  color: color-mix(in srgb, var(--primary) calc(var(--q) * 100%), #fff);
+}
+.has-hero .bd { position: relative; z-index: 1; padding-top: 0 }
+.hero-gap { height: var(--hero-pad) }
 
 /* Лист контента: во всю ширину, скруглён сверху, всегда есть чем прокрутить
    фото — иначе на коротком контенте параллакса не увидеть. */
@@ -99,7 +110,13 @@
 #s-home .mrow b { margin-top: 0; line-height: 24px }        /* ячейка = 16 + 24 */
 
 /* Лист: ярлык и его карусель — пара (s1), блок недели — новая группа (s3). */
-.dash-sec { margin: 0 0 var(--s1); height: 24px; line-height: 24px }
+/* «My plants» остаётся видимым и встаёт под лого: липнет к верху .bd,
+   то есть ровно под шапку. Фон — чтобы карусель уезжала под него. */
+.dash-sec {
+  position: sticky; top: 0; z-index: 2;
+  margin: 0; padding-bottom: var(--s1);
+  line-height: 24px; background: var(--ground);
+}
 .dash-sec i { padding: var(--s2) var(--s1); margin: calc(-1 * var(--s2)) calc(-1 * var(--s1));
               line-height: 24px }
 .dash .prow-scroll {

@@ -126,7 +126,7 @@ export function Screen({ id, children, back, nav, offer, foot, scrollKey, hero }
   useLayoutEffect(() => {
     const el = root.current, box = bd.current
     if (!hero || !el || !box) return
-    let h = 0, raf = 0
+    let h = 0, pad = 0, raf = 0
     const measure = () => {
       // 0.68 — фото должно вместить и шапку, и весь блок дашборда на себе,
       // и при этом остаться фотографией: сверху видна чистая полоса кадра.
@@ -136,7 +136,8 @@ export function Screen({ id, children, back, nav, offer, foot, scrollKey, hero }
       // .bd начинается ниже статус-бара и шапки, а фото — от нуля экрана.
       // Отступ считаем от РЕАЛЬНОГО верха .bd: в приложении статус-бара нет,
       // в ревью он есть, и захардкоженное число сдвинуло бы лист.
-      el.style.setProperty('--hero-pad', Math.max(0, h - 16 - box.offsetTop) + 'px')
+      pad = Math.max(0, h - 16 - box.offsetTop)
+      el.style.setProperty('--hero-pad', pad + 'px')
     }
     const onScroll = () => {
       if (raf) return
@@ -144,6 +145,11 @@ export function Screen({ id, children, back, nav, offer, foot, scrollKey, hero }
         raf = 0
         const p = h ? Math.min(1, Math.max(0, box.scrollTop / h)) : 0
         el.style.setProperty('--p', p.toFixed(3))
+        // q — насколько лист подошёл к шапке. .bd обрезает содержимое по своей
+        // границе, поэтому в полосе шапки всегда видно фото: без непрозрачного
+        // фона там остаётся размытое пятно. Фон и цвет вордмарка ведём по q.
+        const q = Math.min(1, Math.max(0, 1 - (pad - box.scrollTop) / 64))
+        el.style.setProperty('--q', q.toFixed(3))
       })
     }
     measure(); onScroll()
@@ -165,7 +171,13 @@ export function Screen({ id, children, back, nav, offer, foot, scrollKey, hero }
       {hero && <div className="hero">{hero}</div>}
       <StatusBar />
       <Header back={!!back} onBack={back} />
-      <div className="bd" ref={bd}>{children}</div>
+      {/* Распорка под фото, а НЕ padding-top у .bd: sticky внутри скролл-
+          контейнера отсчитывает top:0 ниже его padding, и липкий заголовок
+          вставал бы на 468px ниже шапки вместо того, чтобы встать под неё. */}
+      <div className="bd" ref={bd}>
+        {hero && <div className="hero-gap" aria-hidden="true" />}
+        {children}
+      </div>
       {foot && <div className="foot">{foot}</div>}
       {offer && <Offer {...offer} />}
       {nav && <Nav {...nav} />}

@@ -8,6 +8,7 @@
 import {
   createContext, useContext, useEffect, useMemo, useReducer, type ReactNode,
 } from 'react'
+import { load, save } from '../lib/persist'
 import { mkPlant, tkey, type Plant, type Task } from '../lib/plants'
 import { speciesPool, type Ctx, type Pool } from '../lib/season'
 import type { Species } from '../data/species'
@@ -265,12 +266,19 @@ const Ctx0 = createContext<Store | null>(null)
 
 export function StoreProvider({ children, initial }:
     { children: ReactNode; initial?: Partial<State> }) {
-  const [s, d] = useReducer(reducer, { ...INIT, ...initial })
+  const [s, d] = useReducer(reducer, { ...load(INIT), ...initial })
   const value = useMemo<Store>(() => {
     const ctx: Ctx = { zip: s.choices.zip, outdoor: s.choices.outdoor }
     const p: Pool = { track: s.choices.track, outdoor: s.choices.outdoor }
     return { s, d, ctx, pool: speciesPool(p) }
   }, [s])
+  // Пишем только когда меняется сохраняемое. Ссылки на слайсы стабильны, так
+  // что список зависимостей вместо целого s не даёт записи на каждый тост и на
+  // каждую букву в поиске — а с фотографиями в блобе это уже заметно.
+  useEffect(() => { save(s) },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [s.choices, s.plants, s.selected, s.isPro, s.units, s.remind, s.care, s.mail,
+     s.done, s.calView, s.onbMode])
   // для сверки с прототипом из консоли: __state().plants
   useEffect(() => {
     ;(window as unknown as { __state?: () => State }).__state = () => s

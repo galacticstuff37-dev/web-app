@@ -139,6 +139,23 @@ export function Toast() {
   )
 }
 
+/** Максимальная сторона снимка: журнал показывает кадр на ширину экрана,
+    а квота localStorage одна на все фотографии. */
+const SHOT_MAX = 1280
+
+/** Кадр в data-URL. blob-URL умирает вместе со страницей: после перезагрузки
+    журнал показывал бы битые картинки вместо снимков. */
+async function toDataUrl(f: File): Promise<string> {
+  const bmp = await createImageBitmap(f, { imageOrientation: 'from-image' })
+  const k = Math.min(1, SHOT_MAX / Math.max(bmp.width, bmp.height))
+  const c = document.createElement('canvas')
+  c.width = Math.round(bmp.width * k)
+  c.height = Math.round(bmp.height * k)
+  c.getContext('2d')!.drawImage(bmp, 0, 0, c.width, c.height)
+  bmp.close()
+  return c.toDataURL('image/jpeg', 0.8)
+}
+
 /** Скрытый input для «камеры»: настоящий выбор файла, снимок уходит в журнал. */
 export function useCamera(onShot: (url: string) => void) {
   const ref = useRef<HTMLInputElement>(null)
@@ -147,8 +164,10 @@ export function useCamera(onShot: (url: string) => void) {
            style={{ display: 'none' }}
            onChange={e => {
              const f = e.target.files?.[0]
-             if (f) onShot(URL.createObjectURL(f))
              e.target.value = ''
+             // Формат, который браузер не декодирует (бывает с HEIC): показываем
+             // кадр как есть. Перезагрузку он не переживёт, но и не пропадёт сейчас.
+             if (f) toDataUrl(f).then(onShot, () => onShot(URL.createObjectURL(f)))
            }} />
   )
   return { input, open: () => ref.current?.click() }

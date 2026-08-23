@@ -94,6 +94,12 @@ interface ScreenProps {
   /** сбрасывать прокрутку при смене этого значения (в прототипе — при go()) */
   scrollKey?: string
   /**
+   * Слой поверх экрана: лист подтверждения со скримом. Как и foot, обязан быть
+   * соседом .bd, а не его потомком — внутри скролл-контейнера он уезжает вместе
+   * с содержимым и обрезается.
+   */
+  overlay?: ReactNode
+  /**
    * Слой под шапкой: фото во всю ширину до самого верха экрана. Лежит вне
    * потока, поэтому контент .bd проезжает поверх него. Высота — в --hero-h,
    * прогресс прокрутки — в --p (0…1), из них CSS считает параллакс и блюр.
@@ -101,7 +107,7 @@ interface ScreenProps {
   hero?: ReactNode
 }
 
-export function Screen({ id, children, back, nav, offer, foot, scrollKey, hero }: ScreenProps) {
+export function Screen({ id, children, back, nav, offer, foot, scrollKey, hero, overlay }: ScreenProps) {
   const root = useRef<HTMLDivElement>(null)
   const bd = useRef<HTMLDivElement>(null)
 
@@ -204,6 +210,7 @@ export function Screen({ id, children, back, nav, offer, foot, scrollKey, hero }
       {foot && <div className="foot">{foot}</div>}
       {offer && <Offer {...offer} />}
       {nav && <Nav {...nav} />}
+      {overlay}
     </div>
   )
 }

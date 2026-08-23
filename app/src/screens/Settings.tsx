@@ -5,7 +5,9 @@
 // все варианты и что выбрано сейчас. У каждого варианта есть следствие.
 
 import { AccountRow } from './Auth'
+import { useState } from 'react'
 import { Screen } from '../components/Chrome'
+import { Confirm } from '../components/Confirm'
 import { PickRow, SetRow, SwRow } from '../components/parts'
 import { IcChev } from '../icons/Icon'
 import { bg } from '../lib/assets'
@@ -21,7 +23,18 @@ import { useStore, type Units } from '../state/store'
 
 type Go = (id: string) => void
 
+/** Что именно исчезнет — числами из состояния, а не «все ваши данные». */
+function wipeBody(plants: number, photos: number) {
+  const p = `${plants} ${plants === 1 ? 'plant' : 'plants'}`
+  const ph = photos ? ` and ${photos} ${photos === 1 ? 'photo' : 'photos'}` : ''
+  return plants
+    ? `${p}${ph}, your ZIP, your light and every reminder go with it. `
+      + 'This cannot be undone.'
+    : 'Your settings and reminders go with it. This cannot be undone.'
+}
+
 export function SettingsScreen({ go }: { go: Go }) {
+  const [ask, setAsk] = useState(false)
   const { s, d } = useStore()
   const c = s.choices
   const mins = c.effort === 3 ? 10 : c.effort === 4 ? 20 : 30
@@ -54,7 +67,14 @@ export function SettingsScreen({ go }: { go: Go }) {
   }
 
   return (
-    <Screen id="settings" nav={{ active: 'Settings', go }} scrollKey="settings">
+    <Screen id="settings" nav={{ active: 'Settings', go }} scrollKey="settings"
+            overlay={ask ? (
+              <Confirm title="Delete everything?"
+                       body={wipeBody(s.plants.length, allPhotos(s.plants).length)}
+                       yes="Delete it all" no="Keep my plants"
+                       onYes={() => { d({ t: 'wipe' }); go('landing') }}
+                       onNo={() => setAsk(false)} />
+            ) : undefined}>
       <div className="h1" style={{ marginTop: 16 }}>Settings</div>
 
       {/* Кто вошёл — выше тарифа: это ответ на «мой ли это аккаунт». */}
@@ -146,7 +166,7 @@ export function SettingsScreen({ go }: { go: Go }) {
       {/* Delete account вынесен из блока и подан серым секондари: это выход,
           а не пункт меню. */}
       <div className="danger" role="button" tabIndex={0}
-           onClick={() => { d({ t: 'wipe' }); go('landing') }}>Delete account</div>
+           onClick={() => setAsk(true)}>Delete account</div>
       <div className="dangernote">Wipes your plants and settings, and takes you back
         to the start. Your plants go with it.</div>
     </Screen>

@@ -6,6 +6,8 @@ import { createRoot } from 'react-dom/client'
 import './styles/tokens.css'
 import './styles/app.css'
 import './styles/mobile.css'
+// шкала отступов порта — слоем поверх перенесённого CSS
+import './styles/system.css'
 import { App } from './App'
 import { StoreProvider } from './state/store'
 // аудит модели сезона доступен как window.__audit() — страховка порта

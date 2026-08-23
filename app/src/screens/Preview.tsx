@@ -126,7 +126,7 @@ export function SaveScreen({ go }: { go: Go }) {
           Your plan is already built. This just saves it. We email you a few tasks a week —
           nothing else.
         </div>
-        <div className="btn b-lime" style={{ marginTop: 20 }} role="button" tabIndex={0}
+        <div className="btn b-lime" style={{ marginTop: 16 }} role="button" tabIndex={0}
              onClick={() => go('paywall')}>Continue with Google</div>
         <div className="btn b-white" role="button" tabIndex={0}
              onClick={() => go('paywall')}>Continue with email</div>

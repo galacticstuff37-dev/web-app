@@ -5,8 +5,13 @@
 //   photos — журнал: {f} для готового снимка из img/, {u} для data-URL с камеры
 
 import { SP, SPECIES, type Species } from '../data/species'
+import { img } from './assets'
 
 export interface Photo { f?: string; u?: string; day: number }
+
+/** URL снимка журнала: загруженный кадр или фото из /img. Жил копией в двух
+    экранах сразу, поэтому переехал к типу. */
+export const phUrl = (x: Photo) => x.u || img(x.f || '')
 export interface Plant { s: Species; since: number; day: number; photos: Photo[] }
 
 export const FREE_LIMIT = 3

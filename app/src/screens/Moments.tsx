@@ -11,7 +11,7 @@ import { FEATS, POTPRICE } from '../data/onboarding'
 import { SPECIES } from '../data/species'
 import {
   allPhotos, careStats, fmtPot, hPct, isEdible, lc, wDue,
-  weekTasks, type Photo,
+  weekTasks, phUrl,
 } from '../lib/plants'
 import { buildPlan, cap, inDays, inOn, listNames } from '../lib/plan'
 import { zipInfo } from '../lib/season'
@@ -19,7 +19,6 @@ import { useStore } from '../state/store'
 import { usePlanCtx } from './Preview'
 
 type Go = (id: string) => void
-export const phUrl = (x: Photo) => x.u || img(x.f || '')
 
 const Close = ({ onClick }: { onClick: () => void }) => (
   <div className="xbtn" role="button" tabIndex={0} aria-label="Close"
@@ -64,7 +63,7 @@ export function HarvestScreen({ go }: { go: Go }) {
           : <div className="shot" style={{ height: '58%', ...photoStyle(p.s) }} />}
         <div className="scrim mile-scrim" />
         <div className="mile-ov">
-          <Close onClick={() => go('growth')} />
+          <Close onClick={() => go('home')} />
           <div style={{ flex: 1 }} />
           <span className="pill b-lime" style={{ alignSelf: 'flex-start' }}>
             {edible ? `Day ${p.day}` : p.s.name}
@@ -79,7 +78,7 @@ export function HarvestScreen({ go }: { go: Go }) {
           </div>
           <div className="btn b-lime" role="button" tabIndex={0} onClick={cam.open}>Add a photo</div>
           <div className="btn" style={{ background: '#1B3527', color: '#fff' }}
-               role="button" tabIndex={0} onClick={() => go('growth')}>Back to my plants</div>
+               role="button" tabIndex={0} onClick={() => go('home')}>Back to my plants</div>
         </div>
       </div>
     </div>
@@ -100,13 +99,13 @@ export function SeasonEndScreen({ go }: { go: Go }) {
     <div className="screen on" id="s-season-end">
       <div className="dark">
         <div className="glow" />
-        <Close onClick={() => go('growth')} />
+        <Close onClick={() => go('home')} />
         <div className="recap-in">
           {pic
             ? <div className="recap-ph" style={{ backgroundImage: `url(${phUrl(pic)})` }} />
             : <div className="recap-ph"
                    style={photoStyle(s.plants[0] ? s.plants[0].s : SPECIES[0])} />}
-          <span className="pill b-lime" style={{ alignSelf: 'flex-start', marginTop: 20 }}>
+          <span className="pill b-lime" style={{ alignSelf: 'flex-start', marginTop: 16 }}>
             {outdoor ? `SEASON 2026 · ${zipInfo(s.choices.zip).city.toUpperCase()}`
                      : 'YOUR YEAR · YEAR-ROUND'}
           </span>
@@ -128,7 +127,7 @@ export function SeasonEndScreen({ go }: { go: Go }) {
           {outdoor ? 'Plan next season now' : 'Keep the whole calendar'}
         </div>
         <div className="btn" style={{ background: '#1B3527', color: '#fff' }}
-             role="button" tabIndex={0} onClick={() => go('growth')}>Download recap</div>
+             role="button" tabIndex={0} onClick={() => go('home')}>Download recap</div>
       </div>
     </div>
   )
@@ -153,7 +152,7 @@ export function WeekDoneScreen({ go }: { go: Go }) {
         <Close onClick={() => go('home')} />
         <div className="recap-in">
           <div className="recap-ph" style={{ backgroundImage: bg('hero-plants') }} />
-          <span className="pill b-lime" style={{ alignSelf: 'flex-start', marginTop: 20 }}>
+          <span className="pill b-lime" style={{ alignSelf: 'flex-start', marginTop: 16 }}>
             Week complete
           </span>
           <div className="done-h">Everything<br /><span style={{ color: 'var(--lime)' }}>on time.</span></div>

@@ -268,8 +268,7 @@ export function CalendarScreen({ go, openSpecies }:
   const openNow = pool.filter(sp => entries(windows(sp, ctx)).some(r => live(r, NOW))).length
 
   return (
-    <Screen id="calendar" back={() => go('growth')}
-            nav={{ active: 'Growth', go }} scrollKey="calendar">
+    <Screen id="calendar" nav={{ active: 'Calendar', go }} scrollKey="calendar">
       <div className="h1" style={{ marginTop: 16 }}>Harvest calendar</div>
       <Context ctx={ctx} openCount={openNow} />
 
@@ -311,40 +310,5 @@ export function CalendarScreen({ go, openSpecies }:
         </>
       )}
     </Screen>
-  )
-}
-
-/* ── виджет на Growth: превью года теми же столбиками, что и пикер ── */
-export function CalendarWidget({ go }: { go: (id: string) => void }) {
-  const { s, ctx, pool } = useStore()
-  const mine = s.plants.map(p => p.s)
-  const now = nowMonth()
-  const have: Record<string, 1> = {}
-  mine.forEach(sp => { have[sp.id] = 1 })
-  // Полоса показывает год ЕГО растений, значит и счётчик считает остальное:
-  // одна и та же цифра про «всё вообще» рядом с личной полосой читалась как её подпись.
-  const canNow = pool.filter(sp => !have[sp.id]
-    && entries(windows(sp, ctx)).some(r => live(r, NOW))).length
-  const word = (mine.length ? ' more crop' : ' crop') + (canNow === 1 ? '' : 's')
-  const load = MON.map((_, m) => mine.filter(sp => {
-    const w = windows(sp, ctx)
-    if (!w || w.any) return false
-    return entries(w).some(r => inMonth(r, m))
-  }).length)
-  const max = Math.max(...load, 1)
-
-  return (
-    <div className="wg wg-lite span2" role="button" tabIndex={0}
-         onClick={() => go('calendar')}
-         onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); go('calendar') } }}>
-      <div className="wg-h"><b>Harvest calendar</b><s>{MON[now]}</s></div>
-      <div className="wgyear" aria-hidden="true">
-        {MON.map((_, m) => (
-          <i key={m} className={m === now ? 'now' : undefined}
-             style={{ height: load[m] ? 6 + Math.round(load[m] / max * 14) : 3 }} />
-        ))}
-      </div>
-      <div className="wgcta">{canNow ? `${canNow}${word} can go in now` : 'See the whole year'}</div>
-    </div>
   )
 }

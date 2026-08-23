@@ -39,7 +39,7 @@ export function Header({ back, onBack }: { back?: boolean; onBack?: () => void }
 
 const NAVI: Array<[string, string, string]> = [
   ['Week', 'calendar-days', 'home'],
-  ['Growth', 'camera', 'growth'],
+  ['Calendar', 'plant', 'calendar'],
   ['Settings', 'settings-2', 'settings'],
 ]
 

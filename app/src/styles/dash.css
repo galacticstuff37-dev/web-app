@@ -93,9 +93,9 @@
    (s1), между смысловыми группами — s3, внутри группы — s2. */
 .hero-k { font-size: var(--t-14); line-height: 16px; color: #D2DFD6 }
 .hero-in .eh-h { margin-top: var(--s1); line-height: 32px }
-.hero-in .score-row { margin-top: var(--s2); gap: var(--s2) }
+.hero-in .score-row { margin-top: var(--s2) }   /* gap теперь общий */
 .hero-in .score-v { margin-top: 0; line-height: 24px }      /* колонка счёта = 40 + 24 */
-.hero-in .score-s { margin-top: var(--s1); line-height: 24px }
+.hero-in .score-s { line-height: 24px }   /* отступ теперь общий */
 .hero-in .wgrid { margin-top: var(--s2); gap: var(--s1) }
 
 /* Внутренности карточки на сетке. Разделитель переведён с border-top на
@@ -138,13 +138,4 @@
 #s-home .plcard b { margin: var(--s1) 0 0; line-height: 16px }
 #s-home .plcard s { margin: 0; line-height: 16px }
 
-/* Блок недели: 4, 10 и 12 — на сетку. */
-#s-home .wk-h { padding: var(--s2) }
-#s-home .wk.open .wk-h { padding-bottom: var(--s1) }
-#s-home .wk-title { margin-bottom: var(--s1); line-height: 32px }
-#s-home .wk-row { gap: var(--s1) }
-#s-home .wk-list { padding: 0 var(--s2) var(--s1) }
-#s-home .br-row { gap: var(--s2); padding: var(--s1) 0 }
-#s-home .br-t { line-height: 24px }
-#s-home .br-t s { margin-top: 0; line-height: 16px }
-#s-home .br-m { margin-top: 0; line-height: 24px }
+/* Ритм блока недели переехал в system.css — он теперь общий. */

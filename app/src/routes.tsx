@@ -4,7 +4,6 @@
 import type { ReactElement } from 'react'
 import { CalendarScreen } from './screens/Calendar'
 import { CropScreen } from './screens/Crop'
-import { GrowthScreen } from './screens/Growth'
 import { HomeScreen } from './screens/Home'
 import { PlantScreen } from './screens/Plant'
 import { IndoorScreen } from './screens/Indoor'
@@ -121,10 +120,6 @@ export const ROUTES: Route[] = [
     render: p => <PlantScreen go={p.go} /> },
 
   // ── Growth
-  { id: 'growth', title: 'Growth', group: 'Growth',
-    note: 'История ухода. Один дашборд и карточки растений, у каждой свои снимки. '
-        + 'Виджет календаря — вход на Harvest calendar.',
-    render: p => <GrowthScreen go={p.go} /> },
   { id: 'harvest', title: 'Milestone', group: 'Growth',
     note: 'Пик удержания. Для съедобных «First harvest», для комнатных «It is thriving» '
         + 'с числом дней и поливов. Берёт настоящее фото растения из журнала.',

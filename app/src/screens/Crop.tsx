@@ -152,7 +152,7 @@ export function CropScreen({ go }: { go: (id: string) => void }) {
 
   if (!sp || !w) {
     return (
-      <Screen id="crop" back={() => go('calendar')} nav={{ active: 'Growth', go }}>
+      <Screen id="crop" back={() => go('calendar')} nav={{ active: 'Calendar', go }}>
         <div className="note" style={{ marginTop: 16 }}>
           <b>Nothing to show</b>
           <p>Open a crop from the calendar and its windows land here.</p>
@@ -174,7 +174,7 @@ export function CropScreen({ go }: { go: (id: string) => void }) {
   const z = zipInfo(ctx.zip)
 
   return (
-    <Screen id="crop" back={() => go('calendar')} nav={{ active: 'Growth', go }} scrollKey={sp.id}>
+    <Screen id="crop" back={() => go('calendar')} nav={{ active: 'Calendar', go }} scrollKey={sp.id}>
       <div className="score" style={{ marginTop: 8 }}>
         <div className="score-ph" style={{ backgroundImage: bg(sp.img) }} />
         <div className="score-sc" />

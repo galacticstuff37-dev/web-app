@@ -345,7 +345,7 @@ body.is-pro .ofr{display:none}
 /* На календаре переключатель вида работает как таб-бар экрана, а не как
    компактная пилюля тарифа: во всю ширину, половины равные. */
 .seg.wide{width:auto;margin-left:0;margin-right:0}
-.seg.wide div{flex:1;min-width:0;justify-content:center;padding:0}
+.seg.wide div{flex:1;min-width:0;height:48px;justify-content:center;padding:0}
 .pcard{border-radius:var(--r-xl);padding:20px;margin-top:16px;background:#122A1D;border:1.5px solid var(--lime);position:relative}
 .pcard .pr{font-size:var(--t-24);font-weight:700}
 .pcard .pn{font-size:var(--t-13);color:#A9BCB0;line-height:1.45;margin-top:8px}
@@ -494,7 +494,7 @@ body.is-pro .ofr{display:none}
 
 /* ── текстовые табы с подчёркиванием: прижаты влево, индикатор едет transform'ом */
 .ftabs{display:flex;gap:24px;margin:16px 0;position:relative;box-shadow:inset 0 -1px 0 var(--hair)}
-.ftabs button{background:none;border:0;padding:0 0 8px;height:44px;flex:none;
+.ftabs button{background:none;border:0;padding:0 0 8px;height:48px;flex:none;
   display:flex;align-items:center;gap:5px;cursor:pointer;font-family:inherit;
   font-size:var(--t-14);line-height:20px;font-weight:500;color:var(--muted);
   letter-spacing:-.01em;white-space:nowrap}
@@ -615,13 +615,7 @@ body.is-pro .ofr{display:none}
 .ystrip .now{stroke:var(--flame);stroke-width:2}
 .ystrip .nowdot{fill:var(--flame)}
 
-/* превью года в виджете на Growth — тот же язык столбиков, что и в пикере */
-.wgyear{display:grid;grid-template-columns:repeat(12,1fr);gap:3px;align-items:end;
-  height:20px;margin-top:12px}
-.wgyear i{display:block;width:100%;border-radius:2px;background:#B9E3C6}
-.wgyear i.now{background:var(--flame)}
-.wgcta{margin-top:12px;padding-top:12px;border-top:1px solid var(--hair);
-  font-size:var(--t-13);line-height:20px;font-weight:600;color:var(--primary)}
+
 
 /* .wk-h в системе — div; здесь это кнопка, а у неё нет ни ширины, ни сброса */
 button.wk-h{display:block;width:100%;border:0;background:none;font-family:inherit;

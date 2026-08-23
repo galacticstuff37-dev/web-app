@@ -6,9 +6,8 @@
 import { Screen } from '../components/Chrome'
 import { Arc, MetricRow, Note, PhotoTile } from '../components/bits'
 import { IcPlus } from '../icons/Icon'
-import { fmtPot, hPct, isEdible, pState, wDue, wPct } from '../lib/plants'
+import { fmtPot, hPct, isEdible, pState, wDue, wPct, phUrl } from '../lib/plants'
 import { useStore } from '../state/store'
-import { phUrl } from './Growth'
 
 export function PlantScreen({ go }: { go: (id: string) => void }) {
   const { s, d } = useStore()

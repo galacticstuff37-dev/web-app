@@ -1,25 +1,9 @@
 /* Мобильные оверрайды (MOBILE_CSS из proto.py), применяются только к
    приложению: правила body, .sb и .mob ограничены [data-mode="app"], иначе
    они гасят статус-бар и скролл на маршруте /review, где нужна рамка. */
-#a2hs{position:fixed;left:12px;right:12px;bottom:calc(12px + env(safe-area-inset-bottom));z-index:60;
-  opacity:0;transform:translateY(16px);pointer-events:none;
-  transition:opacity .26s ease-out,transform .26s cubic-bezier(.32,.72,0,1)}
-#a2hs.on{opacity:1;transform:none;pointer-events:auto}
-.a2-card{background:var(--lime);border-radius:var(--r-xl);padding:16px;display:flex;align-items:flex-end;
-  gap:12px;box-shadow:0 16px 36px rgba(11,31,20,.34)}
-.a2-txt{flex:1;min-width:0}
-.a2-pill{display:inline-block;background:var(--deepest);color:var(--lime);border-radius:999px;
-  padding:6px 12px;font-size:var(--t-11);font-weight:700;letter-spacing:.08em;text-transform:uppercase}
-.a2-h{display:block;font-size:var(--t-24);font-weight:700;line-height:1.06;letter-spacing:-.02em;
-  color:var(--deepest);margin-top:8px}
-#a2hs s{display:block;font-size:var(--t-12);color:#2C4A1E;text-decoration:none;margin-top:6px;
-  font-weight:600;opacity:.78}
-.a2-act{display:flex;align-items:center;gap:8px;flex:none}
-#a2btn{background:var(--deepest);color:var(--lime);border:0;border-radius:999px;height:44px;padding:0 20px;
-  font:700 var(--t-15) 'Inter Tight',sans-serif;cursor:pointer}
-#a2x{width:44px;height:44px;border-radius:50%;background:rgba(11,31,20,.12);display:flex;align-items:center;
-  justify-content:center;font-size:var(--t-20);color:var(--deepest);flex:none;cursor:pointer;line-height:1}
-body.a2-open .bd{padding-bottom:172px}
+/* Баннер «на домашний экран» в порт не перенесён: разметки и логики нет,
+   поэтому его стили удалены — держать мёртвый CSS незачем.
+   Сам баннер остался в прототипе (proto.py). */
 
 
 html,body{height:100%}
@@ -41,5 +25,4 @@ body[data-mode="app"]{display:block;padding:0;background:var(--ground);overflow:
        box-shadow:0 24px 64px rgba(11,31,20,.28)}
   .hd{padding-top:16px}
   .overlay,.dark{padding-top:24px}
-  #a2hs{display:none}
 }

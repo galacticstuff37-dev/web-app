@@ -111,9 +111,12 @@ export function careStats(plants: Plant[]): CareStats {
 // Задача = [заголовок, время, пояснение, КЛЮЧ]. Ключ привязан к растению:
 // по тексту два одинаковых заголовка делили одну галочку.
 export type Task = [string, string, string, string]
+/** состав задач по умолчанию: всё включено, как в прототипе до правок настроек */
 export const CARE = { pick: true, leaf: true, rotate: true, feed: true }
 
-export function weekTasks(plants: Plant[]): Task[] {
+// care приходит из состояния: тумблеры Settings обещают фильтровать эту карточку,
+// а функция читала свою константу — обещание не выполнялось ни разу.
+export function weekTasks(plants: Plant[], care = CARE): Task[] {
   if (!plants.length) return []
   const out: Task[] = []
   plants.forEach((p, i) => {
@@ -123,14 +126,14 @@ export function weekTasks(plants: Plant[]): Task[] {
       `water:${i}`,
     ])
   })
-  if (CARE.pick) plants.forEach((p, i) => {
+  if (care.pick) plants.forEach((p, i) => {
     if (isEdible(p) && hPct(p) >= 100) out.push([
       `Pick from the ${lc(p.s.name)}`, '4 min',
       'It is ready. Picking keeps it producing.', `pick:${i}`,
     ])
   })
   const si = plants.findIndex(p => p.s.tags.indexOf('statement') > -1)
-  if (CARE.leaf && si > -1) out.push([
+  if (care.leaf && si > -1) out.push([
     `Wipe the ${lc(plants[si].s.name)} leaves`, '3 min',
     'Dust cuts the light it gets.', `wipe:${si}`,
   ])
@@ -141,11 +144,11 @@ export function weekTasks(plants: Plant[]): Task[] {
     ])
   })
   const ti = plants.findIndex(p => p.s.sun >= 2)
-  if (CARE.rotate && ti > -1) out.push([
+  if (care.rotate && ti > -1) out.push([
     `Rotate the ${lc(plants[ti].s.name)} a quarter turn`, '1 min',
     'Keeps it growing even on all sides.', `rotate:${ti}`,
   ])
-  if (CARE.feed) out.push([
+  if (care.feed) out.push([
     plants.some(isEdible) ? 'Feed the edible pots once this month'
                           : 'Feed everything once this month', '4 min',
     'Container soil runs out faster than a bed.', 'feed',

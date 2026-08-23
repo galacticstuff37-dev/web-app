@@ -75,7 +75,7 @@ function Dash({ go, onOpen }: { go: (id: string) => void; onOpen: (i: number) =>
 
 function Week() {
   const { s, d } = useStore()
-  const week: Task[] = weekTasks(s.plants)
+  const week: Task[] = weekTasks(s.plants, s.care)
   const n = week.filter(t => s.done[tkey(t)]).length
   const m = week.length
   const pct = m ? Math.round((n / m) * 100) : 0

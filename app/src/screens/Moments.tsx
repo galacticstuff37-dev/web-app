@@ -137,7 +137,7 @@ export function SeasonEndScreen({ go }: { go: Go }) {
 export function WeekDoneScreen({ go }: { go: Go }) {
   const { s } = useStore()
   const st = careStats(s.plants)
-  const tasks = weekTasks(s.plants).length
+  const tasks = weekTasks(s.plants, s.care).length
   const nextP = s.plants.slice().sort((a, b) => wDue(a) - wDue(b))[0]
   const line = nextP
     ? (isEdible(nextP) && hPct(nextP) < 100

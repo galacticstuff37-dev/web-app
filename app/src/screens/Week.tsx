@@ -70,7 +70,7 @@ export function WeekEmptyScreen({ go }: { go: Go }) {
 // ─────────────────────────────────────────── Week · возврат
 export function WeekBackScreen({ go }: { go: Go }) {
   const { s } = useStore()
-  const t = weekTasks(s.plants).slice(0, 2)
+  const t = weekTasks(s.plants, s.care).slice(0, 2)
   return (
     <Screen id="week-back" nav={{ active: 'Week', badge: true, go }}
             offer={{ onClick: () => go('paywall') }} scrollKey="week-back">
@@ -128,7 +128,7 @@ export function WeekLockScreen({ go }: { go: Go }) {
   const a = dayOffset(TODAY + 14), b = dayOffset(TODAY + 20)
   const when = `Two weeks from now · ${MON[a.getMonth()]} ${a.getDate()}–`
     + (a.getMonth() === b.getMonth() ? b.getDate() : `${MON[b.getMonth()]} ${b.getDate()}`)
-  const tasks = weekTasks(s.plants)
+  const tasks = weekTasks(s.plants, s.care)
   const cnt = Math.min(3, tasks.length)
 
   return (

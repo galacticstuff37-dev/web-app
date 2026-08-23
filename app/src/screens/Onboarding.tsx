@@ -7,14 +7,28 @@ import { Screen } from '../components/Chrome'
 import { Opt, Pg } from '../components/parts'
 import { Icon } from '../icons/Icon'
 import { bg } from '../lib/assets'
-import { isEdible } from '../lib/plants'
+import { trackOfPlants } from '../lib/plants'
 import {
   GOALS, Q4TITLE, SPACES, SUNLABEL, SUNRANK, TRACKOF, goalTag, isOutdoorSpace,
 } from '../data/onboarding'
-import { useStore, type Track } from '../state/store'
+import { useStore } from '../state/store'
 import { seasonDays, zipInfo } from '../lib/season'
 
 type Go = (id: string) => void
+
+/** Кнопка шага онбординга. Гаснет, пока ничего не выбрано: экран ничего не
+    выбирает за человека, а сделанный выбор видно до перехода — раньше опция
+    уводила дальше тем же тапом, и подтверждения выбора человек не видел. */
+function StepBtn({ on, onNext, label = 'Continue' }:
+    { on: boolean; onNext: () => void; label?: string }) {
+  return (
+    <div className={'btn b-pri' + (on ? '' : ' off')} role="button" tabIndex={0}
+         onClick={() => { if (on) onNext() }}
+         onKeyDown={e => {
+           if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); if (on) onNext() }
+         }}>{label}</div>
+  )
+}
 
 // ─────────────────────────────────────────── Landing
 export function LandingScreen({ go }: { go: Go }) {
@@ -49,12 +63,15 @@ export function LandingScreen({ go }: { go: Go }) {
 // ─────────────────────────────────────────── Q0: развилка
 export function Q0Screen({ go }: { go: Go }) {
   const { d } = useStore()
-  const pick = (own: boolean) => {
+  const [own, setOwn] = useState<boolean | null>(null)
+  const next = () => {
+    if (own === null) return
     d({ t: 'onbReset', v: own ? 'own' : 'plan' })
     go(own ? 'add-plant' : 'qwhat')
   }
   return (
-    <Screen id="q0" back={() => go('landing')} scrollKey="q0">
+    <Screen id="q0" back={() => go('landing')} scrollKey="q0"
+            foot={<StepBtn on={own !== null} onNext={next} />}>
       <div className="h1" style={{ marginTop: 16 }}>Where are you<br />starting from?</div>
       <div style={{ fontSize: 'var(--t-14)', color: 'var(--muted)', marginTop: 4 }}>
         Two very different jobs, so we ask different things.
@@ -62,9 +79,9 @@ export function Q0Screen({ go }: { go: Go }) {
       <Pg id="q0" />
       <div style={{ marginTop: 16 }}>
         <Opt label="I already have plants" sub="Get them on a care schedule"
-             onPick={() => pick(true)} />
+             on={own === true} onPick={() => setOwn(true)} />
         <Opt label="I want to start growing" sub="Tell me what to plant and buy"
-             onPick={() => pick(false)} />
+             on={own === false} onPick={() => setOwn(false)} />
       </div>
     </Screen>
   )
@@ -72,13 +89,16 @@ export function Q0Screen({ go }: { go: Go }) {
 
 // ─────────────────────────────────────────── QWhat: трек
 export function QWhatScreen({ go }: { go: Go }) {
-  const { s, d } = useStore()
-  const pick = (label: string) => {
-    d({ t: 'choices', v: { track: TRACKOF[label] || 'edible', goals: [] } })
+  const { d } = useStore()
+  const [pick, setPick] = useState<string | null>(null)
+  const next = () => {
+    if (!pick) return
+    d({ t: 'choices', v: { track: TRACKOF[pick] || 'edible', goals: [] } })
     go('q1')
   }
   return (
-    <Screen id="qwhat" back={() => go('q0')} scrollKey="qwhat">
+    <Screen id="qwhat" back={() => go('q0')} scrollKey="qwhat"
+            foot={<StepBtn on={!!pick} onNext={next} />}>
       <div className="h1" style={{ marginTop: 16 }}>What are you growing?</div>
       <div style={{ fontSize: 'var(--t-14)', color: 'var(--muted)', marginTop: 4 }}>
         This decides the rest of the questions.
@@ -86,11 +106,11 @@ export function QWhatScreen({ go }: { go: Go }) {
       <Pg id="qwhat" />
       <div style={{ marginTop: 16 }}>
         <Opt label="Something to eat" sub="Radishes, greens, tomatoes in pots"
-             on={s.choices.track === 'edible'} onPick={() => pick('Something to eat')} />
+             on={pick === 'Something to eat'} onPick={() => setPick('Something to eat')} />
         <Opt label="Houseplants" sub="Monstera, pothos, snake plant"
-             on={s.choices.track === 'house'} onPick={() => pick('Houseplants')} />
+             on={pick === 'Houseplants'} onPick={() => setPick('Houseplants')} />
         <Opt label="Both" sub="Something edible, plants inside too"
-             on={s.choices.track === 'both'} onPick={() => pick('Both')} />
+             on={pick === 'Both'} onPick={() => setPick('Both')} />
       </div>
     </Screen>
   )
@@ -100,22 +120,28 @@ export function QWhatScreen({ go }: { go: Go }) {
 export function Q1Screen({ go }: { go: Go }) {
   const { s, d } = useStore()
   const opts = SPACES[s.choices.track] || SPACES.both
-  const pick = (label: string, next: string) => {
+  const [sel, setSel] = useState<[string, string] | null>(null)
+  const next = () => {
+    if (!sel) return
+    const [label, to] = sel
     d({ t: 'choices', v: {
       outdoor: isOutdoorSpace(label),
       space: label.indexOf('Windowsill') > -1 ? 'windowsill' : label.toLowerCase(),
     } })
-    go(next)
+    go(to)
   }
   return (
-    <Screen id="q1" back={() => go('q0')} scrollKey="q1">
+    // Назад на ветке «уже есть» — в библиотеку, откуда сюда и пришли.
+    <Screen id="q1" back={() => go(s.onbMode === 'own' ? 'add-plant' : 'q0')} scrollKey="q1"
+            foot={<StepBtn on={!!sel} onNext={next} />}>
       <div className="h1" style={{ marginTop: 16 }}>
         {s.choices.track === 'edible' ? 'Where will you grow?' : 'Where will it live?'}
       </div>
       <Pg id="q1" />
       <div style={{ marginTop: 16 }}>
-        {opts.map(([label, sub, next]) => (
-          <Opt key={label} label={label} sub={sub} onPick={() => pick(label, next)} />
+        {opts.map(([label, sub, to]) => (
+          <Opt key={label} label={label} sub={sub} on={sel?.[0] === label}
+               onPick={() => setSel([label, to])} />
         ))}
       </div>
     </Screen>
@@ -131,10 +157,7 @@ export function Q2Screen({ go }: { go: Go }) {
   const z = zipInfo(s.choices.zip)
   return (
     <Screen id="q2" back={() => go('q1')} scrollKey="q2"
-            foot={
-              <div className={'btn b-pri' + (touched ? '' : ' off')} role="button" tabIndex={0}
-                   onClick={() => touched && go('q3')}>Continue</div>
-            }>
+            foot={<StepBtn on={touched} onNext={() => go('q3')} />}>
       <div className="h1" style={{ marginTop: 16 }}>What’s your ZIP?</div>
       <Pg id="q2" />
       <div style={{ marginTop: 16 }}>
@@ -193,10 +216,7 @@ function useSunNext(go: Go) {
   return (label: string, indoor: boolean) => {
     d({ t: 'choices', v: sunPick(label, indoor) })
     if (s.onbMode === 'own') {
-      const h = s.plants.some(p => p.s.kind === 'house')
-      const e = s.plants.some(isEdible)
-      const track: Track = h && e ? 'both' : e ? 'edible' : h ? 'house' : s.choices.track
-      d({ t: 'choices', v: { track } })
+      d({ t: 'choices', v: { track: trackOfPlants(s.plants, s.choices.track) } })
       d({ t: 'onb', v: null })
       go('home')
       return
@@ -206,14 +226,16 @@ function useSunNext(go: Go) {
 }
 
 export function Q3Screen({ go }: { go: Go }) {
-  const next = useSunNext(go)
+  const sun = useSunNext(go)
+  const [sel, setSel] = useState<string | null>(null)
   return (
-    <Screen id="q3" back={() => go('q2')} scrollKey="q3">
+    <Screen id="q3" back={() => go('q2')} scrollKey="q3"
+            foot={<StepBtn on={!!sel} onNext={() => sel && sun(sel, false)} />}>
       <div className="h1" style={{ marginTop: 16 }}>How much direct sun<br />does that spot get?</div>
       <Pg id="q3" />
       <div style={{ marginTop: 16 }}>
         {SUN_OUT.map(([l, sub]) => (
-          <Opt key={l} label={l} sub={sub} onPick={() => next(l, false)} />
+          <Opt key={l} label={l} sub={sub} on={sel === l} onPick={() => setSel(l)} />
         ))}
       </div>
     </Screen>
@@ -221,14 +243,16 @@ export function Q3Screen({ go }: { go: Go }) {
 }
 
 export function Q2iScreen({ go }: { go: Go }) {
-  const next = useSunNext(go)
+  const sun = useSunNext(go)
+  const [sel, setSel] = useState<string | null>(null)
   return (
-    <Screen id="q2i" back={() => go('q1')} scrollKey="q2i">
+    <Screen id="q2i" back={() => go('q1')} scrollKey="q2i"
+            foot={<StepBtn on={!!sel} onNext={() => sel && sun(sel, true)} />}>
       <div className="h1" style={{ marginTop: 16 }}>How bright is<br />that spot?</div>
       <Pg id="q2i" />
       <div style={{ marginTop: 16 }}>
         {SUN_IN.map(([l, sub]) => (
-          <Opt key={l} label={l} sub={sub} onPick={() => next(l, true)} />
+          <Opt key={l} label={l} sub={sub} on={sel === l} onPick={() => setSel(l)} />
         ))}
       </div>
       <div className="card" style={{ marginTop: 12, display: 'flex', gap: 12, alignItems: 'center' }}>
@@ -262,8 +286,7 @@ export function Q4Screen({ go }: { go: Go }) {
                             textAlign: 'center' }}>
                 {picked.length ? `${picked.length} of 3 picked.` : 'Pick at least one.'}
               </div>
-              <div className={'btn b-pri' + (picked.length ? '' : ' off')} role="button"
-                   tabIndex={0} onClick={() => picked.length && go('q5')}>Continue</div>
+              <StepBtn on={!!picked.length} onNext={() => go('q5')} />
             </>}>
       <div className="h1" style={{ marginTop: 16 }}>{Q4TITLE[s.choices.track] || Q4TITLE.both}</div>
       <div style={{ fontSize: 'var(--t-14)', color: 'var(--muted)', marginTop: 4 }}>
@@ -286,18 +309,24 @@ export function Q4Screen({ go }: { go: Go }) {
 export function Q5Screen({ go }: { go: Go }) {
   const { s, d } = useStore()
   const many = s.choices.track === 'edible' ? 'a real garden' : 'a real collection'
-  const pick = (effort: number) => { d({ t: 'choices', v: { effort } }); go('preview') }
+  const [sel, setSel] = useState<number | null>(null)
+  const next = () => {
+    if (sel === null) return
+    d({ t: 'choices', v: { effort: sel } })
+    go('preview')
+  }
   return (
-    <Screen id="q5" back={() => go('q4')} scrollKey="q5">
+    <Screen id="q5" back={() => go('q4')} scrollKey="q5"
+            foot={<StepBtn on={sel !== null} onNext={next} />}>
       <div className="h1" style={{ marginTop: 16 }}>How much time can<br />you give it?</div>
       <Pg id="q5" />
       <div style={{ marginTop: 16 }}>
         <Opt label="About 10 minutes" sub="Keep it very simple · 3 plants"
-             on={s.choices.effort === 3} onPick={() => pick(3)} />
+             on={sel === 3} onPick={() => setSel(3)} />
         <Opt label="About 20 minutes" sub="I can do a bit more · 4 plants"
-             on={s.choices.effort === 4} onPick={() => pick(4)} />
+             on={sel === 4} onPick={() => setSel(4)} />
         <Opt label="30+ minutes" sub={`I want ${many} · up to 6 plants`}
-             on={s.choices.effort === 6} onPick={() => pick(6)} />
+             on={sel === 6} onPick={() => setSel(6)} />
       </div>
     </Screen>
   )

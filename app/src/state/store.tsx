@@ -9,7 +9,7 @@ import {
   createContext, useContext, useEffect, useMemo, useReducer, type ReactNode,
 } from 'react'
 import { load, save } from '../lib/persist'
-import { mkPlant, tkey, type Plant, type Task } from '../lib/plants'
+import { mkPlant, tkey, trackOfPlants, type Plant, type Task } from '../lib/plants'
 import { speciesPool, type Ctx, type Pool } from '../lib/season'
 import type { Species } from '../data/species'
 import type { Track } from '../data/onboarding'
@@ -222,11 +222,17 @@ function reducer(s: State, a: Action): State {
       return { ...s, pending: [...s.pending, a.v] }
     }
     case 'pending': return { ...s, pending: a.v }
+    // Ветка «уже есть» после библиотеки идёт дальше (место → свет), поэтому
+    // onbMode здесь НЕ гасим: его снимает последний шаг. Трек выводим сразу —
+    // от него зависят варианты места на следующем экране.
     case 'addPending': {
       const add = s.pending.map(id => mkPlant(id, 0, 0,
         s.scanKeep ? [{ u: s.scanKeep, day: 0 }] : []))
-      return { ...s, plants: [...s.plants, ...add], pending: [], scanKeep: null,
-               onbMode: null, selected: s.plants.length }
+      const plants = [...s.plants, ...add]
+      const track = s.onbMode === 'own'
+        ? trackOfPlants(plants, s.choices.track) : s.choices.track
+      return { ...s, plants, pending: [], scanKeep: null,
+               choices: { ...s.choices, track }, selected: s.plants.length }
     }
     // План — предложение. Раньше он строился, показывался и молча выбрасывался:
     // после save→paywall на Home лежал демо-набор, а не то, что человек видел.
@@ -269,7 +275,12 @@ export function StoreProvider({ children, initial }:
   const [s, d] = useReducer(reducer, { ...load(INIT), ...initial })
   const value = useMemo<Store>(() => {
     const ctx: Ctx = { zip: s.choices.zip, outdoor: s.choices.outdoor }
-    const p: Pool = { track: s.choices.track, outdoor: s.choices.outdoor }
+    // На ветке «уже есть» трек ещё не выведен — он считается по занесённому,
+    // а до библиотеки стоит значение по умолчанию (edible). Справочник тут
+    // сужать нельзя: комнатных в онбординге просто не было в списке, хотя
+    // экран спрашивает «What do you have?».
+    const p: Pool = { track: s.onbMode === 'own' ? 'both' : s.choices.track,
+                      outdoor: s.choices.outdoor }
     return { s, d, ctx, pool: speciesPool(p) }
   }, [s])
   // Пишем только когда меняется сохраняемое. Ссылки на слайсы стабильны, так

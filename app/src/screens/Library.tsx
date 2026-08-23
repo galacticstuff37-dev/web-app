@@ -86,12 +86,28 @@ export function AddPlantScreen({ go }: { go: Go }) {
   const submit = () => {
     if (!own && !s.pending.length) return
     d({ t: 'addPending' })
-    go('home')
+    // Онбординг «уже есть» продолжается: где растения живут и сколько там света.
+    // Без этих двух шагов движок ухода считал по умолчанию «улица, 6–8 часов»
+    // даже для монстеры в комнате, а точки прогресса обещали пять шагов из двух.
+    go(own ? 'q1' : 'home')
+  }
+
+  // На лимите строка не выбирается, а объяснение лежит в самом низу списка —
+  // на экран оно не попадает. Тап должен отвечать сразу.
+  const tapRow = (id: string) => {
+    if (atLimit && s.pending.indexOf(id) < 0) {
+      d({ t: 'toast', v: { html: '<span>Free plans keep 3 plants</span>', ms: 3500,
+                           at: Date.now() } })
+      return
+    }
+    d({ t: 'pendingToggle', v: id, limit: lim })
   }
 
   return (
+    // Пока онбординг не пройден, таб-бара нет: из него можно было уйти на Home
+    // мимо оставшихся шагов, и настройки ухода оставались пустыми.
     <Screen id="add-plant" back={() => go(own ? 'q0' : 'home')}
-            nav={{ active: 'Week', go }} scrollKey="add-plant"
+            nav={own ? undefined : { active: 'Week', go }} scrollKey="add-plant"
             foot={
               <div className={'btn b-pri' + (own || s.pending.length ? '' : ' off')}
                    role="button" tabIndex={0} onClick={submit}>{cta}</div>
@@ -151,7 +167,7 @@ export function AddPlantScreen({ go }: { go: Go }) {
                                   ? '' : ' · needs more light')}
                          have={s.plants.some(p => p.s.id === sp.id)}
                          pick={s.pending.indexOf(sp.id) > -1}
-                         onAdd={() => d({ t: 'pendingToggle', v: sp.id, limit: lim })} />
+                         onAdd={() => tapRow(sp.id)} />
                 ))}
               </div>
             </div>

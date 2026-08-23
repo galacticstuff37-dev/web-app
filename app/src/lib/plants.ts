@@ -4,6 +4,7 @@
 //   day    — возраст растения в днях
 //   photos — журнал: {f} для готового снимка из img/, {u} для data-URL с камеры
 
+import type { Track } from '../data/onboarding'
 import { SP, SPECIES, type Species } from '../data/species'
 import { img } from './assets'
 
@@ -22,6 +23,14 @@ export function mkPlant(id: string, since = 0, day = 0, photos: Photo[] = []): P
 }
 
 export const isEdible = (p: Plant) => p.s.kind === 'edible'
+
+/** Трек, выведенный из состава растений. Ветка «уже есть» не спрашивает трек:
+    он виден по тому, что человек занёс. fallback — когда растений нет вовсе. */
+export function trackOfPlants(plants: Plant[], fallback: Track): Track {
+  const h = plants.some(p => p.s.kind === 'house')
+  const e = plants.some(isEdible)
+  return h && e ? 'both' : e ? 'edible' : h ? 'house' : fallback
+}
 
 // Компактная подпись света для узкой колонки виджета: раньше строка резалась по
 // первому слову и «Low to bright» превращалось в «Low».

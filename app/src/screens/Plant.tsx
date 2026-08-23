@@ -5,6 +5,7 @@
 
 import { Screen } from '../components/Chrome'
 import { Arc, MetricRow, Note, PhotoTile } from '../components/bits'
+import { useCamera } from '../components/parts'
 import { IcPlus } from '../icons/Icon'
 import { fmtPot, hPct, isEdible, pState, wDue, wPct, phUrl } from '../lib/plants'
 import { useStore } from '../state/store'
@@ -12,6 +13,7 @@ import { useStore } from '../state/store'
 export function PlantScreen({ go }: { go: (id: string) => void }) {
   const { s, d } = useStore()
   const p = s.plants[s.selected]
+  const cam = useCamera(url => d({ t: 'addPhoto', v: { i: s.selected, url } }))
 
   if (!p) {
     return (
@@ -101,9 +103,10 @@ export function PlantScreen({ go }: { go: (id: string) => void }) {
           ))}
         </div>
       )}
-      <div className="btn-dash" role="button" tabIndex={0}>
+      <div className="btn-dash" role="button" tabIndex={0} onClick={cam.open}>
         <IcPlus /><span>{p.photos.length ? 'Add a photo' : 'Take the first photo'}</span>
       </div>
+      {cam.input}
 
       <div className="btn b-ghost" role="button" tabIndex={0}
            onClick={() => { d({ t: 'remove', v: s.selected }); go('home') }}>

@@ -4,6 +4,7 @@
 // Значения не циклятся по тапу: строка открывает раздел со списком, где видно
 // все варианты и что выбрано сейчас. У каждого варианта есть следствие.
 
+import { AccountRow } from './Auth'
 import { Screen } from '../components/Chrome'
 import { PickRow, SetRow, SwRow } from '../components/parts'
 import { IcChev } from '../icons/Icon'
@@ -55,6 +56,9 @@ export function SettingsScreen({ go }: { go: Go }) {
   return (
     <Screen id="settings" nav={{ active: 'Settings', go }} scrollKey="settings">
       <div className="h1" style={{ marginTop: 16 }}>Settings</div>
+
+      {/* Кто вошёл — выше тарифа: это ответ на «мой ли это аккаунт». */}
+      <AccountRow go={go} />
 
       <div className="acc" style={{ marginTop: 16 }}>
         <div className="acc-photo" style={{ backgroundImage: bg(pic) }} />

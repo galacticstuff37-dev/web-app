@@ -55,6 +55,11 @@ export function LandingScreen({ go }: { go: Go }) {
         <div style={{ fontSize: 'var(--t-13)', color: '#C3D2C7', textAlign: 'center', marginTop: 12 }}>
           No card. Takes 90 seconds.
         </div>
+        {/* Возврат: без этой ссылки вошедшему некуда деться с лендинга. */}
+        <div className="signin-l" role="button" tabIndex={0} onClick={() => go('signin')}
+             onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); go('signin') } }}>
+          Already have an account? <b>Sign in</b>
+        </div>
       </div>
     </div>
   )

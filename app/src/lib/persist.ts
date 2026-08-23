@@ -12,7 +12,9 @@
 
 import { SP } from '../data/species'
 import { mkPlant, type Photo } from './plants'
-import type { CalView, Care, Choices, Mail, OnbMode, State, Units } from '../state/store'
+import type {
+  Account, CalView, Care, Choices, Mail, OnbMode, State, Units,
+} from '../state/store'
 
 const KEY = 'hg.state'
 /** версия схемы: несовпадение = начинаем заново, а не читаем чужие поля */
@@ -32,6 +34,7 @@ interface Saved {
   done: Record<string, boolean>
   calView: CalView
   onbMode: OnbMode
+  account: Account | null
 }
 
 /** Ключа нет — человек здесь впервые: отдаём демо-набор из INIT.
@@ -62,6 +65,9 @@ export function load(init: State): State {
     done: j.done ?? init.done,
     calView: j.calView ?? init.calView,
     onbMode: j.onbMode ?? init.onbMode,
+    // Поле добавлено позже: в блобе без него аккаунта просто нет. Версию из-за
+    // нового необязательного поля не поднимаем — старые данные читаются верно.
+    account: j.account ?? init.account,
   }
 }
 
@@ -79,6 +85,7 @@ export function save(s: State): void {
     done: s.done,
     calView: s.calView,
     onbMode: s.onbMode,
+    account: s.account,
   }
   try {
     localStorage.setItem(KEY, JSON.stringify(body))

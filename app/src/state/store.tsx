@@ -16,6 +16,9 @@ import type { Track } from '../data/onboarding'
 
 export type { Track }
 export type Units = 'imperial' | 'metric'
+export type AuthVia = 'google' | 'apple' | 'email'
+/** Аккаунт. demo=true — вход без подключённого провайдера, так и подписано в UI. */
+export interface Account { email: string; via: AuthVia; demo?: boolean }
 export type CalView = 'month' | 'year'
 /** 'own' — у человека уже есть растения, 'plan' — начинает с нуля, null — не в онбординге */
 export type OnbMode = 'own' | 'plan' | null
@@ -75,6 +78,12 @@ export interface State {
   toast: ToastMsg | null
   /** поисковый запрос библиотеки */
   query: string
+  /** null — не входил. Живёт между сессиями вместе с остальным состоянием. */
+  account: Account | null
+  /** откуда пришли во вход: из онбординга — дальше в пейволл, с возврата — на Home */
+  authFrom: string
+  /** введённый адрес: экран кода показывает его и подписывает им аккаунт */
+  authEmail: string
 }
 
 // Съедобное — основной трек продукта. Комнатные остаются полноценной ветвью.
@@ -128,6 +137,9 @@ const INIT: State = {
   undo: null,
   toast: null,
   query: '',
+  account: null,
+  authFrom: 'save',
+  authEmail: '',
 }
 
 export type Action =
@@ -165,6 +177,10 @@ export type Action =
   | { t: 'toast'; v: ToastMsg | null }
   | { t: 'query'; v: string }
   | { t: 'addPhoto'; v: { i: number; url: string } }
+  | { t: 'signIn'; v: Account }
+  | { t: 'signOut' }
+  | { t: 'authFrom'; v: string }
+  | { t: 'authEmail'; v: string }
   | { t: 'enterCalendar' }
   | { t: 'enterLibrary'; seek: string | null }
 
@@ -246,6 +262,12 @@ function reducer(s: State, a: Action): State {
     case 'query': return { ...s, query: a.v }
     case 'addPhoto': return { ...s, plants: s.plants.map((p, i) =>
       i === a.v.i ? { ...p, photos: [{ u: a.v.url, day: p.day }, ...p.photos] } : p) }
+    case 'signIn': return { ...s, account: a.v, authEmail: a.v.email }
+    // Выход не трогает растения: это выход из аккаунта, а не удаление данных —
+    // для удаления есть отдельная строка в настройках.
+    case 'signOut': return { ...s, account: null }
+    case 'authFrom': return { ...s, authFrom: a.v }
+    case 'authEmail': return { ...s, authEmail: a.v }
     // Вход на календарь всегда про «сейчас»: пролистанный месяц и раскрытая
     // строка не переживают уход с экрана. Вид — привычка человека, его храним.
     case 'enterCalendar': return { ...s, calMonth: null, calOpen: null }

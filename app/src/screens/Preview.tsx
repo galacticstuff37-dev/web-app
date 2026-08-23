@@ -2,6 +2,7 @@
 // План — предложение, а не решение: он реально применяется к MY_PLANTS, иначе
 // после save→paywall на Home лежал бы демо-набор, а не то, что человек видел.
 
+import { Providers } from './Auth'
 import { Screen } from '../components/Chrome'
 import { SpThumb } from '../components/bits'
 import { Icon } from '../icons/Icon'
@@ -126,10 +127,7 @@ export function SaveScreen({ go }: { go: Go }) {
           Your plan is already built. This just saves it. We email you a few tasks a week —
           nothing else.
         </div>
-        <div className="btn b-lime" style={{ marginTop: 16 }} role="button" tabIndex={0}
-             onClick={() => go('paywall')}>Continue with Google</div>
-        <div className="btn b-white" role="button" tabIndex={0}
-             onClick={() => go('paywall')}>Continue with email</div>
+        <div style={{ marginTop: 16 }}><Providers go={go} from="save" /></div>
       </div>
     </div>
   )

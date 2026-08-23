@@ -15,6 +15,7 @@ import {
   LandingScreen, Q0Screen, Q1Screen, Q2Screen, Q2iScreen, Q3Screen, Q4Screen,
   Q5Screen, QWhatScreen,
 } from './screens/Onboarding'
+import { CodeScreen, EmailScreen, SignInScreen } from './screens/Auth'
 import { PreviewScreen, SaveScreen } from './screens/Preview'
 import { PickScreen, SettingsScreen } from './screens/Settings'
 import {
@@ -77,6 +78,21 @@ export const ROUTES: Route[] = [
     note: 'Регистрация после показанной ценности. Пилюля считается из плана: '
         + '«4 PLANTS · YEAR-ROUND» внутри, «· 30 WEEKS» на улице.',
     render: p => <SaveScreen go={p.go} /> },
+
+  { id: 'signin', title: 'Sign in', group: 'Онбординг',
+    note: 'Возврат: те же три способа, что и на Save, но без плана и с другой подводкой. '
+        + 'Вход в него — ссылка на лендинге.',
+    render: p => <SignInScreen go={p.go} /> },
+  { id: 'email', title: 'Вход · почта', group: 'Онбординг',
+    note: 'Настоящее поле: type=email, автозаполнение, проверка адреса, погашенная кнопка '
+        + 'до валидного адреса. Письмо НЕ отправляется — у прототипа нет бэкенда, и это '
+        + 'сказано на экране, а не скрыто.',
+    render: p => <EmailScreen go={p.go} /> },
+  { id: 'code', title: 'Вход · код', group: 'Онбординг',
+    note: 'Одно поле с autocomplete=one-time-code, клетки — рисунок поверх: шесть input-ов '
+        + 'ломают вставку кода из письма. Таймер повторной отправки 30 с. Любые шесть цифр '
+        + 'впускают, 000000 показывает состояние ошибки — это демо, и так подписано.',
+    render: p => <CodeScreen go={p.go} /> },
 
   // ── Home
   { id: 'home', title: 'Home', group: 'Home',

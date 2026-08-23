@@ -172,6 +172,12 @@ export function Screen({ id, children, back, nav, offer, foot, scrollKey, hero }
     // прежнего размера — блок и скрим считались по чужой геометрии.
     const ro = new ResizeObserver(() => { measure(); onScroll() })
     ro.observe(el)
+    // И сам блок: его высота меняется не только от размера экрана. На холодной
+    // загрузке первый кадр рисуется системным шрифтом, Caprasimo подменяется
+    // позже — блок вырастает, а отступ листа остаётся от прежней высоты, и на
+    // невысоком экране (Safari отдаёт 714, а не 844) лист наезжал на виджеты.
+    const inn0 = el.querySelector<HTMLElement>('.hero-in')
+    if (inn0) ro.observe(inn0)
     return () => {
       if (raf) cancelAnimationFrame(raf)
       box.removeEventListener('scroll', onScroll)

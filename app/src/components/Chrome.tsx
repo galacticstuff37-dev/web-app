@@ -128,10 +128,23 @@ export function Screen({ id, children, back, nav, offer, foot, scrollKey, hero }
     if (!hero || !el || !box) return
     let h = 0, pad = 0, raf = 0
     const measure = () => {
-      // 0.68 — фото должно вместить и шапку, и весь блок дашборда на себе,
-      // и при этом остаться фотографией: сверху видна чистая полоса кадра.
-      // высота героя тоже кратна 8: иначе верхняя кромка листа встаёт вне сетки
-      h = Math.round(el.clientHeight * 0.68 / 8) * 8
+      // 0.68 — фото должно вместить и шапку, и весь блок дашборда на себе, и
+      // при этом остаться фотографией: сверху видна чистая полоса кадра. Но на
+      // низких экранах (iPhone SE, 320x568) 68% МЕНЬШЕ блока, и его верх уезжал
+      // под шапку. Поэтому высота считается от блока, а зона растушёвки ужимается.
+      const r8 = (v: number) => Math.round(v / 8) * 8
+      const FADE = 96
+      const inn = el.querySelector<HTMLElement>('.hero-in')
+      if (inn) {
+        el.style.setProperty('--fade', '0px')
+        const need = box.offsetTop + inn.offsetHeight   // шапка + блок без растушёвки
+        const base = r8(el.clientHeight * 0.68)
+        const cap = r8(el.clientHeight * 0.88)
+        h = Math.max(need, Math.min(cap, Math.max(base, r8(need + FADE))))
+        el.style.setProperty('--fade', Math.max(0, Math.min(FADE, h - need)) + 'px')
+      } else {
+        h = r8(el.clientHeight * 0.68)
+      }
       el.style.setProperty('--hero-h', h + 'px')
       // .bd начинается ниже статус-бара и шапки, а фото — от нуля экрана.
       // Отступ считаем от РЕАЛЬНОГО верха .bd: в приложении статус-бара нет,

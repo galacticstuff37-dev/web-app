@@ -12,7 +12,7 @@ export function Opt({ label, sub, on, multi, dim, onPick }:
     { label: string; sub?: string | null; on?: boolean; multi?: boolean
       dim?: boolean; onPick: () => void }) {
   return (
-    <div className={'opt' + (on ? ' sel' : '') + (dim ? ' off' : '')}
+    <div className={'opt' + (on ? ' sel' : '') + (dim ? ' dim' : '')}
          role={multi ? 'checkbox' : 'radio'} tabIndex={0} aria-checked={!!on}
          onClick={onPick}
          onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onPick() } }}>
@@ -68,9 +68,13 @@ export function Task({ t, done, onToggle, locked, bars }:
     )
   }
   return (
-    <div className={'task' + (done ? ' done' : '')} role="checkbox" tabIndex={0}
-         aria-checked={!!done} onClick={onToggle}
-         onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onToggle?.() } }}>
+    <div className={'task' + (done ? ' done' : '')}
+         {...(onToggle ? {
+           role: 'checkbox', tabIndex: 0, 'aria-checked': !!done, onClick: onToggle,
+           onKeyDown: (e: React.KeyboardEvent) => {
+             if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onToggle() }
+           },
+         } : {})}>
       <div className="box" aria-hidden="true"><IcCheck2 /></div>
       <div className="tt">
         <div className="t">{t[0]}</div>

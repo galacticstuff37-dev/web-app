@@ -178,6 +178,10 @@ export function Screen({ id, children, back, nav, offer, foot, scrollKey, hero }
     // невысоком экране (Safari отдаёт 714, а не 844) лист наезжал на виджеты.
     const inn0 = el.querySelector<HTMLElement>('.hero-in')
     if (inn0) ro.observe(inn0)
+    // И скролл-контейнер: его высота меняется от любого позднего сдвига шапки
+    // (режим экрана, подмена шрифта, схлопывание адресной строки), а размеры
+    // .screen и .hero-in при этом остаются прежними.
+    ro.observe(box)
     return () => {
       if (raf) cancelAnimationFrame(raf)
       box.removeEventListener('scroll', onScroll)

@@ -152,6 +152,7 @@ export type Action =
   | { t: 'libSeek'; v: string | null }
   | { t: 'onb'; v: OnbMode }
   | { t: 'onbReset'; v: OnbMode }
+  | { t: 'wipe' }
   | { t: 'pendingToggle'; v: string; limit: number }
   | { t: 'pending'; v: string[] }
   | { t: 'addPending' }
@@ -209,6 +210,10 @@ function reducer(s: State, a: Action): State {
     // растениями, которые человек занёс сам.
     case 'onbReset': return { ...s, onbMode: a.v, plants: [], pending: [], selected: 0,
                               done: {}, scanKeep: null }
+    // Delete account: назад к состоянию до первого запуска. Не onbReset —
+    // тот чистит только растения, а тут уходят и выбор места, и ZIP, и Pro.
+    // Демо-набор не возвращаем: человек попадает в онбординг с пустыми руками.
+    case 'wipe': return { ...INIT, plants: [] }
     case 'pendingToggle': {
       const k = s.pending.indexOf(a.v)
       if (k > -1) return { ...s, pending: s.pending.filter(x => x !== a.v) }

@@ -142,10 +142,9 @@ export function SettingsScreen({ go }: { go: Go }) {
       {/* Delete account вынесен из блока и подан серым секондари: это выход,
           а не пункт меню. */}
       <div className="danger" role="button" tabIndex={0}
-           onClick={() => d({ t: 'toast', v: {
-             html: '<span>Type DELETE to confirm — not wired up in the prototype</span>',
-             ms: 4000, at: Date.now() } })}>Delete account</div>
-      <div className="dangernote">Asks you to type DELETE first. Your plants go with it.</div>
+           onClick={() => { d({ t: 'wipe' }); go('landing') }}>Delete account</div>
+      <div className="dangernote">Wipes your plants and settings, and takes you back
+        to the start. Your plants go with it.</div>
     </Screen>
   )
 }

@@ -68,3 +68,8 @@ hero-calendar.jpg photo-1624668430039-0175a0fbf006  «A wooden harvest basket fi
                 calendar. Кадр сверху, вся корзина в полосе 800×340. Unsplash License.
                 На треке комнатных этой шапки нет: там переиспользован hero-plants.jpg,
                 потому что «урожай» к комнатным не относится.
+
+google-g.png — официальный логотип Google для кнопок входа,
+  https://developers.google.com/static/identity/images/g-logo.png
+  (уменьшен до 96px, не перерисован). Использование — только на кнопке
+  «Continue with Google» по брендбуку Google Identity.

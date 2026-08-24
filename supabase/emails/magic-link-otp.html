@@ -1,0 +1,84 @@
+<!-- HOMEGROWN · письмо с кодом входа
+     Куда вставить: Supabase → Authentication → Emails → шаблон «Magic Link»
+     (он же используется для OTP). Прямая ссылка:
+     https://supabase.com/dashboard/project/_/auth/templates
+     Вставлять ВСЁ, начиная со следующей строки после этого комментария.
+
+     Почему письмо свёрстано таблицами и с инлайновыми стилями: почтовые
+     клиенты режут <style> и не знают flex/grid. Caprasimo здесь нет намеренно —
+     веб-шрифты в почте не грузятся, поэтому заголовок идёт на Georgia, а не
+     подменяется системным без засечек.
+
+     Переменные Supabase, доступные в этом шаблоне: {{ .Token }} — сам код,
+     {{ .Email }} — адрес, {{ .SiteURL }}, {{ .ConfirmationURL }}, {{ .TokenHash }}.
+     Ссылку {{ .ConfirmationURL }} мы не показываем: экран в приложении просит
+     шесть цифр, и письмо не должно предлагать другой путь. -->
+<div style="display:none;max-height:0;overflow:hidden;opacity:0">
+  Your code: {{ .Token }} — good for 60 minutes.
+</div>
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0"
+       style="background:#F2F4F0;margin:0;padding:24px 0">
+  <tr>
+    <td align="center" style="padding:0 16px">
+      <table role="presentation" width="600" cellpadding="0" cellspacing="0" border="0"
+             style="width:100%;max-width:600px">
+
+        <tr>
+          <td align="center" style="padding:8px 0 20px;font-family:Georgia,'Times New Roman',serif;
+                     font-size:19px;font-weight:700;letter-spacing:.12em;color:#0B1F14">
+            HOMEGROWN
+          </td>
+        </tr>
+
+        <tr>
+          <td style="background:#FFFFFF;border-radius:20px;padding:32px 28px">
+            <p style="margin:0;font-family:Georgia,'Times New Roman',serif;font-size:26px;
+                      line-height:1.2;color:#0B1F14">
+              Six digits and you’re in.
+            </p>
+            <p style="margin:12px 0 0;font-family:-apple-system,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;
+                      font-size:15px;line-height:1.5;color:#3F4A43">
+              Enter this code in the app to sign in to {{ .Email }}.
+            </p>
+
+            <table role="presentation" cellpadding="0" cellspacing="0" border="0"
+                   style="margin:24px 0 0;width:100%">
+              <tr>
+                <td align="center" style="background:#F2F4F0;border-radius:16px;padding:22px 12px;
+                           font-family:-apple-system,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;
+                           font-size:34px;font-weight:700;letter-spacing:.22em;color:#0B1F14">
+                  {{ .Token }}
+                </td>
+              </tr>
+            </table>
+
+            <p style="margin:16px 0 0;font-family:-apple-system,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;
+                      font-size:13px;line-height:1.5;color:#5C6660">
+              The code works for 60 minutes and only once. Asking for a new one
+              replaces this one.
+            </p>
+
+            <table role="presentation" cellpadding="0" cellspacing="0" border="0"
+                   style="margin:24px 0 0;width:100%">
+              <tr><td style="border-top:1px solid #E2E7DF;font-size:0;line-height:0">&nbsp;</td></tr>
+            </table>
+
+            <p style="margin:16px 0 0;font-family:-apple-system,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;
+                      font-size:13px;line-height:1.5;color:#5C6660">
+              Didn’t ask for this? Nothing happened — someone typed your address
+              by mistake. You can ignore this email.
+            </p>
+          </td>
+        </tr>
+
+        <tr>
+          <td align="center" style="padding:20px 8px 0;font-family:-apple-system,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;
+                     font-size:12px;line-height:1.5;color:#5C6660">
+            HOMEGROWN · we email you a few tasks a week, nothing else.
+          </td>
+        </tr>
+
+      </table>
+    </td>
+  </tr>
+</table>

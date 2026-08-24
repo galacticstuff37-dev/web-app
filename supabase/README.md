@@ -15,6 +15,8 @@ Supabase = Postgres + PostgREST + Auth + Storage + Cron в одном проек
 |---|---|
 | `migrations/0001_init.sql` | Схема: профиль, растения, журнал снимков, отметки задач недели, подписки на пуш, лог отправок. RLS на всех таблицах |
 | `local-stub.sql` | Заглушка схемы `auth` для локальной проверки. **На Supabase не применять** — там она есть |
+| `emails/magic-link-otp.html` | Письмо с кодом входа: вставить в шаблон «Magic Link». Таблицы и инлайновые стили, потому что почтовые клиенты режут `<style>`; заголовок на Georgia, потому что веб-шрифты в почте не грузятся |
+| `emails/magic-link-otp.txt` | Текстовая версия — понадобится со своим SMTP, в дашборде текстовую часть задать нельзя |
 
 Миграция проверена на живом Postgres 17: ограничения отбивают мусор (`zip 123`,
 `effort 5`, снимок сразу и из `/img`, и из Storage), профиль создаётся триггером
@@ -27,13 +29,18 @@ Supabase = Postgres + PostgREST + Auth + Storage + Cron в одном проек
 1. **Проект.** supabase.com → New project. Регион — US East или US West: рынок
    американский, и планировщик будет считать заморозки по ZIP.
 2. **Схема.** SQL Editor → вставить `migrations/0001_init.sql` → Run.
-3. **Вход по коду.** Authentication → Providers → Email: включить, **Confirm
-   email** оставить включённым.
-   Затем Authentication → Emails → шаблон **Magic Link**: заменить ссылку на
-   `{{ .Token }}`. Без этой правки Supabase присылает ссылку, а у нас экран на
-   шесть цифр — придёт письмо не про то, что показано.
-   Там же Advanced: OTP length = 6, OTP expiry = 600 (10 минут; на экране
-   таймер повторной отправки 30 с).
+3. **Вход по коду.** Authentication → Sign In / Providers → Email: включить.
+   Там же лежит **Email OTP expiration** — дефолт 1 час, менять не обязательно.
+   Код по умолчанию шестизначный, как экран и ждёт.
+
+   Затем письмо: **Authentication → Emails → шаблон «Magic Link»** (он же
+   уходит при входе по коду), прямая ссылка —
+   `https://supabase.com/dashboard/project/_/auth/templates`. В нём по умолчанию
+   стоит ссылка, а у нас экран на шесть цифр, поэтому шаблон надо заменить.
+   Готовый лежит рядом: **`emails/magic-link-otp.html`** — скопировать целиком
+   (кроме комментария в начале) и вставить в поле Message body.
+   Переменная кода — `{{ .Token }}`; она доступна именно в этом шаблоне
+   («Magic link / OTP») и в Reauthentication, но не в остальных.
 4. **Google.** Authentication → Providers → Google: включить и вставить Client
    ID и Client Secret из Google Cloud Console. В самой Console, в OAuth-клиенте:
    - Authorized JavaScript origins: `https://galacticstuff37-dev.github.io`
@@ -49,6 +56,16 @@ Supabase = Postgres + PostgREST + Auth + Storage + Cron в одном проек
 8. **Отдать мне два значения** (оба публичные, лежат в репозитории спокойно):
    - Project URL: `https://<project-ref>.supabase.co`
    - `anon` public key
+
+### Два лимита, на которые наступают все
+
+- **Встроенная почта Supabase отдаёт 2 письма в час на проект.** Это не опечатка
+  и обойти её настройкой нельзя — только своим SMTP (Resend, Postmark, SES) в
+  Project Settings → Auth → SMTP. Для проверки хватит, для людей нет: третий
+  человек за час кода не получит и решит, что вход сломан.
+- **Новый код на один адрес — раз в 60 секунд.** Поэтому таймер повторной
+  отправки на экране кода стоит на 60 с, а не на 30: короче лимита он обещал бы
+  то, в чём сервер откажет.
 
 **Ключ `service_role` в репозиторий не попадает никогда.** Он нужен только
 планировщику напоминаний (Edge Function) и живёт в секретах проекта: у него

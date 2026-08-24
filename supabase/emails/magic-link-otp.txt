@@ -1,0 +1,22 @@
+HOMEGROWN · код входа, текстовая версия
+
+В дашборде Supabase шаблоны только HTML — текстовую часть там задать нельзя.
+Этот файл понадобится, когда подключишь свой SMTP (Resend, Postmark, SES):
+почти все провайдеры принимают multipart и text-часть заметно улучшает
+доставляемость.
+
+--------------------------------------------------------------------
+Six digits and you're in.
+
+Enter this code in the app to sign in to {{ .Email }}:
+
+    {{ .Token }}
+
+The code works for 60 minutes and only once. Asking for a new one
+replaces this one.
+
+Didn't ask for this? Nothing happened - someone typed your address by
+mistake. You can ignore this email.
+
+HOMEGROWN - we email you a few tasks a week, nothing else.
+--------------------------------------------------------------------

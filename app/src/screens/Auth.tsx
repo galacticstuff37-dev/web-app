@@ -39,7 +39,10 @@ const DEMO_EMAIL = 'demo@homegrown.app'
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[a-z]{2,}$/i
 /** Код, которым в прототипе можно посмотреть состояние ошибки. */
 const BAD_CODE = '000000'
-const RESEND_S = 30
+// 60, а не 30: Supabase пускает новый код на один адрес раз в 60 секунд
+// (docs → Auth → Rate limits). Таймер короче лимита обещал бы то, что сервер
+// откажет, и «Resend code» отдавал бы ошибку.
+const RESEND_S = 60
 
 function AppleMark({ size = 17 }: { size?: number }) {
   return (
@@ -229,7 +232,8 @@ export function CodeScreen({ go }: { go: Go }) {
       <div className="note" style={{ marginTop: 16 }}>
         <b>Demo: any six digits work</b>
         <p>No mail is sent — there is no server yet. Type <b>000000</b> to see what a
-          rejected code looks like.</p>
+          rejected code looks like. With the backend on, a code lives 60 minutes
+          and a new one can be asked once a minute.</p>
       </div>
     </Screen>
   )

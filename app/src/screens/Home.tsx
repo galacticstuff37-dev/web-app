@@ -61,12 +61,17 @@ function Dash({ go, onOpen }: { go: (id: string) => void; onOpen: (i: number) =>
   const { s } = useStore()
   return (
     <div className="dash">
-      <div className="sec-h dash-sec">
-        <span>My plants</span>
-        <i role="button" tabIndex={0} onClick={() => go('add-plant')}>Add</i>
-      </div>
-      <div className="prow-scroll">
-        {s.plants.map((p, i) => <PlantCard key={i} p={p} i={i} onOpen={onOpen} />)}
+      {/* Ярлык и карусель — одна обёртка: она же граница залипания ярлыка.
+          Прямым ребёнком .dash он липнул над всем листом, включая карточку
+          недели, которую не подписывает. */}
+      <div className="dash-plants">
+        <div className="sec-h dash-sec">
+          <span>My plants</span>
+          <i role="button" tabIndex={0} onClick={() => go('add-plant')}>Add</i>
+        </div>
+        <div className="prow-scroll">
+          {s.plants.map((p, i) => <PlantCard key={i} p={p} i={i} onOpen={onOpen} />)}
+        </div>
       </div>
       <Week />
     </div>

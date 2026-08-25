@@ -39,7 +39,11 @@ Supabase = Postgres + PostgREST + Auth + Storage + Cron в одном проек
 
 1. **Проект.** supabase.com → New project. Регион — US East или US West: рынок
    американский, и планировщик будет считать заморозки по ZIP.
-2. **Схема.** SQL Editor → вставить `migrations/0001_init.sql` → Run.
+2. **Схема.** SQL Editor → вставить `migrations/0001_init.sql` → Run, затем
+   `migrations/0002_rls_perf.sql` → Run. Оба файла можно запускать повторно
+   сколько угодно раз: ошибка `42P07: relation "profiles" already exists`
+   означала бы, что миграция оборвалась на первом конфликте, поэтому таблицы,
+   индексы, триггеры и политики пересоздаются безопасно.
 3. **Вход по коду.** Authentication → Sign In / Providers → Email: включить.
    Там же лежит **Email OTP expiration** — дефолт 1 час, менять не обязательно.
    Код по умолчанию шестизначный, как экран и ждёт.

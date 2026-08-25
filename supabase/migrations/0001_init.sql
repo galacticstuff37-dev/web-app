@@ -15,6 +15,11 @@
 --
 -- Применение: SQL Editor проекта или `supabase db push`. Локальная проверка —
 -- см. supabase/local-stub.sql (там заглушка схемы auth, которую даёт Supabase).
+--
+-- Файл ИДЕМПОТЕНТЕН: его можно запускать повторно, ничего не удаляя руками.
+-- Postgres останавливается на первом конфликте, поэтому «relation already
+-- exists» на втором запуске обрывал бы миграцию посередине — а человек,
+-- который вставляет SQL в редактор, запускает его дважды всегда.
 
 -- ───────────────────────────────────────────── общее
 
@@ -34,7 +39,7 @@ end $$;
 -- рядом. Отдельными колонками, а не одним jsonb: по zip и по времени
 -- напоминания планировщик будет выбирать людей, а по jsonb это индексируется
 -- плохо и ошибку в имени поля никто не поймает.
-create table public.profiles (
+create table if not exists public.profiles (
   id            uuid primary key references auth.users(id) on delete cascade,
   email         text,
 
@@ -74,6 +79,7 @@ create table public.profiles (
   updated_at    timestamptz not null default now()
 );
 
+drop trigger if exists profiles_touch on public.profiles;
 create trigger profiles_touch before update on public.profiles
   for each row execute function public.touch_updated_at();
 
@@ -87,12 +93,13 @@ begin
   return new;
 end $$;
 
+drop trigger if exists on_auth_user_created on auth.users;
 create trigger on_auth_user_created after insert on auth.users
   for each row execute function public.handle_new_user();
 
 -- ───────────────────────────────────────────── растения
 
-create table public.plants (
+create table if not exists public.plants (
   id          uuid primary key default gen_random_uuid(),
   user_id     uuid not null references auth.users(id) on delete cascade,
   -- id вида из справочника в коде; текстом, потому что таблицы видов тут нет
@@ -105,7 +112,8 @@ create table public.plants (
   updated_at  timestamptz not null default now()
 );
 
-create index plants_user_idx on public.plants (user_id) where deleted_at is null;
+create index if not exists plants_user_idx on public.plants (user_id) where deleted_at is null;
+drop trigger if exists plants_touch on public.plants;
 create trigger plants_touch before update on public.plants
   for each row execute function public.touch_updated_at();
 
@@ -114,7 +122,7 @@ create trigger plants_touch before update on public.plants
 -- Два вида кадров, как в клиенте: готовое фото вида из /img (stock, имя файла)
 -- и снимок человека (upload, путь в Storage). Один из двух обязателен — иначе
 -- в журнале появится карточка без картинки.
-create table public.photos (
+create table if not exists public.photos (
   id           uuid primary key default gen_random_uuid(),
   user_id      uuid not null references auth.users(id) on delete cascade,
   plant_id     uuid not null references public.plants(id) on delete cascade,
@@ -130,7 +138,8 @@ create table public.photos (
     (kind = 'upload' and storage_path is not null and stock_name is null))
 );
 
-create index photos_plant_idx on public.photos (plant_id) where deleted_at is null;
+create index if not exists photos_plant_idx on public.photos (plant_id) where deleted_at is null;
+drop trigger if exists photos_touch on public.photos;
 create trigger photos_touch before update on public.photos
   for each row execute function public.touch_updated_at();
 
@@ -139,7 +148,7 @@ create trigger photos_touch before update on public.photos
 -- Ключ задачи в клиенте привязан к позиции растения (water:0, pick:1) и живёт
 -- одну неделю. Поэтому неделя — часть ключа: без неё прошлые отметки гасили бы
 -- задачи следующей недели.
-create table public.week_tasks (
+create table if not exists public.week_tasks (
   user_id    uuid not null references auth.users(id) on delete cascade,
   week_start date not null,
   task_key   text not null,
@@ -148,12 +157,13 @@ create table public.week_tasks (
   primary key (user_id, week_start, task_key)
 );
 
+drop trigger if exists week_tasks_touch on public.week_tasks;
 create trigger week_tasks_touch before update on public.week_tasks
   for each row execute function public.touch_updated_at();
 
 -- ───────────────────────────────────────────── подписки на пуш и лог отправок
 
-create table public.push_subscriptions (
+create table if not exists public.push_subscriptions (
   id         uuid primary key default gen_random_uuid(),
   user_id    uuid not null references auth.users(id) on delete cascade,
   endpoint   text not null unique,
@@ -164,11 +174,11 @@ create table public.push_subscriptions (
   failed_at  timestamptz          -- после 410 от сервиса пуша подписку гасим
 );
 
-create index push_user_idx on public.push_subscriptions (user_id) where failed_at is null;
+create index if not exists push_user_idx on public.push_subscriptions (user_id) where failed_at is null;
 
 -- Лог нужен не для истории, а для правил из каталога оповещений: не больше
 -- одного пуша в день и одно событие не уходит в два канала в один день.
-create table public.notification_log (
+create table if not exists public.notification_log (
   id       uuid primary key default gen_random_uuid(),
   user_id  uuid not null references auth.users(id) on delete cascade,
   kind     text not null,         -- water_due, harvest_ready, frost_soon, …
@@ -178,7 +188,7 @@ create table public.notification_log (
   unique (user_id, kind, channel, sent_on)
 );
 
-create index notif_user_day_idx on public.notification_log (user_id, sent_on);
+create index if not exists notif_user_day_idx on public.notification_log (user_id, sent_on);
 
 -- ───────────────────────────────────────────── RLS
 
@@ -189,22 +199,28 @@ alter table public.week_tasks         enable row level security;
 alter table public.push_subscriptions enable row level security;
 alter table public.notification_log   enable row level security;
 
+drop policy if exists profiles_self on public.profiles;
 create policy profiles_self on public.profiles
   for all using (id = auth.uid()) with check (id = auth.uid());
 
+drop policy if exists plants_self on public.plants;
 create policy plants_self on public.plants
   for all using (user_id = auth.uid()) with check (user_id = auth.uid());
 
+drop policy if exists photos_self on public.photos;
 create policy photos_self on public.photos
   for all using (user_id = auth.uid()) with check (user_id = auth.uid());
 
+drop policy if exists week_tasks_self on public.week_tasks;
 create policy week_tasks_self on public.week_tasks
   for all using (user_id = auth.uid()) with check (user_id = auth.uid());
 
+drop policy if exists push_self on public.push_subscriptions;
 create policy push_self on public.push_subscriptions
   for all using (user_id = auth.uid()) with check (user_id = auth.uid());
 
 -- Лог человек только читает: пишет в него планировщик своим ключом.
+drop policy if exists notif_read_self on public.notification_log;
 create policy notif_read_self on public.notification_log
   for select using (user_id = auth.uid());
 

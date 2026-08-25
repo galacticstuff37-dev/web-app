@@ -105,6 +105,7 @@ export function PreviewScreen({ go }: { go: Go }) {
 export function SaveScreen({ go }: { go: Go }) {
   const { s } = useStore()
   const c = usePlanCtx()
+  const own = s.onbMode === 'own'
   const plan = s.plants.length ? s.plants.map(p => p.s) : buildPlan(c)
   return (
     <div className="screen on" id="s-save">
@@ -120,12 +121,18 @@ export function SaveScreen({ go }: { go: Go }) {
           {plan.length} {plan.length === 1 ? 'PLANT' : 'PLANTS'} ·{' '}
           {c.outdoor ? `${seasonWeeks(c.zip)} WEEKS` : 'YEAR-ROUND'}
         </span>
+        {/* Ветка «уже есть растения» приходит сюда со своими растениями, а не с
+            планом: обещать «твой план готов» ей нельзя. */}
         <div className="cap-f" style={{ fontSize: 'var(--t-40)', lineHeight: 1.03, marginTop: 16 }}>
-          Save your plan<br /><span style={{ color: 'var(--lime)' }}>so we can remind you.</span>
+          {own ? <>Save your plants<br /></> : <>Save your plan<br /></>}
+          <span style={{ color: 'var(--lime)' }}>so we can remind you.</span>
         </div>
         <div style={{ fontSize: 'var(--t-16)', color: '#DCE7DE', lineHeight: 1.5, marginTop: 12 }}>
-          Your plan is already built. This just saves it. We email you a few tasks a week —
-          nothing else.
+          {own
+            ? 'Without an account they live in this browser only — and no reminder '
+              + 'can reach you.'
+            : 'Your plan is already built. This just saves it. We email you a few tasks '
+              + 'a week — nothing else.'}
         </div>
         <div style={{ marginTop: 16 }}><Providers go={go} from="save" /></div>
       </div>

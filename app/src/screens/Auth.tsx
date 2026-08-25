@@ -29,8 +29,13 @@ const GOOGLE_LOGO = ASSET_ROOT + 'img/google-g.png'
     нарисован от руки. Брендовые кнопки требуют родной формы знака. */
 const APPLE_MARK = 'M859 248C907 190 941 111 941 31C941 20 940 9 938 0C860 3 766 52 710 118C666 168 625 248 625 328C625 340 627 352 628 356C633 357 641 358 649 358C719 358 807 311 859 248ZM914 375C797 375 748 431 667 431C584 431 511 379 404 379C299 379 187 443 116 553C16 708 33 1000 196 1250C254 1341 332 1443 434 1444C525 1445 551 1386 675 1385C800 1384 823 1444 914 1444C1016 1443 1098 1331 1156 1240C1198 1174 1214 1141 1246 1067C1013 978 976 646 1206 519C1136 431 1037 375 914 375Z'
 
-/** Помеченный плейсхолдер: без client_id настоящего адреса взять негде. */
-const DEMO_EMAIL = 'demo@homegrown.app'
+/**
+ * Apple выключен, пока нет ключей. Раньше кнопка молча впускала в приложение
+ * с придуманным адресом — это не вход, а обход входа. Кнопку, которая не
+ * работает, не показываем вовсе: мёртвая кнопка хуже её отсутствия.
+ * Появятся Services ID и .p8 — флаг в true, ветка ниже уже готова.
+ */
+const APPLE_READY = false
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[a-z]{2,}$/i
 /** Код, которым в прототипе можно посмотреть состояние ошибки. */
@@ -39,6 +44,9 @@ const BAD_CODE = '000000'
 // (docs → Auth → Rate limits). Таймер короче лимита обещал бы то, что сервер
 // откажет, и «Resend code» отдавал бы ошибку.
 const RESEND_S = 60
+/** 00:59 — как в референсе: секунды подряд читаются хуже, чем часовой формат. */
+const mmss = (s: number) =>
+  `${String(Math.floor(s / 60)).padStart(2, '0')}:${String(s % 60).padStart(2, '0')}`
 
 function AppleMark({ size = 17 }: { size?: number }) {
   return (
@@ -110,13 +118,18 @@ export function Providers({ go, from }: { go: Go; from: string }) {
     }
   }
 
-  // Apple без ключей: вход демонстрационный, и в аккаунте это подписано.
-  const demoSignIn = (via: AuthVia) => {
-    d({ t: 'authFrom', v: from })
-    d({ t: 'signIn', v: { email: DEMO_EMAIL, via, demo: true } })
-    d({ t: 'toast', v: { html: '<span>Demo sign-in — Apple needs its own keys, '
-      + 'not wired yet</span>', ms: 4000, at: Date.now() } })
-    go(from === 'save' ? 'paywall' : 'home')
+  const apple = async () => {
+    setAuthNext(from === 'save' ? 'paywall' : 'home')
+    const sb = await supa()
+    const { error } = await sb.auth.signInWithOAuth({
+      provider: 'apple',
+      options: { redirectTo: authRedirect() },
+    })
+    if (error) {
+      setAuthNext('')
+      d({ t: 'toast', v: { html: '<span>Apple did not open — try Google or email</span>',
+                           ms: 4000, at: Date.now() } })
+    }
   }
   return (
     <>
@@ -126,17 +139,23 @@ export function Providers({ go, from }: { go: Go; from: string }) {
         <img className="prov-ic" src={GOOGLE_LOGO} alt="" width={18} height={18} />
         <span>Continue with Google</span>
       </div>
-      <div className="btn prov b-dark" role="button" tabIndex={0}
-           onClick={() => demoSignIn('apple')}
-           onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); demoSignIn('apple') } }}>
-        <span className="prov-ic"><AppleMark /></span>
-        <span>Continue with Apple</span>
-      </div>
+      {APPLE_READY && (
+        <div className="btn prov b-dark" role="button" tabIndex={0}
+             onClick={apple}
+             onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); apple() } }}>
+          <span className="prov-ic"><AppleMark /></span>
+          <span>Continue with Apple</span>
+        </div>
+      )}
       <div className="btn b-ghost" role="button" tabIndex={0}
            onClick={() => { d({ t: 'authFrom', v: from }); go('email') }}
            onKeyDown={e => {
              if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); d({ t: 'authFrom', v: from }); go('email') }
            }}>Continue with email</div>
+      {!APPLE_READY && (
+        <div className="prov-note">Apple sign-in comes next — it needs its own
+          developer keys.</div>
+      )}
     </>
   )
 }
@@ -273,14 +292,22 @@ export function CodeScreen({ go }: { go: Go }) {
       </label>
       {err && <div className="fld-err" role="alert">{err}</div>}
 
-      <div className="otp-row">
+      {/* Смена адреса — отдельная кнопка во всю ширину, как в референсе: раньше
+          это была мелкая ссылка в строке с таймером. */}
+      <div className="btn b-ghost" role="button" tabIndex={0} onClick={() => go('email')}
+           onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); go('email') } }}>
+        Use another email
+      </div>
+
+      <div className="otp-again">
         {left > 0
-          ? <span className="otp-wait">Resend in {left}s</span>
-          : <b role="button" tabIndex={0} onClick={() => { setLeft(RESEND_S); setCode(''); setErr('') }}>
-              Resend code
+          ? <>Ask for a new code in <b>{mmss(left)}</b></>
+          : <b role="button" tabIndex={0} className="otp-link"
+               onClick={() => { setLeft(RESEND_S); setCode(''); setErr('') }}
+               onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') {
+                 e.preventDefault(); setLeft(RESEND_S); setCode(''); setErr('') } }}>
+              Ask for a new code
             </b>}
-        <span className="otp-sep">·</span>
-        <b role="button" tabIndex={0} onClick={() => go('email')}>Use another email</b>
       </div>
 
       <div className="note" style={{ marginTop: 16 }}>

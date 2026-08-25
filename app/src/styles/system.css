@@ -161,3 +161,18 @@
 @media (prefers-reduced-motion: reduce) {
   .cf-sc, .cf-box { animation: none }
 }
+
+/* ───────────── Экран кода по референсу
+   Клетки крупнее и с большим радиусом: в референсе это основной объект экрана,
+   а не строка ввода. Пять клеток сделать нельзя — GoTrue принимает длину кода
+   только от 6 до 10, поэтому шесть. */
+.otp { height: 76px }
+.otp-cells { gap: var(--s1) }
+.otp-cells i { border-radius: var(--r-lg); font-size: var(--t-31) }
+.otp-again { text-align: center; font-size: var(--t-14); color: var(--muted);
+             margin-top: var(--s2) }
+.otp-again b { color: var(--primary); font-weight: 600; font-variant-numeric: tabular-nums }
+.otp-link { cursor: pointer; padding: 12px var(--s2); margin: -12px 0; display: inline-block }
+/* Почему в списке нет Apple: подпись вместо мёртвой кнопки. */
+.prov-note { font-size: var(--t-13); line-height: 1.45; color: var(--muted);
+             text-align: center; margin-top: var(--s2) }

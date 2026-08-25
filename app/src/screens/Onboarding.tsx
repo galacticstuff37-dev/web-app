@@ -4,15 +4,16 @@
 
 import { useState } from 'react'
 import { Screen } from '../components/Chrome'
-import { Opt, Pg } from '../components/parts'
+import { Opt, Pg, PickRow } from '../components/parts'
 import { Icon } from '../icons/Icon'
 import { bg } from '../lib/assets'
 import { trackOfPlants } from '../lib/plants'
 import {
   GOALS, Q4TITLE, SPACES, SUNLABEL, SUNRANK, TRACKOF, goalTag, isOutdoorSpace,
 } from '../data/onboarding'
+import { ZIPS } from '../data/zips'
 import { useStore } from '../state/store'
-import { seasonDays, zipInfo } from '../lib/season'
+import { seasonDays } from '../lib/season'
 
 type Go = (id: string) => void
 
@@ -155,38 +156,64 @@ export function Q1Screen({ go }: { go: Go }) {
 
 // ─────────────────────────────────────────── Q2: ZIP (только уличный трек)
 export function Q2Screen({ go }: { go: Go }) {
-  const { s, d } = useStore()
-  // Пока не тапнули — плейсхолдер и погашенный Continue: состояние появляется
-  // от действия, а не выставлено заранее.
-  const [touched, setTouched] = useState(false)
-  const z = zipInfo(s.choices.zip)
+  const { d } = useStore()
+  // Поле пустое, пока человек не ввёл: раньше тап по плашке молча подставлял
+  // 78704, и выглядело это как «приложение само что-то решило».
+  const [val, setVal] = useState('')
+  const known = ZIPS.find(z => z.zip === val)
+  const full = val.length === 5
+
+  const type = (raw: string) => {
+    const next = raw.replace(/\D/g, '').slice(0, 5)
+    setVal(next)
+    const hit = ZIPS.find(z => z.zip === next)
+    if (hit) d({ t: 'choices', v: { zip: hit.zip } })
+  }
+  const pick = (zip: string) => { setVal(zip); d({ t: 'choices', v: { zip } }) }
+
   return (
     <Screen id="q2" back={() => go('q1')} scrollKey="q2"
-            foot={<StepBtn on={touched} onNext={() => go('q3')} />}>
+            foot={<StepBtn on={!!known} onNext={() => go('q3')} />}>
       <div className="h1" style={{ marginTop: 16 }}>What’s your ZIP?</div>
-      <Pg id="q2" />
-      <div style={{ marginTop: 16 }}>
-        <div className={'zip' + (touched ? '' : ' ph')} role="button" tabIndex={0}
-             aria-label="Enter your ZIP code"
-             onClick={() => { setTouched(true)
-                              d({ t: 'choices', v: { zip: s.choices.zip || '78704' } }) }}>
-          {touched ? s.choices.zip : '— — — — —'}
-        </div>
-        <div style={{ fontSize: 'var(--t-14)', color: 'var(--muted)', lineHeight: 1.5, marginTop: 16 }}>
-          Frost dates decide what you can put outside right now. Tap to enter.
-        </div>
-        {touched && (
-          <div className="acc" style={{ marginTop: 16 }}>
-            <div className="row1"><span className="tag">Matched</span></div>
-            <div className="lbl">Climate profile</div>
-            <div className="big">{z.city}</div>
-            <div className="duo">
-              <div className="cell"><s>Last frost</s><b>{z.last}</b></div>
-              <div className="cell"><s>Season</s><b>{seasonDays(z.zip)} days</b></div>
-            </div>
-          </div>
-        )}
+      <div style={{ fontSize: 'var(--t-14)', color: 'var(--muted)', marginTop: 4 }}>
+        Frost dates decide what can go outside, and when.
       </div>
+      <Pg id="q2" />
+
+      <label className={'fld' + (full && !known ? ' bad' : '')} style={{ marginTop: 16 }}>
+        <span className="fld-l">ZIP code</span>
+        <input inputMode="numeric" autoComplete="postal-code" pattern="[0-9]*" maxLength={5}
+               enterKeyHint="done" placeholder="00000" aria-label="Your ZIP code"
+               value={val} onChange={e => type(e.target.value)} />
+      </label>
+
+      {known ? (
+        <div className="acc" style={{ marginTop: 16 }}>
+          <div className="row1"><span className="tag">Matched</span></div>
+          <div className="lbl">Climate profile</div>
+          <div className="big">{known.city}</div>
+          <div className="duo">
+            <div className="cell"><s>Last frost</s><b>{known.last}</b></div>
+            <div className="cell"><s>Season</s><b>{seasonDays(known.zip)} days</b></div>
+          </div>
+        </div>
+      ) : (
+        <>
+          {/* Честно про охват: даты сверены со станциями по четырём индексам, и
+              весь календарь считается от них. Выдумывать пятый нельзя. */}
+          {full && (
+            <div className="fld-err" role="alert">
+              No verified frost dates for {val} yet.
+            </div>
+          )}
+          <div className="sl">{full ? 'Pick one of these instead' : 'Or pick a city we’ve verified'}</div>
+          {ZIPS.map(z => (
+            <PickRow key={z.zip} label={`${z.zip} · ${z.city}`} on={false}
+                     sub={`Zone ${z.zone} · frost ${z.last} – ${z.first} · ${seasonDays(z.zip)}-day season`}
+                     onPick={() => pick(z.zip)} />
+          ))}
+        </>
+      )}
     </Screen>
   )
 }
@@ -222,8 +249,10 @@ function useSunNext(go: Go) {
     d({ t: 'choices', v: sunPick(label, indoor) })
     if (s.onbMode === 'own') {
       d({ t: 'choices', v: { track: trackOfPlants(s.plants, s.choices.track) } })
-      d({ t: 'onb', v: null })
-      go('home')
+      // Регистрация нужна и здесь: раньше эта ветка заканчивалась прямо на Home,
+      // то есть человек попадал в приложение вообще без аккаунта — и его
+      // растения жили только в этом браузере. onbMode гасит уже сам Home.
+      go('save')
       return
     }
     go('q4')

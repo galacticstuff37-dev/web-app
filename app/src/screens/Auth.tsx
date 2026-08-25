@@ -5,24 +5,20 @@
 // самом экране — притворяться авторизацией нельзя. Валидация адреса, состояния
 // кнопок, таймер повторной отправки и ошибки — настоящие.
 //
-// Чтобы включить НАСТОЯЩИЙ Google:
-//   1. Google Cloud Console → Credentials → OAuth client ID (Web application),
-//      в Authorized JavaScript origins добавить https://<домен> (для Pages —
-//      https://galacticstuff37-dev.github.io).
-//   2. Подключить https://accounts.google.com/gsi/client и вызвать
-//      google.accounts.id.initialize({ client_id, callback }).
-//   3. В callback раскодировать credential (JWT) и взять из него email —
-//      вместо demoSignIn ниже.
-// Apple — через Sign in with Apple JS: Services ID, домен и return URL в
-// Apple Developer, дальше AppleID.auth.init/signIn.
-// Кода для этого здесь нет намеренно: непроверяемый код в прототипе хуже, чем
-// его отсутствие.
+// Google — НАСТОЯЩИЙ: OAuth-клиент заведён, провайдер включён в проекте,
+// вход идёт через Supabase (PKCE). Почта и Apple пока демонстрационные:
+// письмо с кодом невозможно без своего SMTP (на встроенной почте Supabase
+// шаблоны не редактируются и дефолтное письмо присылает ссылку, а не код), а
+// Apple требует платного Apple Developer, Services ID и .p8-ключа.
+// Как только появятся SMTP или ключи Apple — меняются только эти две ветки,
+// экраны переделывать не придётся.
 
 import { useEffect, useRef, useState } from 'react'
 import { Screen } from '../components/Chrome'
 import { ASSET_ROOT, bg } from '../lib/assets'
 import { Icon } from '../icons/Icon'
-import { useStore, type AuthVia } from '../state/store'
+import { authRedirect, setAuthNext, supa, takeAuthNext } from '../lib/supabase'
+import { useStore, type Account, type AuthVia } from '../state/store'
 
 type Go = (id: string) => void
 
@@ -52,23 +48,81 @@ function AppleMark({ size = 17 }: { size?: number }) {
   )
 }
 
+/** Аккаунт из пользователя Supabase. Провайдер берём из app_metadata. */
+function accountOf(u: { email?: string | null; app_metadata?: { provider?: string } }): Account {
+  const p = u.app_metadata?.provider
+  const via: AuthVia = p === 'apple' ? 'apple' : p === 'email' ? 'email' : 'google'
+  return { email: u.email || '', via }
+}
+
+/**
+ * Сессия Supabase → состояние приложения. Живёт в App, потому что после
+ * возврата от провайдера надо ещё и увести на нужный экран.
+ *
+ * Отсутствие сессии НЕ гасит аккаунт: иначе демонстрационный вход (Apple,
+ * почта) исчезал бы при каждой перезагрузке. Гасим только по настоящему
+ * событию выхода.
+ */
+export function useAuthSession(go: Go) {
+  const { d } = useStore()
+  useEffect(() => {
+    let alive = true
+    let off: (() => void) | undefined
+    supa().then(sb => {
+      if (!alive) return
+      sb.auth.getSession().then(({ data }) => {
+        if (!alive || !data.session) return
+        d({ t: 'signIn', v: accountOf(data.session.user) })
+        const next = takeAuthNext()
+        if (next) go(next)
+      })
+      const { data: sub } = sb.auth.onAuthStateChange((event, session) => {
+        if (session) d({ t: 'signIn', v: accountOf(session.user) })
+        else if (event === 'SIGNED_OUT') d({ t: 'signOut' })
+      })
+      off = () => sub.subscription.unsubscribe()
+    })
+    return () => { alive = false; off?.() }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
+}
+
 /** Список способов входа. Один и тот же на экране онбординга и на возврате. */
 export function Providers({ go, from }: { go: Go; from: string }) {
   const { d } = useStore()
-  // Без client_id вход демонстрационный, и это видно: подпись в аккаунте
-  // говорит прямо, что провайдер не подключён.
+
+  // Настоящий вход. Браузер уходит на Google, возвращается уже с сессией —
+  // поэтому экран, куда надо попасть после возврата, кладём в localStorage:
+  // страница перезагружается целиком и состояние в памяти не доживает.
+  const google = async () => {
+    setAuthNext(from === 'save' ? 'paywall' : 'home')
+    const sb = await supa()
+    const { error } = await sb.auth.signInWithOAuth({
+      provider: 'google',
+      options: { redirectTo: authRedirect() },
+    })
+    // Сюда доходим только если увести на Google не удалось: обычно браузер уже
+    // ушёл. Молчать нельзя — человек нажал и ничего не произошло.
+    if (error) {
+      setAuthNext('')
+      d({ t: 'toast', v: { html: '<span>Google did not open — check the connection '
+        + 'and try again</span>', ms: 4000, at: Date.now() } })
+    }
+  }
+
+  // Apple без ключей: вход демонстрационный, и в аккаунте это подписано.
   const demoSignIn = (via: AuthVia) => {
     d({ t: 'authFrom', v: from })
     d({ t: 'signIn', v: { email: DEMO_EMAIL, via, demo: true } })
-    d({ t: 'toast', v: { html: `<span>Demo sign-in — ${via === 'google' ? 'Google' : 'Apple'} `
-      + 'is not wired to this build yet</span>', ms: 4000, at: Date.now() } })
+    d({ t: 'toast', v: { html: '<span>Demo sign-in — Apple needs its own keys, '
+      + 'not wired yet</span>', ms: 4000, at: Date.now() } })
     go(from === 'save' ? 'paywall' : 'home')
   }
   return (
     <>
       <div className="btn b-white prov" role="button" tabIndex={0}
-           onClick={() => demoSignIn('google')}
-           onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); demoSignIn('google') } }}>
+           onClick={google}
+           onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); google() } }}>
         <img className="prov-ic" src={GOOGLE_LOGO} alt="" width={18} height={18} />
         <span>Continue with Google</span>
       </div>
@@ -259,7 +313,12 @@ export function AccountRow({ go }: { go: Go }) {
           <s>{via}{s.account.demo ? ' · demo sign-in, not wired yet' : ''}</s>
         </div>
         <span className="acc-go" role="button" tabIndex={0} aria-label="Sign out"
-              onClick={() => { d({ t: 'signOut' }); go('signin') }}>
+              onClick={async () => {
+                // У демонстрационного входа сессии на сервере нет — закрывать нечего.
+                if (!s.account?.demo) await (await supa()).auth.signOut()
+                d({ t: 'signOut' })
+                go('signin')
+              }}>
           <Icon name="x" color="#fff" size={17} sw={2.4} />
         </span>
       </div>

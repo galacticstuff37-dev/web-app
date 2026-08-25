@@ -2,6 +2,7 @@
 // и так адресовал экраны через #id — ссылки остаются рабочими.
 
 import { useCallback, useEffect, useState } from 'react'
+import { useAuthSession } from './screens/Auth'
 import { Toast } from './components/parts'
 import { Review } from './review/Review'
 import { ROUTE, ROUTES } from './routes'
@@ -67,6 +68,10 @@ export function App() {
     if (next === 'paywall') d({ t: 'pwFrom', v: id === 'save' ? 'home' : id })
     go(next)
   }, [go, d, id])
+
+  // Вход через Google возвращает человека уже с сессией: подхватываем её и
+  // уводим на экран, с которого начинали.
+  useAuthSession(goTracked)
 
   if (hash === 'review') return <Review />
 

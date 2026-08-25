@@ -16,10 +16,11 @@
 import { useEffect, useRef, useState } from 'react'
 import { Screen } from '../components/Chrome'
 import { ASSET_ROOT, bg } from '../lib/assets'
+import { cap } from '../lib/plan'
 import { Icon } from '../icons/Icon'
 import {
   authError, authRedirect, authReturn, clearAuthError, clearAuthUrl, setAuthError,
-  setAuthNext, supa, takeAuthNext,
+  setAuthNext, supa, takeAuthNext, wasOnPurpose,
 } from '../lib/supabase'
 import { useStore, type Account, type AuthVia } from '../state/store'
 
@@ -96,13 +97,18 @@ export function useAuthSession(go: Go) {
         if (data.session) {
           clearAuthError()
           d({ t: 'signIn', v: accountOf(data.session.user) })
-          const next = takeAuthNext()
           // Уводим либо туда, куда собирались, либо на home — но ТОЛЬКО если это
           // возврат от провайдера. Иначе прямая ссылка на любой экран у вошедшего
           // человека молча превращалась бы в home.
-          if (next) go(next)
-          else if (ret.code) go('home')
-          if (ret.code) clearAuthUrl()
+          //
+          // Ключ забираем ВСЕГДА, а слушаемся его только на возврате, и это не
+          // придирка. Брошенная попытка входа (ушёл на Google и вернулся назад
+          // кнопкой браузера) оставляет в hg.authNext слово «paywall» — и раньше
+          // оно срабатывало на СЛЕДУЮЩЕМ обычном запуске: человек открывал
+          // приложение и попадал на пейволл, ничего не нажимая. Отсюда «после
+          // входа всегда подписка». Забранный ключ обезвреживает и старую мину.
+          const next = takeAuthNext()
+          if (ret.code) { go(next || 'home'); clearAuthUrl() }
           return
         }
         // Сессии нет. Если в адресе был код или ошибка — круг был и он провалился.
@@ -118,8 +124,21 @@ export function useAuthSession(go: Go) {
           + '. Nothing was saved; try again.</span>', ms: 7000, at: Date.now() } })
       })
       const { data: sub } = sb.auth.onAuthStateChange((event, session) => {
-        if (session) d({ t: 'signIn', v: accountOf(session.user) })
-        else if (event === 'SIGNED_OUT') d({ t: 'signOut' })
+        if (session) { clearAuthError(); d({ t: 'signIn', v: accountOf(session.user) }); return }
+        if (event !== 'SIGNED_OUT') return
+        d({ t: 'signOut' })
+        // Сессия умерла сама: access-токен живёт час, и если обновить его не
+        // удалось (нет сети, либо refresh-токен уже забрало другое устройство),
+        // библиотека сносит сессию — а приложение молча гасило аккаунт. Человек
+        // видел ровно то, на что и жаловался: он входил, а потом в настройках
+        // опять «Sign in», и ни слова о том, что случилось.
+        if (wasOnPurpose()) return
+        const why = 'the session expired and could not be renewed'
+        console.error('[auth] непрошеный выход:', why)
+        setAuthError(why, 'expired')
+        d({ t: 'toast', v: { html: '<span>Signed out — ' + why + '. Your plants are '
+          + 'safe on this phone; sign in again to keep them syncing.</span>',
+          ms: 7000, at: Date.now() } })
       })
       off = () => sub.subscription.unsubscribe()
     })
@@ -206,8 +225,9 @@ export function SignInScreen({ go }: { go: Go }) {
       </div>
       {err && (
         <div className="note" style={{ marginTop: 16 }}>
-          <b>Last attempt did not finish</b>
-          <p>{err.why}. Nothing was saved and nothing was lost — the button below
+          <b>{err.kind === 'expired' ? 'You were signed out'
+                                     : 'Last attempt did not finish'}</b>
+          <p>{cap(err.why)}. Nothing was saved and nothing was lost — the button below
             starts over.</p>
         </div>
       )}
@@ -374,9 +394,23 @@ export function CodeScreen({ go }: { go: Go }) {
 export function AccountRow({ go }: { go: Go }) {
   const { s } = useStore()
   if (!s.account) {
+    // Причина прошлого провала живёт ЗДЕСЬ, а не только на экране входа. Раньше
+    // она лежала на экран глубже: человек смотрел в настройки, видел «Sign in» и
+    // делал вывод «вход не работает» — не зная, что приложение уже знает ответ.
+    const err = authError()
     return (
-      <div className="btn b-white" role="button" tabIndex={0} style={{ marginTop: 12 }}
-           onClick={() => go('signin')}>Sign in</div>
+      <>
+        {err && (
+          <div className="note" style={{ marginTop: 12 }}>
+            <b>{err.kind === 'expired' ? 'You were signed out'
+                                       : 'The last sign-in did not finish'}</b>
+            <p>{cap(err.why)}. Your plants are safe on this phone — signing in again is
+              all it takes.</p>
+          </div>
+        )}
+        <div className="btn b-white" role="button" tabIndex={0} style={{ marginTop: 12 }}
+             onClick={() => go('signin')}>Sign in</div>
+      </>
     )
   }
   const via = s.account.via === 'google' ? 'Google'

@@ -17,6 +17,10 @@
 const APP = new URLSearchParams(location.search).get('app') || '/web-app/react/index.html';
 const F = document.getElementById('f'), LOG = document.getElementById('log');
 let out = [], fails = 0;
+// Сами провалившиеся строки, а не только счёт по разделам. Отчёт давно длиннее
+// экрана, а проскроллить симулятор без тапа нельзя: раньше «ПРОВАЛОВ: 1 из 89»
+// говорил, что что-то не так, но не что именно, и приходилось гадать.
+let failMsgs = [];
 // Разделы со счётом. Лог давно не влезает в экран, а проскроллить симулятор без
 // тапа нельзя — поэтому итог по разделам печатается ПЕРВЫМ, и одного скриншота
 // хватает, чтобы увидеть, что ни один раздел не пропущен молча.
@@ -25,7 +29,7 @@ const sleep = ms => new Promise(r => setTimeout(r, ms));
 const W = () => F.contentWindow, D = () => F.contentDocument;
 const S = () => W().__state();
 function say(ok, msg) {
-  if (!ok) fails++;
+  if (!ok) { fails++; failMsgs.push(msg) }
   if (cur) { ok ? cur.ok++ : cur.no++ }
   out.push(`<span class="${ok ? 'ok' : 'no'}">${ok ? '✓' : '✗'}</span> ${msg}`);
   LOG.innerHTML = out.join('<br>');
@@ -68,6 +72,56 @@ async function type(sel, text) {
   await sleep(200); return true;
 }
 const hash = () => W().location.hash.slice(1);
+/**
+ * Синтетическая сессия Supabase прямо в localStorage. Настоящую без Google не
+ * достать: анонимный вход в проекте выключен, а пароль человека вводить нельзя.
+ * Без сессии же непроверяема половина входа — подхват аккаунта, мина
+ * hg.authNext и непрошеный выход живут ТОЛЬКО у вошедшего. Токен не подписан
+ * ключом проекта, поэтому PostgREST отвечает на него 401 — и это ровно то, что
+ * нужно: проверяем поведение приложения, а не базу.
+ * secondsLeft < 0 — токен уже истёк: библиотека пойдёт его обновлять, получит
+ * отказ и снесёт сессию. Так выглядит обычный час жизни настоящей сессии.
+ */
+const SESSION_KEY = 'sb-bslttprzsbigcfplpxff-auth-token';
+function sessionBlob(secondsLeft) {
+  const now = Math.floor(Date.now() / 1000), exp = now + secondsLeft;
+  const b64 = o => btoa(JSON.stringify(o)).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+  const uid = '77777777-7777-4777-8777-777777777777';
+  const iso = s => new Date(s * 1000).toISOString();
+  return {
+    access_token: [b64({alg: 'HS256', typ: 'JWT'}),
+                   b64({sub: uid, aud: 'authenticated', role: 'authenticated', exp,
+                        email: 'sam@example.com'}), 'sig'].join('.'),
+    token_type: 'bearer', expires_in: secondsLeft, expires_at: exp,
+    refresh_token: 'synthetic-refresh',
+    user: {id: uid, aud: 'authenticated', role: 'authenticated', email: 'sam@example.com',
+           email_confirmed_at: iso(now - 600), created_at: iso(now - 600), updated_at: iso(now),
+           app_metadata: {provider: 'google', providers: ['google']},
+           user_metadata: {}, identities: []},
+  };
+}
+const putSession = s => localStorage.setItem(SESSION_KEY, JSON.stringify(sessionBlob(s)));
+/**
+ * Стереть следы предыдущего раздела: причину прошлого провала И метку нарочного
+ * выхода. Метка живёт в localStorage (иначе соседняя вкладка врёт человеку про
+ * истёкшую сессию), а значит переживает переход между разделами: без уборки
+ * раздел про умершую сессию попадал в 15-секундное окно от нажатого ранее
+ * «Delete account» и молчал, хотя должен был объясниться.
+ */
+const clearErr = () => {
+  localStorage.removeItem('hg.authErr');
+  localStorage.removeItem('hg.signOutAt');
+};
+/**
+ * Ждать условия, а не «столько-то миллисекунд». Выход и обновление токена ходят
+ * в сеть, и на симуляторе это заметно медленнее, чем в десктопном браузере:
+ * фиксированная пауза давала ложный провал там, где всё работает, просто позже.
+ */
+async function waitFor(ok, ms) {
+  const t0 = Date.now();
+  while (Date.now() - t0 < (ms || 5000)) { if (ok()) return true; await sleep(120) }
+  return ok();
+}
 const footOff = () => { const b = D().querySelector('.foot .btn'); return b ? b.className.includes('off') : null };
 
 (async () => {
@@ -280,6 +334,53 @@ const footOff = () => { const b = D().querySelector('.foot .btn'); return b ? b.
   say(!S().account && S().plants.length === 0, 'после подтверждения аккаунт и растения стёрты');
   say(hash() === 'landing', 'после стирания → landing (' + hash() + ')');
 
+  // ── 7b. Живая сессия. Раньше сюда было не дотянуться вовсе, и именно здесь
+  //     жили две жалобы: «после входа всегда подписка» и «вход не починился».
+  head('живая сессия');
+  putSession(86400);
+  // Мина от брошенной попытки: человек ушёл на Google с экрана save и вернулся
+  // кнопкой «назад». В hg.authNext осталось слово paywall — и раньше оно
+  // срабатывало на СЛЕДУЮЩЕМ обычном запуске.
+  localStorage.setItem('hg.authNext', 'paywall');
+  clearErr();
+  await seed({}, 'home');
+  say(!!S().account && S().account.via === 'google', 'аккаунт подхвачен из сессии');
+  say(hash() === 'home', 'обычный запуск не уводит на пейволл (' + hash() + ')');
+  say(localStorage.getItem('hg.authNext') === null, 'мина hg.authNext обезврежена');
+
+  // ── 7c. Сессия умерла сама. Молчать тут нельзя: человек входил, а потом
+  //     видит «Sign in» — и делает единственный доступный ему вывод.
+  head('непрошеный выход объясняется');
+  putSession(-60);
+  clearErr();
+  await seed({account: {email: 'sam@example.com', via: 'google'}}, 'settings');
+  // библиотека просит новый токен, получает отказ и сносит сессию
+  await waitFor(() => !S().account, 6000);
+  await sleep(200);             // дать перерисоваться ноте
+  say(!S().account, 'умершая сессия гасит аккаунт');
+  const ae = JSON.parse(localStorage.getItem('hg.authErr') || 'null');
+  say(!!ae && ae.kind === 'expired', 'причина записана видом «expired»: '
+      + (ae ? JSON.stringify(ae.kind) : '—'));
+  const nt = D().querySelector('.note');
+  say(!!nt && nt.innerText.includes('You were signed out'),
+      'настройки объясняют, почему опять «Sign in»');
+
+  // ── 7d. А нарочному выходу объясняться нечем: он и есть объяснение.
+  head('нарочный выход не врёт');
+  putSession(86400);
+  clearErr();
+  await seed({account: {email: 'sam@example.com', via: 'google'}}, 'account');
+  await tap('Sign out');
+  await waitFor(() => !S().account, 6000);
+  await sleep(200);
+  say(!S().account, 'после Sign out аккаунта нет');
+  const de = localStorage.getItem('hg.authErr');
+  say(de === null, 'и никакого «session expired» тому, кто нажал сам: '
+      + (de ? de.slice(0, 120) : 'пусто') + ' · экран ' + hash());
+  // Синтетическую сессию убираем: следующий раздел проверяет, что БЕЗ сессии
+  // синхронизация не делает ничего, и живая сессия сломала бы ему смысл.
+  localStorage.removeItem(SESSION_KEY);
+
   // ── 8. Синхронизация с базой
   head('синхронизация');
   await seed({plants: [{id:'basil',since:1,day:20,photos:[{f:'basil',day:12}]}]}, 'home');
@@ -327,7 +428,11 @@ const footOff = () => { const b = D().querySelector('.foot .btn'); return b ? b.
     : `<span class="ok">ВСЁ ПРОЙДЕНО · ${total} проверок</span>`;
   const sum = sections.map(x => `<span class="${x.no ? 'no' : 'ok'}">${x.no ? '✗' : '✓'}</span>`
     + ` ${x.name} — ${x.ok}/${x.ok + x.no}`).join('<br>');
-  LOG.innerHTML = `<span class="h">── итог по разделам</span><br>${sum}<br><br>`
+  const why = failMsgs.length
+    ? `<span class="h">── что именно провалилось</span><br>`
+      + failMsgs.map(m => `<span class="no">✗</span> ${m}`).join('<br>') + '<br><br>'
+    : '';
+  LOG.innerHTML = `<span class="h">── итог по разделам</span><br>${sum}<br><br>${why}`
     + out.join('<br>');
   scrollTo(0, 0);
 })().catch(e => {

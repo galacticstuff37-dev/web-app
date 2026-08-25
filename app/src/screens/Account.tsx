@@ -15,7 +15,7 @@ import { Confirm } from '../components/Confirm'
 import { bg } from '../lib/assets'
 import { allPhotos } from '../lib/plants'
 import { MON } from '../lib/season'
-import { supa } from '../lib/supabase'
+import { markSignOut, supa } from '../lib/supabase'
 import { forgetSnap, syncFacts, wipeCloud } from '../lib/sync'
 import { useStore } from '../state/store'
 
@@ -73,8 +73,15 @@ export function AccountScreen({ go }: { go: Go }) {
             : acc.via === 'apple' ? 'Apple' : 'Email code'
 
   const signOut = async () => {
+    // Выход нарочный: без метки приложение приняло бы его за умершую сессию и
+    // сказало бы «the session expired» тому, кто сам нажал кнопку.
+    markSignOut()
     // У демонстрационного входа сессии на сервере нет — закрывать нечего.
-    if (!acc.demo) await (await supa()).auth.signOut()
+    // scope: 'local' — гасим ЭТО устройство, а не все сразу. По умолчанию
+    // Supabase выходит глобально, и выход на телефоне молча выкидывал бы из
+    // аккаунта на ноутбуке: там сессия теряла refresh-токен и человек снова
+    // видел «Sign in», ничего не нажимав.
+    if (!acc.demo) await (await supa()).auth.signOut({ scope: 'local' })
     // Снимок отправки привязан к аккаунту: оставить его — значит дать
     // следующему человеку на этом устройстве чужие id строк.
     forgetSnap()
@@ -85,6 +92,9 @@ export function AccountScreen({ go }: { go: Go }) {
   // Delete account убирает и копию в базе: без этого «Your plants go with it» —
   // ложь, при следующем входе сад приехал бы обратно.
   const wipe = () => {
+    // Тоже нарочный выход — и здесь глобальный по делу: аккаунта больше нет,
+    // и его сессии не должны жить ни на одном устройстве.
+    markSignOut()
     void supa().then(async sb => { await wipeCloud(sb); await sb.auth.signOut() })
       .catch(() => { /* без сети уборка не состоялась: сад вернётся при входе */ })
     d({ t: 'wipe' })

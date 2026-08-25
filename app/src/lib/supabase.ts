@@ -92,18 +92,64 @@ export function clearAuthUrl(): void {
  * рядом с состоянием и показываем на экране входа, пока вход не удастся.
  */
 const ERR_KEY = 'hg.authErr'
-export const setAuthError = (why: string) => {
-  try { localStorage.setItem(ERR_KEY, JSON.stringify({ at: Date.now(), why })) }
+/**
+ * Вид события, а не только причина. Их два, и путать их нельзя: «возврат от
+ * провайдера не довёл до сессии» — это незавершённая попытка, а «сессия умерла
+ * через час» — это выход без спроса, попытка там как раз завершилась удачно.
+ * Один заголовок на оба давал бессмыслицу вроде «последняя попытка не
+ * завершилась: сессия истекла».
+ */
+export type AuthErrKind = 'return' | 'expired'
+export interface AuthErr { at: number; why: string; kind: AuthErrKind }
+export const setAuthError = (why: string, kind: AuthErrKind = 'return') => {
+  try { localStorage.setItem(ERR_KEY, JSON.stringify({ at: Date.now(), why, kind })) }
   catch { /* приватный режим */ }
 }
-export const authError = (): { at: number; why: string } | null => {
+export const authError = (): AuthErr | null => {
   try {
     const raw = localStorage.getItem(ERR_KEY)
-    return raw ? (JSON.parse(raw) as { at: number; why: string }) : null
+    if (!raw) return null
+    const e = JSON.parse(raw) as AuthErr
+    // Записи прошлых сборок вида не знают — считаем их незавершённой попыткой.
+    return { at: e.at, why: e.why, kind: e.kind === 'expired' ? 'expired' : 'return' }
   } catch { return null }
 }
 export const clearAuthError = () => {
   try { localStorage.removeItem(ERR_KEY) } catch { /* приватный режим */ }
+}
+
+/**
+ * Выход, который человек сделал САМ. Библиотека шлёт SIGNED_OUT и тогда, когда
+ * сессия умерла без спроса: истёк access-токен, а обновить его не удалось — нет
+ * сети, либо refresh-токен уже забрало другое устройство (по умолчанию signOut
+ * у Supabase глобальный и гасит все устройства сразу). По событию одно от
+ * другого не отличить, а разница для человека огромная: в первом случае он сам
+ * нажал, во втором — молча оказался перед кнопкой «Sign in» без единого слова,
+ * и это выглядит как «вход не работает». Флаг ставит тот, кто выходит нарочно.
+ */
+/**
+ * Метка временем и В localStorage, а не флаг в памяти модуля. Причины две, и
+ * обе настоящие:
+ *
+ * 1. SIGNED_OUT приходит не ровно один раз — сессия сносится в библиотеке из
+ *    трёх разных мест. Одноразовый флаг истрачивался на первом событии.
+ * 2. Событие приходит и в ДРУГИЕ контексты того же origin: библиотека рассылает
+ *    его между вкладками. У соседней вкладки переменная в памяти своя, нулевая —
+ *    и она честно сообщала «сессия истекла» человеку, который только что сам
+ *    нажал «Sign out» в первой вкладке. Ровно это ловил стенд в Safari, где
+ *    прошлый документ iframe живёт дольше, чем в Chromium.
+ *
+ * Окно с запасом: истечь за эти секунды нечему, сессии уже нет.
+ */
+const OUT_KEY = 'hg.signOutAt'
+export const markSignOut = () => {
+  try { localStorage.setItem(OUT_KEY, String(Date.now())) } catch { /* приватный режим */ }
+}
+export const wasOnPurpose = (): boolean => {
+  try {
+    const at = Number(localStorage.getItem(OUT_KEY) || 0)
+    return at > 0 && Date.now() - at < 15000
+  } catch { return false }
 }
 
 const NEXT_KEY = 'hg.authNext'

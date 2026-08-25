@@ -15,6 +15,7 @@ import {
   LandingScreen, Q0Screen, Q1Screen, Q2Screen, Q2iScreen, Q3Screen, Q4Screen,
   Q5Screen, QWhatScreen,
 } from './screens/Onboarding'
+import { AccountScreen } from './screens/Account'
 import { CodeScreen, EmailScreen, SignInScreen } from './screens/Auth'
 import { PreviewScreen, SaveScreen } from './screens/Preview'
 import { PickScreen, SettingsScreen } from './screens/Settings'
@@ -172,6 +173,13 @@ export const ROUTES: Route[] = [
         + 'объёмы по всему приложению. Тумблеры реально фильтруют движок задач; полив не '
         + 'отключается, это ядро. Export отдаёт настоящий JSON файлом.',
     render: p => <SettingsScreen go={p.go} /> },
+  { id: 'account', title: 'Account', group: 'Система',
+    note: 'Три вопроса, которые до него задать было некому: в какой я аккаунт вошёл, '
+        + 'как в него попал и что из моего уже на сервере. Цифры из снимка последней '
+        + 'отправки, а не запросом — поэтому ни спиннера, ни отказа. Sign out и '
+        + 'Delete account переехали сюда с настроек: это действия над аккаунтом, а не '
+        + 'настройки. Без аккаунта экран уводит в настройки.',
+    render: p => <AccountScreen go={p.go} /> },
   { id: 'pick', title: 'Настройка · выбор', group: 'Система',
     note: 'Значения не циклятся по тапу: строка открывает список, где видно все варианты '
         + 'и что выбрано. У каждого варианта есть следствие — для света «сколько растений '

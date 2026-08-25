@@ -6,6 +6,7 @@ import { useAuthSession } from './screens/Auth'
 import { supa } from './lib/supabase'
 import { lastReport, runSync, type SyncReport } from './lib/sync'
 import { Toast } from './components/parts'
+import { Welcome } from './components/Welcome'
 import { Review } from './review/Review'
 import { ROUTE, ROUTES } from './routes'
 import { useStore, type Pulled } from './state/store'
@@ -90,6 +91,9 @@ declare global {
   }
 }
 
+/** Приветствие показано в этом визите. Визит = вкладка, отсюда sessionStorage. */
+const GREET_KEY = 'hg.greeted'
+
 export function App() {
   const [hash, go] = useHash()
   const { s, d } = useStore()
@@ -129,6 +133,37 @@ export function App() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id])
 
+  // Экрана входа для вошедшего не существует. «Welcome back + Continue with
+  // Google» человеку с живой сессией — это предложение сделать то, что уже
+  // сделано; он попадал сюда потому, что уводило отсюда только сохранённое
+  // hg.authNext, а оно привязано к origin и после возврата на другой адрес
+  // пустое. Теперь уводит само состояние.
+  //
+  // ТОЛЬКО signin, и это важно. Экраны email и code — середина входа: там
+  // аккаунт появляется в состоянии РАНЬШЕ, чем меняется хеш (dispatch немедленно,
+  // hashchange — следующим тиком), и эффект успевал перебить go('paywall') на
+  // home. Онбординг из-за этого не доводил до пейволла.
+  useEffect(() => {
+    if (s.account && id === 'signin') go('home')
+  }, [id, s.account, go])
+
+  // Приветствие: один раз за визит. Визит — это вкладка, поэтому флаг в
+  // sessionStorage, а не в состоянии: переходы внутри приложения и перерисовки
+  // его не сбрасывают, а новая вкладка сбрасывает.
+  const [greet, setGreet] = useState(false)
+  useEffect(() => {
+    if (!s.account || greet) return
+    // В онбординге и на лендинге приветствовать нечего: человек в другом деле,
+    // и попап туда влез бы поперёк шага. На /review — тоже: это стенд сверки, а
+    // не приложение, и приветствие там сожгло бы флаг визита впустую.
+    if (hash === 'review' || ROUTE(id)?.group === 'Онбординг') return
+    try {
+      if (sessionStorage.getItem(GREET_KEY)) return
+      sessionStorage.setItem(GREET_KEY, '1')
+    } catch { return }            // приватный режим: молча не показываем
+    setGreet(true)
+  }, [s.account, id, hash, greet])
+
   const goTracked = useCallback((next: string) => {
     // save ведёт в пейволл, но возвращаться из него надо на home, а не на save
     if (next === 'paywall') d({ t: 'pwFrom', v: id === 'save' ? 'home' : id })
@@ -150,6 +185,10 @@ export function App() {
   return (
     <main className="mob">
       {(ROUTE(id) || ROUTES[0]).render({ go: goTracked, openSpecies })}
+      {greet && (
+        <Welcome onClose={() => setGreet(false)}
+                 onAccount={() => { setGreet(false); goTracked('account') }} />
+      )}
       <Toast />
     </main>
   )

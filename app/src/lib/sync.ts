@@ -35,7 +35,15 @@ import { mkPlant, type Photo, type Plant } from './plants'
 const SNAP_KEY = 'hg.sync'
 const SNAP_VER = 1
 
-export interface Snap { v: number; uid: string; rows: Record<string, string> }
+export interface Snap {
+  v: number
+  uid: string
+  rows: Record<string, string>
+  /** когда проход в последний раз прошёл целиком, ISO. Экран аккаунта этим и
+      отвечает на «когда синхронизировалось»; поле необязательное, потому что в
+      снимках, записанных до него, его нет. */
+  at?: string
+}
 
 /** Снимок чужого аккаунта не читаем: у него другие id строк. */
 function readSnap(uid: string): Snap | null {
@@ -44,13 +52,13 @@ function readSnap(uid: string): Snap | null {
     if (!raw) return null
     const j = JSON.parse(raw) as Snap
     if (j.v !== SNAP_VER || j.uid !== uid) return null
-    return { v: j.v, uid: j.uid, rows: j.rows || {} }
+    return { v: j.v, uid: j.uid, rows: j.rows || {}, at: j.at }
   } catch { return null }
 }
 
-function writeSnap(uid: string, rows: Record<string, string>): void {
+function writeSnap(uid: string, rows: Record<string, string>, at: string): void {
   try {
-    localStorage.setItem(SNAP_KEY, JSON.stringify({ v: SNAP_VER, uid, rows }))
+    localStorage.setItem(SNAP_KEY, JSON.stringify({ v: SNAP_VER, uid, rows, at }))
   } catch { /* приватный режим: синхронизация станет отправлять лишнее, не более */ }
 }
 
@@ -158,6 +166,9 @@ const profileFp = (r: ProfileRow) =>
 
 export interface SyncReport {
   ok: boolean
+  /** Не отказ, а «ещё не время»: без сессии или проход ни разу не запускался.
+      Экран аккаунта не должен показывать это как сбой. */
+  skipped?: 'no-session' | 'never-run'
   uid?: string
   /** первая синхронизация на этом устройстве: снимка ещё не было */
   first?: boolean
@@ -359,7 +370,7 @@ async function firstError(steps: Step[]): Promise<string | null> {
 
 let busy = false
 let again = false
-let last: SyncReport = { ok: false, error: 'ещё не запускалась' }
+let last: SyncReport = { ok: false, skipped: 'never-run', error: 'ещё не запускалась' }
 
 export const lastReport = () => last
 
@@ -372,7 +383,7 @@ export async function syncNow(sb: SupabaseClient, s: State,
                               apply: (p: Pulled) => void): Promise<SyncReport> {
   const { data: sess } = await sb.auth.getSession()
   const uid = sess.session?.user.id
-  if (!uid) return (last = { ok: false, error: 'нет сессии' })
+  if (!uid) return (last = { ok: false, skipped: 'no-session', error: 'нет сессии' })
 
   const week = weekStart()
   const snap = readSnap(uid)
@@ -461,7 +472,7 @@ export async function syncNow(sb: SupabaseClient, s: State,
   const tailErr = await firstError(tail)
   if (tailErr) return (last = { ok: false, uid, error: tailErr })
 
-  writeSnap(uid, now)
+  writeSnap(uid, now, stamp)
   return (last = {
     ok: true, uid, first: !snap,
     pulled: { ...m.counts },
@@ -494,6 +505,42 @@ export async function wipeCloud(sb: SupabaseClient): Promise<string | null> {
   ])
   forgetSnap()
   return err
+}
+
+/**
+ * Что показать на экране аккаунта. Считается из снимка последней отправки, а не
+ * из запроса: снимок И ЕСТЬ ответ на «что из моего уже в базе», он лежит рядом
+ * и читается мгновенно — экран не получает ни спиннера, ни отказа.
+ */
+export interface SyncFacts {
+  /** когда проход в последний раз прошёл целиком, ISO; null — ни разу */
+  at: string | null
+  /** растений в базе */
+  plants: number
+  /** кадров журнала в базе */
+  photos: number
+  /** кадры с камеры: в базе их пока нет, им нужен Storage */
+  localOnly: number
+  /** причина последнего настоящего отказа; «ещё не время» сюда не попадает */
+  error: string | null
+}
+
+export function syncFacts(s: State, uid: string | null): SyncFacts {
+  const snap = uid ? readSnap(uid) : null
+  const rows = snap?.rows || {}
+  let plants = 0
+  let photos = 0
+  for (const k of Object.keys(rows)) {
+    if (k.startsWith('p:')) plants++
+    else if (k.startsWith('f:')) photos++
+  }
+  return {
+    at: snap?.at || null,
+    plants,
+    photos,
+    localOnly: s.plants.reduce((n, p) => n + p.photos.filter(x => x.u).length, 0),
+    error: last.ok || last.skipped ? null : last.error || null,
+  }
 }
 
 /** Проход с защитой от наложения: пока идёт один, второй только ставит флаг. */

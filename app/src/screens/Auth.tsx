@@ -17,8 +17,9 @@ import { useEffect, useRef, useState } from 'react'
 import { Screen } from '../components/Chrome'
 import { ASSET_ROOT, bg } from '../lib/assets'
 import { Icon } from '../icons/Icon'
-import { authRedirect, setAuthNext, supa, takeAuthNext } from '../lib/supabase'
-import { forgetSnap } from '../lib/sync'
+import {
+  authRedirect, authReturn, clearAuthUrl, setAuthNext, supa, takeAuthNext,
+} from '../lib/supabase'
 import { useStore, type Account, type AuthVia } from '../state/store'
 
 type Go = (id: string) => void
@@ -58,10 +59,11 @@ function AppleMark({ size = 17 }: { size?: number }) {
 }
 
 /** Аккаунт из пользователя Supabase. Провайдер берём из app_metadata. */
-function accountOf(u: { email?: string | null; app_metadata?: { provider?: string } }): Account {
+function accountOf(u: { id?: string; email?: string | null
+                        app_metadata?: { provider?: string } }): Account {
   const p = u.app_metadata?.provider
   const via: AuthVia = p === 'apple' ? 'apple' : p === 'email' ? 'email' : 'google'
-  return { email: u.email || '', via }
+  return { email: u.email || '', via, uid: u.id }
 }
 
 /**
@@ -71,19 +73,46 @@ function accountOf(u: { email?: string | null; app_metadata?: { provider?: strin
  * Отсутствие сессии НЕ гасит аккаунт: иначе демонстрационный вход (Apple,
  * почта) исчезал бы при каждой перезагрузке. Гасим только по настоящему
  * событию выхода.
+ *
+ * Провал возврата обязан быть ВИДИМЫМ. Раньше здесь был только успешный путь:
+ * если провайдер вернул ошибку или обмен кода на сессию не удался (а он не
+ * удаётся, когда круг начался на одном адресе, а вернулся на другой — PKCE-
+ * верификатор лежит в localStorage того origin, где нажали кнопку), человек
+ * возвращался и снова видел кнопку входа. Ни слова о том, что случилось, ни в
+ * интерфейсе, ни в консоли.
  */
 export function useAuthSession(go: Go) {
   const { d } = useStore()
   useEffect(() => {
     let alive = true
     let off: (() => void) | undefined
+    // Читаем адрес ДО создания клиента: detectSessionInUrl вычистит из него код.
+    const ret = authReturn()
     supa().then(sb => {
       if (!alive) return
       sb.auth.getSession().then(({ data }) => {
-        if (!alive || !data.session) return
-        d({ t: 'signIn', v: accountOf(data.session.user) })
-        const next = takeAuthNext()
-        if (next) go(next)
+        if (!alive) return
+        if (data.session) {
+          d({ t: 'signIn', v: accountOf(data.session.user) })
+          const next = takeAuthNext()
+          // Уводим либо туда, куда собирались, либо на home — но ТОЛЬКО если это
+          // возврат от провайдера. Иначе прямая ссылка на любой экран у вошедшего
+          // человека молча превращалась бы в home.
+          if (next) go(next)
+          else if (ret.code) go('home')
+          if (ret.code) clearAuthUrl()
+          return
+        }
+        // Сессии нет. Если в адресе был код или ошибка — круг был и он провалился.
+        if (!ret.code && !ret.error) return
+        setAuthNext('')
+        clearAuthUrl()
+        const why = ret.error
+          ? ret.error
+          : 'the link came back to a different address than it started from'
+        console.error('[auth] возврат без сессии:', why)
+        d({ t: 'toast', v: { html: '<span>Sign-in did not finish — ' + why
+          + '. Nothing was saved; try again.</span>', ms: 7000, at: Date.now() } })
       })
       const { data: sub } = sb.auth.onAuthStateChange((event, session) => {
         if (session) d({ t: 'signIn', v: accountOf(session.user) })
@@ -321,9 +350,16 @@ export function CodeScreen({ go }: { go: Go }) {
   )
 }
 
-/** Строка аккаунта в настройках: почта, способ входа и выход. */
+/**
+ * Строка аккаунта в настройках: кто вошёл и вход на экран аккаунта.
+ *
+ * Выход отсюда УБРАН. Он висел крестиком 32x32 — и мимо правила про тап-зону в
+ * 44, и рядом с тумблерами, где необратимого не ждут. Теперь строка ведёт на
+ * экран аккаунта, а выход и удаление живут там, где им и место. Тап-зона стала
+ * всей строкой: 40 аватар плюс 12 отступа сверху и снизу.
+ */
 export function AccountRow({ go }: { go: Go }) {
-  const { s, d } = useStore()
+  const { s } = useStore()
   if (!s.account) {
     return (
       <div className="btn b-white" role="button" tabIndex={0} style={{ marginTop: 12 }}
@@ -334,23 +370,17 @@ export function AccountRow({ go }: { go: Go }) {
             : s.account.via === 'apple' ? 'Apple' : 'Email code'
   return (
     <div className="acct">
-      <div className="acc-who">
+      <div className="acc-who" role="button" tabIndex={0}
+           aria-label={`Account: ${s.account.email}. Opens account settings`}
+           onClick={() => go('account')}
+           onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); go('account') } }}>
         <div className="acc-av" style={{ backgroundImage: bg('hero-plants') }} aria-hidden="true" />
         <div className="acc-tx">
           <b>{s.account.email}</b>
           <s>{via}{s.account.demo ? ' · demo sign-in, not wired yet' : ''}</s>
         </div>
-        <span className="acc-go" role="button" tabIndex={0} aria-label="Sign out"
-              onClick={async () => {
-                // У демонстрационного входа сессии на сервере нет — закрывать нечего.
-                if (!s.account?.demo) await (await supa()).auth.signOut()
-                // Снимок отправки привязан к аккаунту: оставить его — значит
-                // дать следующему человеку на этом устройстве чужие id строк.
-                forgetSnap()
-                d({ t: 'signOut' })
-                go('signin')
-              }}>
-          <Icon name="x" color="#fff" size={17} sw={2.4} />
+        <span className="acc-go" aria-hidden="true">
+          <Icon name="chevron-right" color="#fff" size={18} sw={2.4} />
         </span>
       </div>
     </div>

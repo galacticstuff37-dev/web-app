@@ -17,8 +17,11 @@ import type { Track } from '../data/onboarding'
 export type { Track }
 export type Units = 'imperial' | 'metric'
 export type AuthVia = 'google' | 'apple' | 'email'
-/** Аккаунт. demo=true — вход без подключённого провайдера, так и подписано в UI. */
-export interface Account { email: string; via: AuthVia; demo?: boolean }
+/** Аккаунт. demo=true — вход без подключённого провайдера, так и подписано в UI.
+    uid — идентификатор в Supabase: по нему экран аккаунта читает снимок отправки,
+    и без него пришлось бы спрашивать сессию запросом, то есть заводить на экране
+    состояние «загружается». У демонстрационного входа его нет. */
+export interface Account { email: string; via: AuthVia; demo?: boolean; uid?: string }
 export type CalView = 'month' | 'year'
 /** 'own' — у человека уже есть растения, 'plan' — начинает с нуля, null — не в онбординге */
 export type OnbMode = 'own' | 'plan' | null

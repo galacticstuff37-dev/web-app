@@ -34,11 +34,17 @@ function head(t) {
   cur = {name: t, ok: 0, no: 0}; sections.push(cur);
   out.push(`<span class="h">── ${t}</span>`); LOG.innerHTML = out.join('<br>');
 }
-function seed(st, hash) {
+/** greet=true — сценарий про приветствие; иначе его гасим, чтобы лист не
+    накрывал проверяемый экран и не давал ложных срабатываний. */
+function seed(st, hash, greet) {
   const base = {v:1, plants:[], choices:{}, selected:0, isPro:false, units:'imperial', remind:3,
     care:{pick:true,leaf:true,rotate:true,feed:true}, mail:{weekly:true,water:true,news:false},
     done:{}, calView:'month', onbMode:null, account:null};
   localStorage.setItem('hg.state', JSON.stringify(Object.assign(base, st)));
+  try {
+    if (greet) sessionStorage.removeItem('hg.greeted');
+    else sessionStorage.setItem('hg.greeted', '1');
+  } catch (e) {}
   return load(hash);
 }
 function load(hash) {
@@ -171,16 +177,59 @@ const footOff = () => { const b = D().querySelector('.foot .btn'); return b ? b.
   say(hash() === 'paywall', 'из онбординга → paywall (' + hash() + ')');
   say(!!S().account && S().account.email === 'sam@example.com', 'аккаунт с введённой почтой');
 
-  // ── 6. Настройки: кто вошёл и выход
+  // ── 6. Настройки → экран аккаунта. Выход и удаление переехали туда: среди
+  //     тумблеров необратимого не ждут, а крестик 32x32 не дотягивал до 44.
   head('аккаунт в настройках');
   await seed({account: {email: 'sam@example.com', via: 'email'}}, 'settings');
   say((D().querySelector('.acct') || {}).innerText?.includes('sam@example.com'),
       'настройки показывают почту вошедшего');
+  say(!el('Sign out') && !el('Delete account'),
+      'в настройках больше нет ни выхода, ни удаления');
+  const accRow = D().querySelector('.acc-who');
+  say(!!accRow && accRow.getAttribute('role') === 'button', 'строка аккаунта — ссылка');
+  say(!!accRow && accRow.getBoundingClientRect().height >= 44,
+      'тап-зона строки ≥44px: ' + (accRow ? Math.round(accRow.getBoundingClientRect().height) : '—'));
+  accRow.click(); await sleep(280);
+  say(hash() === 'account', 'строка аккаунта → account (' + hash() + ')');
+
+  head('экран аккаунта');
+  say((D().querySelector('.acct') || {}).innerText?.includes('Signed in with'),
+      'экран называет способ входа');
+  const facts = [...D().querySelectorAll('.plist .pl')].map(x => x.innerText.replace(/\s+/g,' ').trim());
+  say(facts.some(x => x.includes('On the server')) && facts.some(x => x.includes('Last synced')),
+      'есть строки про данные: ' + facts.join(' / '));
+  say([...D().querySelectorAll('.pl.flat')].length === facts.length,
+      'строки-факты не притворяются тапабельными (.pl.flat у всех)');
+  say(!!el('Sign out') && !!el('Delete account'), 'выход и удаление живут здесь');
   await tap('Sign out');
   say(!S().account, 'выход очистил аккаунт');
-  say(hash() === 'signin', 'после выхода → signin (' + hash() + ')');
+  say(hash() === 'home', 'после выхода → home (' + hash() + ')');
   await seed({plants: [{id:'basil',since:1,day:20,photos:[]}]}, 'settings');
   say(!!el('Sign in') && !D().querySelector('.acct'), 'без входа в настройках кнопка Sign in');
+
+  // ── 6b. Экрана входа для вошедшего не существует
+  head('вошедшему не предлагают войти');
+  await seed({account: {email: 'sam@example.com', via: 'google'}}, 'signin');
+  say(hash() !== 'signin', 'signin у вошедшего уводит на ' + hash());
+  say(!el('Continue with Google'), 'кнопки провайдера на экране нет');
+
+  // ── 6c. Приветствие: раз за визит
+  head('приветствие');
+  await seed({account: {email: 'sam@example.com', via: 'google'},
+              plants: [{id:'basil',since:9,day:20,photos:[]}]}, 'home', true);
+  const gr = D().querySelector('[role=dialog]');
+  say(!!gr, 'при заходе с сессией показан лист приветствия');
+  say(!!gr && !gr.innerText.includes('Continue with Google'),
+      'в нём нет предложения войти заново');
+  say(!!gr && /week|schedule|empty/i.test(gr.innerText),
+      'он говорит, что ждёт на этой неделе: '
+      + (gr ? JSON.stringify(gr.innerText.split('\n')[1] || '').slice(0, 48) : '—'));
+  say(!!D().querySelector('[role=alertdialog]') === false,
+      'это dialog, а не alertdialog — единственный alertdialog остаётся у удаления');
+  await tap('Keep going', '.cf-box .btn');
+  say(!D().querySelector('[role=dialog]'), 'кнопка закрывает лист');
+  await load('home');
+  say(!D().querySelector('[role=dialog]'), 'при повторном заходе в том же визите не показан');
 
   // ── 7. Аккаунт переживает перезагрузку, Delete account его уносит
   head('аккаунт и перезагрузка');
@@ -188,7 +237,7 @@ const footOff = () => { const b = D().querySelector('.foot .btn'); return b ? b.
               plants: [{id:'basil',since:1,day:20,photos:[]}]}, 'home');
   await load('home');
   say(!!S().account && S().account.email === 'sam@example.com', 'аккаунт на месте после перезагрузки');
-  await load('settings');
+  await load('account');
   const del = el('Delete account');
   if (del) { del.click(); await sleep(320) }
   const dlg = D().querySelector('[role=alertdialog]');

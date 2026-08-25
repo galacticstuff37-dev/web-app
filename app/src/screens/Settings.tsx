@@ -5,9 +5,7 @@
 // все варианты и что выбрано сейчас. У каждого варианта есть следствие.
 
 import { AccountRow } from './Auth'
-import { useState } from 'react'
 import { Screen } from '../components/Chrome'
-import { Confirm } from '../components/Confirm'
 import { PickRow, SetRow, SwRow } from '../components/parts'
 import { IcChev } from '../icons/Icon'
 import { bg } from '../lib/assets'
@@ -19,38 +17,11 @@ import { ZIPS } from '../data/zips'
 import { allPhotos, isEdible } from '../lib/plants'
 import { cap } from '../lib/plan'
 import { seasonDays, zipInfo } from '../lib/season'
-import { supa } from '../lib/supabase'
-import { wipeCloud } from '../lib/sync'
 import { useStore, type Units } from '../state/store'
 
 type Go = (id: string) => void
 
-/** Что именно исчезнет — числами из состояния, а не «все ваши данные». */
-/**
- * Delete account убирает и копию в базе, иначе «Your plants go with it» —
- * ложь: локальное стёрлось бы, а при следующем входе сад приехал бы обратно.
- * Не ждём ответа: человек уже подтвердил и уходит на лендинг, а тянуть его на
- * спиннере ради уборки нечестно. Не получилось — сад вернётся при входе, то
- * есть ровно как было до этой правки.
- */
-function wipeAll(): void {
-  void supa().then(async sb => {
-    await wipeCloud(sb)
-    await sb.auth.signOut()
-  }).catch(() => { /* без сети уборка просто не состоялась */ })
-}
-
-function wipeBody(plants: number, photos: number) {
-  const p = `${plants} ${plants === 1 ? 'plant' : 'plants'}`
-  const ph = photos ? ` and ${photos} ${photos === 1 ? 'photo' : 'photos'}` : ''
-  return plants
-    ? `${p}${ph}, your ZIP, your light and every reminder go with it. `
-      + 'This cannot be undone.'
-    : 'Your settings and reminders go with it. This cannot be undone.'
-}
-
 export function SettingsScreen({ go }: { go: Go }) {
-  const [ask, setAsk] = useState(false)
   const { s, d } = useStore()
   const c = s.choices
   const mins = c.effort === 3 ? 10 : c.effort === 4 ? 20 : 30
@@ -83,14 +54,7 @@ export function SettingsScreen({ go }: { go: Go }) {
   }
 
   return (
-    <Screen id="settings" nav={{ active: 'Settings', go }} scrollKey="settings"
-            overlay={ask ? (
-              <Confirm title="Delete everything?"
-                       body={wipeBody(s.plants.length, allPhotos(s.plants).length)}
-                       yes="Delete it all" no="Keep my plants"
-                       onYes={() => { wipeAll(); d({ t: 'wipe' }); go('landing') }}
-                       onNo={() => setAsk(false)} />
-            ) : undefined}>
+    <Screen id="settings" nav={{ active: 'Settings', go }} scrollKey="settings">
       <div className="h1" style={{ marginTop: 16 }}>Settings</div>
 
       {/* Кто вошёл — выше тарифа: это ответ на «мой ли это аккаунт». */}
@@ -179,12 +143,8 @@ export function SettingsScreen({ go }: { go: Go }) {
           <span className="setval">Download</span><IcChev />
         </div>
       </div>
-      {/* Delete account вынесен из блока и подан серым секондари: это выход,
-          а не пункт меню. */}
-      <div className="danger" role="button" tabIndex={0}
-           onClick={() => setAsk(true)}>Delete account</div>
-      <div className="dangernote">Wipes your plants and settings, and takes you back
-        to the start. Your plants go with it.</div>
+      {/* Delete account и Sign out уехали на экран аккаунта: среди тумблеров
+          необратимого не ждут, а строка аккаунта наверху туда и ведёт. */}
     </Screen>
   )
 }

@@ -53,14 +53,22 @@ Supabase = Postgres + PostgREST + Auth + Storage + Cron в одном проек
    - **Email OTP expiration** → 3600 (час), как написано в письме.
    - Настройки паролей в этом же окне не важны: входа по паролю у нас нет.
 
-   Затем письмо: **Authentication → Emails → шаблон «Magic Link»** (он же
-   уходит при входе по коду), прямая ссылка —
-   `https://supabase.com/dashboard/project/_/auth/templates`. В нём по умолчанию
-   стоит ссылка, а у нас экран на шесть цифр, поэтому шаблон надо заменить.
-   Готовый лежит рядом: **`emails/magic-link-otp.html`** — скопировать целиком
-   (кроме комментария в начале) и вставить в поле Message body.
-   Переменная кода — `{{ .Token }}`; она доступна именно в этом шаблоне
-   («Magic link / OTP») и в Reauthentication, но не в остальных.
+4. **СНАЧАЛА свой SMTP, иначе письмо не поменять.** В Authentication → Emails
+   висит предупреждение «Set up custom SMTP to edit templates»: на встроенной
+   почте Subject и Bodyтолько для чтения, и дефолтный шаблон отправляет ССЫЛКУ, а не
+   код. То есть без своего SMTP вход по шестизначному коду не работает в
+   принципе — в письме нет кода.
+
+   Кнопка **Set up SMTP** там же, на странице Emails (или Project Settings →
+   Auth → SMTP). Нужны хост, порт, логин, пароль и адрес отправителя. Провайдер
+   любой: Resend, Postmark, Amazon SES. Отправитель должен быть на своём домене
+   с DKIM/SPF — иначе код входа уедет в спам, а для OTP это равно «вход не
+   работает».
+
+5. **Письмо.** Как только SMTP подключён, поля станут редактируемыми:
+   Authentication → Emails → **Magic link or OTP** → Subject: `Your HOMEGROWN
+   code`, Body: содержимое **`emails/magic-link-otp.html`**. Переменная кода —
+   `{{ .Token }}`; она доступна именно в этом шаблоне и в Reauthentication.
 4. **Google.** Authentication → Providers → Google: включить и вставить Client
    ID и Client Secret из Google Cloud Console. В самой Console, в OAuth-клиенте:
    - Authorized JavaScript origins: `https://galacticstuff37-dev.github.io`
@@ -77,8 +85,10 @@ Supabase = Postgres + PostgREST + Auth + Storage + Cron в одном проек
    - Project URL: `https://<project-ref>.supabase.co`
    - `anon` public key
 
-### Два лимита, на которые наступают все
+### Три ограничения встроенной почты
 
+- **Шаблоны не редактируются без своего SMTP** — дефолтное письмо присылает
+  ссылку, а не код. Это блокирует вход по коду целиком, а не ухудшает его.
 - **Встроенная почта Supabase отдаёт 2 письма в час на проект.** Это не опечатка
   и обойти её настройкой нельзя — только своим SMTP (Resend, Postmark, SES) в
   Project Settings → Auth → SMTP. Для проверки хватит, для людей нет: третий

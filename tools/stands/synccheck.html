@@ -1,0 +1,185 @@
+<!doctype html>
+<meta charset=utf-8>
+<meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover">
+<style>
+ html,body{margin:0;background:#0d1512;color:#dfe8e2;font:11px/1.32 ui-monospace,Menlo,monospace}
+ #log{padding:6px 8px;white-space:pre-wrap}
+ .ok{color:#8ee06a} .no{color:#ff7a7a} .h{color:#8fc7ff} .v{color:#e2c96a}
+ iframe{position:fixed;right:0;bottom:0;width:402px;height:714px;border:0;opacity:.02;pointer-events:none}
+</style>
+<div id=verdict style="position:fixed;left:0;right:0;top:0;z-index:9;padding:6px 8px;background:#0d1512;border-bottom:1px solid #24352c;font-weight:700">гоняю…</div>
+<div id=log style="padding-top:30px"></div>
+<iframe id=f></iframe>
+<script>
+// Сквозная проверка синхронизации на ЖИВОЙ базе. В отличие от остальных стендов
+// требует вошедшего человека: сессия берётся из того же браузера, в котором
+// стенд открыт (тот же origin — значит тот же localStorage, значит та же сессия).
+//
+// ДВЕ ЧАСТИ.
+//   без параметров  — только чтение: состояние, снимок отправки, что лежит в
+//                     базе, сходимость двух проходов подряд. Ничего не меняет.
+//   ?write=1        — круг в обе стороны: правка «с другого устройства» прямо в
+//                     Postgres и правка отсюда. ПИШЕТ В НАСТОЯЩИЙ АККАУНТ, и
+//                     поэтому по умолчанию выключено.
+//
+// Почему запись через клиент, а не через UI: правка строки в базе — это ровно то,
+// что сделало бы второе устройство, и другого способа изобразить его в одном
+// браузере нет.
+const APP = new URLSearchParams(location.search).get('app') || '/web-app/react/index.html';
+const WRITE = new URLSearchParams(location.search).get('write') === '1';
+const F=document.getElementById('f'),LOG=document.getElementById('log');
+let out=[],fails=0,sections=[],cur=null;
+const sleep=ms=>new Promise(r=>setTimeout(r,ms));
+const W=()=>F.contentWindow;
+const D=()=>F.contentDocument;
+const S=()=>W().__state();
+function say(ok,m){if(!ok)fails++;if(cur){ok?cur.ok++:cur.no++}
+  out.push(`<span class="${ok?'ok':'no'}">${ok?'✓':'✗'}</span> ${m}`);LOG.innerHTML=out.join('<br>')}
+function note(m){out.push(`<span class="v">·</span> ${m}`);LOG.innerHTML=out.join('<br>')}
+function head(t){cur={name:t,ok:0,no:0};sections.push(cur);
+  out.push(`<span class="h">── ${t}</span>`);LOG.innerHTML=out.join('<br>')}
+/** 2600 мс: приложение само делает первый проход через 1.5 с после монтирования. */
+function load(hash){return new Promise(res=>{F.onload=()=>setTimeout(res,2600);
+  F.src=APP+'?t='+Date.now()+'#'+hash})}
+const plural=(n,w)=>`${n} ${n===1?w:w+'s'}`;
+
+(async()=>{
+  head('сессия');
+  // Приветственный лист накрыл бы экран; его дело проверяет authcheck.
+  try{sessionStorage.setItem('hg.greeted','1')}catch(e){}
+  await load('home');
+  const acc=S().account;
+  say(!!acc,'аккаунт в состоянии: '+JSON.stringify(acc));
+  const sb=await W().__supa();
+  const {data:ses}=await sb.auth.getSession();
+  say(!!ses.session,'сессия Supabase есть');
+  if(!ses.session){
+    document.getElementById('verdict').innerHTML=
+      '<span class="no">СЕССИИ НЕТ — сначала войди в приложении на этом же адресе</span>';
+    LOG.innerHTML=out.join('<br>');return}
+  const uid=ses.session.user.id;
+  note('uid '+uid);
+  note(ses.session.user.email+' · провайдер '+ses.session.user.app_metadata.provider);
+
+  head('локальное состояние и снимок');
+  const st=S();
+  note('растений '+st.plants.length+': '+st.plants.map(p=>p.s.id+'#'+p.id.slice(0,8)).join(', '));
+  note('zip '+st.choices.zip+' · effort '+st.choices.effort+' · units '+st.units
+      +' · remind '+st.remind+' · calView '+st.calView);
+  const snap=JSON.parse(localStorage.getItem('hg.sync')||'null');
+  say(!!snap&&snap.uid===uid,
+      'снимок отправки на этот uid, ключей '+(snap?Object.keys(snap.rows).length:0)
+      +(snap&&snap.at?', отправлено '+snap.at:''));
+
+  head('что лежит в базе');
+  const pr=await sb.from('profiles').select('*').eq('id',uid).maybeSingle();
+  say(!pr.error&&!!pr.data,'строка профиля есть'+(pr.error?': '+pr.error.message:''));
+  if(pr.data){const p=pr.data;
+    note('профиль: zip '+p.zip+' · effort '+p.effort+' · units '+p.units+' · cal '+p.cal_view
+        +' · remind_at '+p.remind_at+' · tz '+p.tz);
+    note('care '+[p.care_pick,p.care_leaf,p.care_rotate,p.care_feed].join('/')
+        +' · mail '+[p.mail_weekly,p.mail_water,p.mail_news].join('/')+' · pro '+p.is_pro);
+    say(p.zip===st.choices.zip&&p.effort===st.choices.effort&&p.units===st.units,
+        'профиль совпал с локальным — уехало локальное, а не дефолты триггера');
+  }
+  const q=async t=>{const r=await sb.from(t).select('*');
+    if(r.error){say(false,t+': '+r.error.message);return[]}return r.data};
+  const pls=await q('plants');
+  note('plants '+pls.length+': '+pls.map(r=>r.species_id+' since='+r.since+' day='+r.day
+      +' sort='+r.sort+(r.deleted_at?' УДАЛЕНО':'')).join(' | '));
+  const live=pls.filter(r=>!r.deleted_at);
+  say(live.length===st.plants.length,
+      'живых строк '+live.length+', растений локально '+st.plants.length);
+  say(live.every(r=>st.plants.some(p=>p.id===r.id)),
+      'id строк совпадают с локальными, а не выданы заново');
+  const phs=await q('photos');
+  note('photos '+phs.length+': '+phs.map(r=>r.kind+':'+r.stock_name+' day='+r.day).join(' | '));
+  const cam=st.plants.reduce((n,p)=>n+p.photos.filter(x=>x.u).length,0);
+  say(!phs.some(r=>r.kind==='upload'),
+      'кадров с камеры в базе нет — их '+cam+' и они ждут Storage');
+  const tks=await q('week_tasks');
+  note('week_tasks '+tks.length+': '+tks.map(r=>r.week_start+' '+r.task_key+'='+r.done).join(' | '));
+
+  head('сходимость на живой базе');
+  const r1=await W().__sync();
+  note('проход 1: '+JSON.stringify(r1));
+  const r2=await W().__sync();
+  note('проход 2: '+JSON.stringify(r2));
+  const zero=r=>r.ok&&!r.pulled.plants&&!r.pulled.tasks&&!r.pulled.profile
+             &&!r.pushed.plants&&!r.pushed.photos&&!r.pushed.tasks&&!r.pushed.profile&&!r.pushed.gone;
+  say(zero(r2),'повторный проход не тянет и не отправляет ничего');
+
+  if(!WRITE){
+    note('круг в обе стороны выключен: он пишет в настоящий аккаунт. ?write=1 включает.');
+  } else if(!live.length){
+    note('писать нечего: в базе нет ни одного растения.');
+  } else {
+    head('другое устройство: полив');
+    const target=live[0], newSince=(target.since??0)+7;
+    let u=await sb.from('plants').update({since:newSince}).eq('id',target.id);
+    say(!u.error,'в базе поменяли since у '+target.species_id+' на '+newSince
+        +(u.error?': '+u.error.message:''));
+    const r3=await W().__sync();
+    note('проход: '+JSON.stringify(r3.pulled));
+    const l3=S().plants.find(p=>p.id===target.id);
+    say(!!l3&&l3.since===newSince,'чужой полив доехал: since='+(l3?l3.since:'растения нет'));
+
+    head('другое устройство: новое и удаление');
+    const NEW='cccccccc-0000-4000-8000-'+String(Date.now()).slice(-12);
+    u=await sb.from('plants').insert({id:NEW,user_id:uid,species_id:'radish',
+      since:1,day:5,sort:99});
+    say(!u.error,'в базу добавили редиску'+(u.error?': '+u.error.message:''));
+    await W().__sync();
+    say(S().plants.some(p=>p.id===NEW),'чужое растение приехало, растений '+S().plants.length);
+    say(S().plants[S().plants.length-1].id===NEW,'встало в конец по sort=99');
+    u=await sb.from('plants').update({deleted_at:new Date().toISOString()}).eq('id',NEW);
+    say(!u.error,'в базе поставили deleted_at');
+    await W().__sync();
+    say(!S().plants.some(p=>p.id===NEW),'мягкое удаление доехало, растений '+S().plants.length);
+
+    head('отсюда в базу');
+    // Пересеиваем блоб с ТЕМИ ЖЕ id строк: так выглядит правка, сделанная руками.
+    const keep=S().plants, want=keep[0].since+3;
+    const blob=JSON.parse(localStorage.getItem('hg.state'));
+    blob.plants=keep.map((p,i)=>({id:p.s.id,rid:p.id,since:i===0?want:p.since,
+                                  day:p.day,photos:p.photos}));
+    blob.done={'water:0':true};
+    localStorage.setItem('hg.state',JSON.stringify(blob));
+    await load('home');
+    await W().__sync();
+    const back=await sb.from('plants').select('*').eq('id',keep[0].id).maybeSingle();
+    say(!back.error&&back.data&&back.data.since===want,
+        'своя правка уехала: since='+(back.data?back.data.since:'?')+', ждали '+want);
+    const tk2=await sb.from('week_tasks').select('*');
+    say((tk2.data||[]).some(r=>r.task_key==='water:0'&&r.done===true),
+        'отметка задачи уехала: '+JSON.stringify((tk2.data||[]).map(r=>r.task_key+'='+r.done)));
+
+    const drop=keep[keep.length-1];
+    const b2=JSON.parse(localStorage.getItem('hg.state'));
+    b2.plants=b2.plants.filter(p=>p.rid!==drop.id);
+    localStorage.setItem('hg.state',JSON.stringify(b2));
+    await load('home');
+    await W().__sync();
+    const gone=await sb.from('plants').select('*').eq('id',drop.id).maybeSingle();
+    say(!gone.error&&gone.data&&!!gone.data.deleted_at,
+        'своё удаление стало мягким: строка на месте, deleted_at='
+        +(gone.data?gone.data.deleted_at:'?'));
+
+    head('итог');
+    const fin=await sb.from('plants').select('*');
+    note('база: '+(fin.data||[]).map(r=>r.species_id
+        +(r.deleted_at?'(удалено)':' since='+r.since)).join(' | '));
+    note('локально: '+S().plants.map(p=>p.s.id+' since='+p.since).join(' | '));
+  }
+
+  const total=sections.reduce((n,x)=>n+x.ok+x.no,0);
+  document.getElementById('verdict').innerHTML=fails
+    ?`<span class="no">ПРОВАЛОВ: ${fails} из ${total}</span>`
+    :`<span class="ok">СИНХРОНИЗАЦИЯ ЖИВАЯ · ${total} проверок${WRITE?' · с записью':''}</span>`;
+  const sum=sections.map(x=>`<span class="${x.no?'no':'ok'}">${x.no?'✗':'✓'}</span>`
+    +` ${x.name} — ${x.ok}/${x.ok+x.no}`).join('<br>');
+  LOG.innerHTML=`<span class="h">── итог по разделам</span><br>${sum}<br><br>`+out.join('<br>');
+  scrollTo(0,0);
+})().catch(e=>{document.getElementById('verdict').innerHTML='<span class="no">СБОЙ: '+e.message+'</span>';
+  LOG.innerHTML+='<br><span class="no">СБОЙ: '+e.message+'</span>'});
+</script>

@@ -1,4 +1,5 @@
-// Состояние растения. ОДНА форма на весь продукт: { s, since, day, photos }.
+// Состояние растения. ОДНА форма на весь продукт: { id, s, since, day, photos }.
+//   id     — идентификатор строки, тот же в базе (см. uid ниже)
 //   s      — вид из справочника
 //   since  — дней с последнего полива
 //   day    — возраст растения в днях
@@ -8,18 +9,51 @@ import type { Track } from '../data/onboarding'
 import { SP, SPECIES, type Species } from '../data/species'
 import { img } from './assets'
 
-export interface Photo { f?: string; u?: string; day: number }
+/**
+ * Идентификатор строки. Нужен синхронизации: у растений и снимков не было
+ * никакой опознавательной метки, кроме позиции в массиве, а позиция на втором
+ * устройстве другая — слить по ней нельзя.
+ *
+ * randomUUID есть в Safari с 15.4, но только в защищённом контексте (https и
+ * localhost). Приложение открывают и по адресу в локальной сети — там его нет,
+ * поэтому рядом лежит запасной генератор.
+ */
+export function uid(): string {
+  const c = globalThis.crypto
+  if (c && typeof c.randomUUID === 'function') return c.randomUUID()
+  const b = new Uint8Array(16)
+  if (c && typeof c.getRandomValues === 'function') c.getRandomValues(b)
+  else for (let i = 0; i < 16; i++) b[i] = Math.floor(Math.random() * 256)
+  b[6] = (b[6] & 0x0f) | 0x40
+  b[8] = (b[8] & 0x3f) | 0x80
+  const h = Array.from(b, x => x.toString(16).padStart(2, '0')).join('')
+  return `${h.slice(0, 8)}-${h.slice(8, 12)}-${h.slice(12, 16)}-${h.slice(16, 20)}-${h.slice(20)}`
+}
+
+export interface Photo { id: string; f?: string; u?: string; day: number }
+/** Снимок, у которого id ещё нет: демо-наборы и старые блобы. mkPlant выдаёт. */
+export type PhotoIn = Omit<Photo, 'id'> & { id?: string }
 
 /** URL снимка журнала: загруженный кадр или фото из /img. Жил копией в двух
-    экранах сразу, поэтому переехал к типу. */
-export const phUrl = (x: Photo) => x.u || img(x.f || '')
-export interface Plant { s: Species; since: number; day: number; photos: Photo[] }
+    экранах сразу, поэтому переехал к типу. Берёт только два поля, потому что
+    его зовут и для Photo, и для JournalShot. */
+export const phUrl = (x: { f?: string; u?: string }) => x.u || img(x.f || '')
+export interface Plant { id: string; s: Species; since: number; day: number; photos: Photo[] }
 
 export const FREE_LIMIT = 3
 export const limit = (isPro: boolean) => (isPro ? 99 : FREE_LIMIT)
 
-export function mkPlant(id: string, since = 0, day = 0, photos: Photo[] = []): Plant {
-  return { s: SP(id) || SPECIES[0], since, day, photos }
+// rid последним и с значением по умолчанию: первый аргумент — вид, как было во
+// всех вызовах, и ни один из них переписывать не пришлось.
+export function mkPlant(id: string, since = 0, day = 0, photos: PhotoIn[] = [],
+                        rid = uid()): Plant {
+  return {
+    id: rid,
+    s: SP(id) || SPECIES[0],
+    since,
+    day,
+    photos: photos.map(x => (x.id ? (x as Photo) : { ...x, id: uid() })),
+  }
 }
 
 export const isEdible = (p: Plant) => p.s.kind === 'edible'

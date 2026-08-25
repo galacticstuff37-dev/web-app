@@ -11,7 +11,7 @@
 // а не те, что были в момент сохранения.
 
 import { SP } from '../data/species'
-import { mkPlant, type Photo } from './plants'
+import { mkPlant, uid, type PhotoIn } from './plants'
 import type {
   Account, CalView, Care, Choices, Mail, OnbMode, State, Units,
 } from '../state/store'
@@ -20,7 +20,10 @@ const KEY = 'hg.state'
 /** версия схемы: несовпадение = начинаем заново, а не читаем чужие поля */
 const VER = 1
 
-interface SavedPlant { id: string; since: number; day: number; photos: Photo[] }
+// id — вид (так было с первой версии блоба, переименовать нельзя: старые
+// сохранения перестали бы читаться). rid — идентификатор строки, появился вместе
+// с синхронизацией; в блобах без него он выдаётся при чтении.
+interface SavedPlant { id: string; rid?: string; since: number; day: number; photos: PhotoIn[] }
 interface Saved {
   v: number
   choices: Choices
@@ -51,7 +54,8 @@ export function load(init: State): State {
   // вид мог исчезнуть из справочника — такое растение просто не возвращаем
   const plants = saved
     .filter(p => p && SP(p.id))
-    .map(p => mkPlant(p.id, p.since, p.day, Array.isArray(p.photos) ? p.photos : []))
+    .map(p => mkPlant(p.id, p.since, p.day, Array.isArray(p.photos) ? p.photos : [],
+                      p.rid || uid()))
   return {
     ...init,
     choices: { ...init.choices, ...j.choices },
@@ -75,7 +79,8 @@ export function save(s: State): void {
   const body: Saved = {
     v: VER,
     choices: s.choices,
-    plants: s.plants.map(p => ({ id: p.s.id, since: p.since, day: p.day, photos: p.photos })),
+    plants: s.plants.map(p => ({ id: p.s.id, rid: p.id, since: p.since, day: p.day,
+                                photos: p.photos })),
     selected: s.selected,
     isPro: s.isPro,
     units: s.units,

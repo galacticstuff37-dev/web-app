@@ -8,22 +8,25 @@
 | Файл | Что проверяет |
 |---|---|
 | `tapcheck.html` | Онбординг целиком, обе ветки: кнопка на каждом шаге, видимый выбор, ZIP, лимит бесплатного плана, мнимые чекбоксы, сессия после перезагрузки |
-| `authcheck.html` | Вход: ссылка с лендинга, настоящий Google (ссылка строится, PKCE, без демо-аккаунта), отсутствие Apple, почта и код, аккаунт в настройках, подтверждение удаления |
+| `authcheck.html` | Вход: ссылка с лендинга, настоящий Google (ссылка строится, PKCE, без демо-аккаунта), отсутствие Apple, почта и код, аккаунт в настройках, подтверждение удаления. И синхронизация: id строк, сценарии слияния (`__syncAudit`), полный no-op без сессии, анонимная запись отбита RLS |
 | `sweep2.html` | Вёрстка: 32 экрана × 5 состояний данных × 6 ширин = 960 рендеров. Ищет выходы за экран и ошибки консоли |
 
 ## Как запускать
 
 Стендам нужен HTTP того же origin, что и приложение — они держат его в iframe и
-читают его DOM.
+читают его DOM. Мало того: собранный бандл ссылается на ассеты по АБСОЛЮТНОМУ
+пути `/web-app/react/…` (`base` в `app/vite.config.ts` — так требует GitHub
+Pages), поэтому репозиторий обязан отдаваться именно как `/web-app`. Из папки с
+другим именем стенд поднимется, а приложение в iframe останется белым.
 
 ```bash
-cd /Users/yakovpetrov/Desktop && python3 -m http.server 5201
+mkdir -p /tmp/pages && ln -sfn /Users/yakovpetrov/Desktop/homegrown /tmp/pages/web-app && cd /tmp/pages && python3 -m http.server 5205
 ```
 
 Дальше на симуляторе (или в любом браузере):
 
 ```
-http://localhost:5201/homegrown/tools/stands/authcheck.html
+http://localhost:5205/web-app/tools/stands/authcheck.html
 ```
 
 Проверить другую сборку — параметром `app`:
@@ -36,8 +39,8 @@ http://localhost:5201/homegrown/tools/stands/authcheck.html
 На симуляторе:
 
 ```bash
-xcrun simctl openurl booted "http://localhost:5201/homegrown/tools/stands/authcheck.html?v=$RANDOM"
-sleep 45 && xcrun simctl io booted screenshot /tmp/out.png
+xcrun simctl openurl booted "http://localhost:5205/web-app/tools/stands/authcheck.html?v=$RANDOM"
+sleep 65 && xcrun simctl io booted screenshot /tmp/out.png
 ```
 
 `?v=` обязателен: Safari кеширует страницу стенда. Сборку приложения стенд
@@ -47,6 +50,10 @@ sleep 45 && xcrun simctl io booted screenshot /tmp/out.png
 
 - **Итог печатается и сверху, и снизу.** Панель Safari закрывает низ страницы, а
   скролл на симуляторе без тапа не сделать.
+- **Ввод в поля приложения уезжает скроллом.** Фокус переходит в iframe, а тот
+  прибит к низу страницы — Safari скроллит родителя, и итога на скриншоте не
+  видно. `authcheck` в конце делает `scrollTo(0,0)` и печатает сводку по
+  разделам первой: одного скриншота хватает, чтобы увидеть все разделы.
 - **`<meta charset=utf-8>` обязателен**: `python3 -m http.server` не отдаёт
   кодировку, и кириллица в отчёте превращается в мусор.
 - **Ввод в поля React** — только через нативный сеттер:

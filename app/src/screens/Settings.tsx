@@ -19,11 +19,27 @@ import { ZIPS } from '../data/zips'
 import { allPhotos, isEdible } from '../lib/plants'
 import { cap } from '../lib/plan'
 import { seasonDays, zipInfo } from '../lib/season'
+import { supa } from '../lib/supabase'
+import { wipeCloud } from '../lib/sync'
 import { useStore, type Units } from '../state/store'
 
 type Go = (id: string) => void
 
 /** Что именно исчезнет — числами из состояния, а не «все ваши данные». */
+/**
+ * Delete account убирает и копию в базе, иначе «Your plants go with it» —
+ * ложь: локальное стёрлось бы, а при следующем входе сад приехал бы обратно.
+ * Не ждём ответа: человек уже подтвердил и уходит на лендинг, а тянуть его на
+ * спиннере ради уборки нечестно. Не получилось — сад вернётся при входе, то
+ * есть ровно как было до этой правки.
+ */
+function wipeAll(): void {
+  void supa().then(async sb => {
+    await wipeCloud(sb)
+    await sb.auth.signOut()
+  }).catch(() => { /* без сети уборка просто не состоялась */ })
+}
+
 function wipeBody(plants: number, photos: number) {
   const p = `${plants} ${plants === 1 ? 'plant' : 'plants'}`
   const ph = photos ? ` and ${photos} ${photos === 1 ? 'photo' : 'photos'}` : ''
@@ -72,7 +88,7 @@ export function SettingsScreen({ go }: { go: Go }) {
               <Confirm title="Delete everything?"
                        body={wipeBody(s.plants.length, allPhotos(s.plants).length)}
                        yes="Delete it all" no="Keep my plants"
-                       onYes={() => { d({ t: 'wipe' }); go('landing') }}
+                       onYes={() => { wipeAll(); d({ t: 'wipe' }); go('landing') }}
                        onNo={() => setAsk(false)} />
             ) : undefined}>
       <div className="h1" style={{ marginTop: 16 }}>Settings</div>

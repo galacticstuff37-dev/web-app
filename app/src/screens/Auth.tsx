@@ -18,6 +18,7 @@ import { Screen } from '../components/Chrome'
 import { ASSET_ROOT, bg } from '../lib/assets'
 import { Icon } from '../icons/Icon'
 import { authRedirect, setAuthNext, supa, takeAuthNext } from '../lib/supabase'
+import { forgetSnap } from '../lib/sync'
 import { useStore, type Account, type AuthVia } from '../state/store'
 
 type Go = (id: string) => void
@@ -343,6 +344,9 @@ export function AccountRow({ go }: { go: Go }) {
               onClick={async () => {
                 // У демонстрационного входа сессии на сервере нет — закрывать нечего.
                 if (!s.account?.demo) await (await supa()).auth.signOut()
+                // Снимок отправки привязан к аккаунту: оставить его — значит
+                // дать следующему человеку на этом устройстве чужие id строк.
+                forgetSnap()
                 d({ t: 'signOut' })
                 go('signin')
               }}>

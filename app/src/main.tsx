@@ -12,6 +12,8 @@ import { App } from './App'
 import { StoreProvider } from './state/store'
 // аудит модели сезона доступен как window.__audit() — страховка порта
 import { stats } from './lib/audit'
+// проверка слияния доступна как window.__syncAudit() — там же, почему в бандле
+import './lib/sync-audit'
 
 // сверка чисел ухода с прототипом: __stats(plants)
 window.__stats = stats

@@ -9,7 +9,7 @@ import {
   createContext, useContext, useEffect, useMemo, useReducer, type ReactNode,
 } from 'react'
 import { load, save } from '../lib/persist'
-import { mkPlant, tkey, trackOfPlants, type Plant, type Task } from '../lib/plants'
+import { mkPlant, tkey, trackOfPlants, uid, type Plant, type Task } from '../lib/plants'
 import { speciesPool, type Ctx, type Pool } from '../lib/season'
 import type { Species } from '../data/species'
 import type { Track } from '../data/onboarding'
@@ -111,7 +111,9 @@ export const seedMixed = (): Plant[] => [
   mkPlant('radish', 0, 27, [{ f: 'radish', day: 24 }]),
 ]
 
-const INIT: State = {
+// Экспортируется ради проверки слияния (lib/sync-audit.ts): ей нужно исходное
+// состояние, а собирать его копией значило бы проверять копию, а не продукт.
+export const INIT: State = {
   choices: CHOICES0,
   plants: seedPlants(),
   selected: 0,
@@ -141,6 +143,31 @@ const INIT: State = {
   authFrom: 'save',
   authEmail: '',
 }
+
+/**
+ * Слитое из базы. Только синхронизируемые срезы: экранное — раскрытая строка
+ * календаря, тост, поиск — приезжать из базы не должно, иначе синхронизация
+ * начала бы двигать экран под руками.
+ */
+export interface Pulled {
+  plants?: Plant[]
+  choices?: Partial<Choices>
+  units?: Units
+  remind?: number
+  care?: Care
+  mail?: Mail
+  calView?: CalView
+  isPro?: boolean
+  done?: Record<string, boolean>
+}
+
+/**
+ * Демо-набор из INIT — витрина для первого запуска, а не данные человека.
+ * Синхронизации это нужно знать: отдавать витрину в чужой настоящий сад нельзя,
+ * а занесённое руками — нужно. Состав видов и есть опознавательный знак.
+ */
+export const isDemoGarden = (ps: Plant[]): boolean =>
+  ps.map(p => p.s.id).join(',') === INIT.plants.map(p => p.s.id).join(',')
 
 export type Action =
   | { t: 'choices'; v: Partial<Choices> }
@@ -183,6 +210,7 @@ export type Action =
   | { t: 'authEmail'; v: string }
   | { t: 'enterCalendar' }
   | { t: 'enterLibrary'; seek: string | null }
+  | { t: 'pulled'; v: Pulled }
 
 function reducer(s: State, a: Action): State {
   switch (a.t) {
@@ -261,7 +289,7 @@ function reducer(s: State, a: Action): State {
     case 'toast': return { ...s, toast: a.v }
     case 'query': return { ...s, query: a.v }
     case 'addPhoto': return { ...s, plants: s.plants.map((p, i) =>
-      i === a.v.i ? { ...p, photos: [{ u: a.v.url, day: p.day }, ...p.photos] } : p) }
+      i === a.v.i ? { ...p, photos: [{ id: uid(), u: a.v.url, day: p.day }, ...p.photos] } : p) }
     case 'signIn': return { ...s, account: a.v, authEmail: a.v.email }
     // Выход не трогает растения: это выход из аккаунта, а не удаление данных —
     // для удаления есть отдельная строка в настройках.
@@ -273,6 +301,16 @@ function reducer(s: State, a: Action): State {
     case 'enterCalendar': return { ...s, calMonth: null, calOpen: null }
     // Роутер прототипа на входе в библиотеку чистил и поиск, и выбор; передача
     // вида из календаря — единственное, что переживает вход.
+    // Приехало из базы. Порядок в объекте важен: plants и choices идут ПОСЛЕ
+    // спреда, иначе отсутствующее поле затёрло бы своё же значение undefined.
+    case 'pulled': {
+      const plants = a.v.plants ?? s.plants
+      return {
+        ...s, ...a.v, plants,
+        choices: a.v.choices ? { ...s.choices, ...a.v.choices } : s.choices,
+        selected: Math.min(s.selected, Math.max(0, plants.length - 1)),
+      }
+    }
     case 'enterLibrary': {
       const sk = a.seek
       const own = sk ? s.plants.some(p => p.s.id === sk) : false

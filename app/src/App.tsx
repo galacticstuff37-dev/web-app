@@ -1,12 +1,14 @@
 // Роутер на хеше. Хеш, а не history: GitHub Pages не умеет rewrite, а прототип
 // и так адресовал экраны через #id — ссылки остаются рабочими.
 
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { useAuthSession } from './screens/Auth'
+import { supa } from './lib/supabase'
+import { lastReport, runSync, type SyncReport } from './lib/sync'
 import { Toast } from './components/parts'
 import { Review } from './review/Review'
 import { ROUTE, ROUTES } from './routes'
-import { useStore } from './state/store'
+import { useStore, type Pulled } from './state/store'
 import type { Species } from './data/species'
 
 export function useHash(): [string, (id: string) => void] {
@@ -22,6 +24,70 @@ export function useHash(): [string, (id: string) => void] {
     else location.hash = next
   }, [])
   return [id, go]
+}
+
+/**
+ * Синхронизация с базой. Здесь только повод её запустить — вся работа в
+ * lib/sync.ts.
+ *
+ * Три повода: изменилось синхронизируемое (с задержкой, иначе каждая буква в
+ * ZIP была бы запросом), вкладку снова открыли (с другого устройства могло
+ * приехать новое) и появился аккаунт. Таймера нет: приложение и без сети
+ * полное, а опрос по расписанию — это трафик без повода.
+ *
+ * Ошибки наружу не выходят: неудачная синхронизация ничего не показывает и
+ * повторится в следующий раз. Посмотреть, чем закончилась, можно из консоли —
+ * window.__sync() гоняет проход и отдаёт отчёт.
+ */
+function useSync() {
+  const { s, d } = useStore()
+  // Проход асинхронный, за это время состояние успевает измениться: отправлять
+  // надо СВЕЖЕЕ, а не то, что было на момент запуска.
+  const cur = useRef(s)
+  useEffect(() => { cur.current = s }, [s])
+  const apply = useCallback((p: Pulled) => d({ t: 'pulled', v: p }), [d])
+  // catch, а не голый then: без сети import() клиента отваливается, и без него
+  // это стало бы необработанным отказом промиса — то есть ошибкой в консоли,
+  // на которую свип вёрстки справедливо ругается.
+  const run = useCallback((): Promise<SyncReport> =>
+    supa().then(sb => runSync(sb, () => cur.current, apply))
+          .catch(e => ({ ok: false, error: e instanceof Error ? e.message : String(e) })),
+    [apply])
+  const timer = useRef<ReturnType<typeof setTimeout>>()
+  const kick = useCallback((ms: number) => {
+    clearTimeout(timer.current)
+    timer.current = setTimeout(() => { void run() }, ms)
+  }, [run])
+
+  const on = s.account !== null
+
+  useEffect(() => {
+    if (!on) return
+    kick(1500)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [on, s.plants, s.choices, s.isPro, s.units, s.remind, s.care, s.mail, s.done, s.calView])
+
+  useEffect(() => {
+    if (!on) return
+    const back = () => { if (!document.hidden) kick(0) }
+    document.addEventListener('visibilitychange', back)
+    return () => document.removeEventListener('visibilitychange', back)
+  }, [on, kick])
+
+  // Крючок для стендов, как __state()/__audit(): проход по требованию и отчёт.
+  useEffect(() => {
+    window.__sync = run
+    window.__syncReport = lastReport
+  }, [run])
+
+  useEffect(() => () => clearTimeout(timer.current), [])
+}
+
+declare global {
+  interface Window {
+    __sync?: () => Promise<SyncReport>
+    __syncReport?: () => SyncReport
+  }
 }
 
 export function App() {
@@ -72,6 +138,7 @@ export function App() {
   // Вход через Google возвращает человека уже с сессией: подхватываем её и
   // уводим на экран, с которого начинали.
   useAuthSession(goTracked)
+  useSync()
 
   if (hash === 'review') return <Review />
 

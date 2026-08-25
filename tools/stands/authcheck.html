@@ -108,10 +108,14 @@ const putSession = s => localStorage.setItem(SESSION_KEY, JSON.stringify(session
  * раздел про умершую сессию попадал в 15-секундное окно от нажатого ранее
  * «Delete account» и молчал, хотя должен был объясниться.
  */
-const clearErr = () => {
-  localStorage.removeItem('hg.authErr');
-  localStorage.removeItem('hg.signOutAt');
-};
+const clearErr = () => localStorage.removeItem('hg.authErr');
+/**
+ * Стереть метку нарочного выхода. Нужно ТОЛЬКО разделу про умершую сессию: там
+ * тишина была бы ложным «пройдено». Остальным разделам чистить нельзя — выход из
+ * предыдущего раздела доезжает асинхронно (Delete account не ждёт уборки в
+ * облаке), и без метки его SIGNED_OUT выглядит как непрошеный.
+ */
+const clearOut = () => localStorage.removeItem('hg.signOutAt');
 /**
  * Ждать условия, а не «столько-то миллисекунд». Выход и обновление токена ходят
  * в сеть, и на симуляторе это заметно медленнее, чем в десктопном браузере:
@@ -348,11 +352,33 @@ const footOff = () => { const b = D().querySelector('.foot .btn'); return b ? b.
   say(hash() === 'home', 'обычный запуск не уводит на пейволл (' + hash() + ')');
   say(localStorage.getItem('hg.authNext') === null, 'мина hg.authNext обезврежена');
 
-  // ── 7c. Сессия умерла сама. Молчать тут нельзя: человек входил, а потом
+  // ПОРЯДОК ВАЖЕН: раздел про умершую сессию идёт ПОСЛЕДНИМ. Safari держит
+  // прошлый документ iframe живым дольше, чем Chromium, и его умирающая сессия
+  // рассылает SIGNED_OUT в следующий документ — тот гасил аккаунт и писал
+  // «expired» посреди чужого раздела. Проверять после него можно только то,
+  // чему живая сессия не нужна.
+  // ── 7c. А нарочному выходу объясняться нечем: он и есть объяснение.
+  head('нарочный выход не врёт');
+  putSession(86400);
+  clearErr();
+  await seed({account: {email: 'sam@example.com', via: 'google'}}, 'account');
+  await tap('Sign out');
+  // Ждём ЗАВЕРШЕНИЯ операции, а не её побочного эффекта: аккаунт гаснет раньше,
+  // чем выход доделан (уход на home — последний его шаг), и проверка успевала
+  // прочитать состояние на полпути.
+  await waitFor(() => hash() === 'home' && !S().account, 8000);
+  await sleep(300);
+  say(!S().account, 'после Sign out аккаунта нет');
+  const de = localStorage.getItem('hg.authErr');
+  say(de === null, 'и никакого «session expired» тому, кто нажал сам'
+      + (de ? ': ' + JSON.parse(de).kind + ' · экран ' + hash() : ''));
+
+  // ── 7d. Сессия умерла сама. Молчать тут нельзя: человек входил, а потом
   //     видит «Sign in» — и делает единственный доступный ему вывод.
   head('непрошеный выход объясняется');
   putSession(-60);
   clearErr();
+  clearOut();
   await seed({account: {email: 'sam@example.com', via: 'google'}}, 'settings');
   // библиотека просит новый токен, получает отказ и сносит сессию
   await waitFor(() => !S().account, 6000);
@@ -364,19 +390,7 @@ const footOff = () => { const b = D().querySelector('.foot .btn'); return b ? b.
   const nt = D().querySelector('.note');
   say(!!nt && nt.innerText.includes('You were signed out'),
       'настройки объясняют, почему опять «Sign in»');
-
-  // ── 7d. А нарочному выходу объясняться нечем: он и есть объяснение.
-  head('нарочный выход не врёт');
-  putSession(86400);
-  clearErr();
-  await seed({account: {email: 'sam@example.com', via: 'google'}}, 'account');
-  await tap('Sign out');
-  await waitFor(() => !S().account, 6000);
-  await sleep(200);
-  say(!S().account, 'после Sign out аккаунта нет');
-  const de = localStorage.getItem('hg.authErr');
-  say(de === null, 'и никакого «session expired» тому, кто нажал сам: '
-      + (de ? de.slice(0, 120) : 'пусто') + ' · экран ' + hash());
+  await sleep(600);             // пусть умирающий документ дорассылает своё
   // Синтетическую сессию убираем: следующий раздел проверяет, что БЕЗ сессии
   // синхронизация не делает ничего, и живая сессия сломала бы ему смысл.
   localStorage.removeItem(SESSION_KEY);

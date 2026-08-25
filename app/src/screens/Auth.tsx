@@ -20,7 +20,7 @@ import { cap } from '../lib/plan'
 import { Icon } from '../icons/Icon'
 import {
   authError, authRedirect, authReturn, clearAuthError, clearAuthUrl, setAuthError,
-  setAuthNext, supa, takeAuthNext, wasOnPurpose,
+  setAuthNext, supa, takeAuthNext, wasOnPurpose, type AuthErr,
 } from '../lib/supabase'
 import { useStore, type Account, type AuthVia } from '../state/store'
 
@@ -66,6 +66,53 @@ function accountOf(u: { id?: string; email?: string | null
   const p = u.app_metadata?.provider
   const via: AuthVia = p === 'apple' ? 'apple' : p === 'email' ? 'email' : 'google'
   return { email: u.email || '', via, uid: u.id }
+}
+
+/**
+ * Слова провайдера — человеку, а не только мне. «Unable to exchange external
+ * code: 4/0A» — это правда, но правда для того, кто держит ключи: человек с
+ * растениями не может с ней сделать ничего и видит только, что приложение
+ * сломалось. И «попробуй ещё раз» тут была бы ЛОЖЬ — пока настройка на сервере
+ * не поправлена, повтор упадёт так же. Поэтому у каждой причины свой хвост.
+ *
+ * Технический текст не выбрасываем: он уходит строкой ниже мелким серым, потому
+ * что именно по нему настоящая причина и находится.
+ */
+function humanWhy(why: string): { say: string; tail: string; raw: string | null } {
+  const safe = 'Your plants stay on this phone either way — nothing is lost.'
+  if (/exchange external code/i.test(why)) {
+    return {
+      say: 'Google confirmed it was you, but our server could not finish the handshake',
+      tail: 'That is a setting on our side, not anything you did, and trying again '
+          + "won't move it. " + safe,
+      raw: why,
+    }
+  }
+  if (/came back to a different address/i.test(why)) {
+    return {
+      say: 'The sign-in started in one browser and came back in another, so the key '
+         + 'that closes it was gone',
+      tail: 'Starting over in this same browser usually works. ' + safe,
+      raw: null,
+    }
+  }
+  return { say: cap(why), tail: 'Signing in again is all it takes. ' + safe, raw: null }
+}
+
+/** Нота с причиной. Одна и та же в настройках и на экране входа. */
+function WhyNote({ err, mt }: { err: AuthErr; mt: number }) {
+  const h = humanWhy(err.why)
+  return (
+    <div className="note" style={{ marginTop: mt }}>
+      <b>{err.kind === 'expired' ? 'You were signed out' : 'The last sign-in did not finish'}</b>
+      <p>{h.say}. {h.tail}</p>
+      {h.raw && (
+        <p style={{ fontSize: 'var(--t-12)', color: 'var(--muted)', marginTop: 6 }}>
+          {h.raw}
+        </p>
+      )}
+    </div>
+  )
 }
 
 /**
@@ -223,14 +270,7 @@ export function SignInScreen({ go }: { go: Go }) {
       <div style={{ fontSize: 'var(--t-14)', color: 'var(--muted)', marginTop: 4 }}>
         Your plants and their schedule are waiting.
       </div>
-      {err && (
-        <div className="note" style={{ marginTop: 16 }}>
-          <b>{err.kind === 'expired' ? 'You were signed out'
-                                     : 'Last attempt did not finish'}</b>
-          <p>{cap(err.why)}. Nothing was saved and nothing was lost — the button below
-            starts over.</p>
-        </div>
-      )}
+      {err && <WhyNote err={err} mt={16} />}
       <div style={{ marginTop: 16 }}><Providers go={go} from="signin" /></div>
       <div className="tlink2" role="button" tabIndex={0} style={{ marginTop: 16 }}
            onClick={() => go('q0')}>New here? Start free</div>
@@ -400,14 +440,7 @@ export function AccountRow({ go }: { go: Go }) {
     const err = authError()
     return (
       <>
-        {err && (
-          <div className="note" style={{ marginTop: 12 }}>
-            <b>{err.kind === 'expired' ? 'You were signed out'
-                                       : 'The last sign-in did not finish'}</b>
-            <p>{cap(err.why)}. Your plants are safe on this phone — signing in again is
-              all it takes.</p>
-          </div>
-        )}
+        {err && <WhyNote err={err} mt={12} />}
         <div className="btn b-white" role="button" tabIndex={0} style={{ marginTop: 12 }}
              onClick={() => go('signin')}>Sign in</div>
       </>

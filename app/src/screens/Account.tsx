@@ -15,7 +15,7 @@ import { Confirm } from '../components/Confirm'
 import { bg } from '../lib/assets'
 import { allPhotos } from '../lib/plants'
 import { MON } from '../lib/season'
-import { markSignOut, supa } from '../lib/supabase'
+import { clearAuthError, markSignOut, supa } from '../lib/supabase'
 import { forgetSnap, syncFacts, wipeCloud } from '../lib/sync'
 import { useStore } from '../state/store'
 
@@ -85,6 +85,11 @@ export function AccountScreen({ go }: { go: Go }) {
     // Снимок отправки привязан к аккаунту: оставить его — значит дать
     // следующему человеку на этом устройстве чужие id строк.
     forgetSnap()
+    // И стираем объяснение. Метки времени тут недостаточно: SIGNED_OUT прилетает
+    // и в другие контексты того же origin, а какой из них успеет раньше —
+    // порядком не задано. Поэтому две независимые страховки: метка гасит запись
+    // ДО, а этот вызов убирает запись ПОСЛЕ. Нарочный выход объясняется сам.
+    clearAuthError()
     d({ t: 'signOut' })
     go('home')
   }
@@ -95,7 +100,11 @@ export function AccountScreen({ go }: { go: Go }) {
     // Тоже нарочный выход — и здесь глобальный по делу: аккаунта больше нет,
     // и его сессии не должны жить ни на одном устройстве.
     markSignOut()
-    void supa().then(async sb => { await wipeCloud(sb); await sb.auth.signOut() })
+    // Метка ещё раз, вплотную к выходу: уборка в облаке не ждётся и на медленной
+    // сети занимает секунды. Пока она идёт, окно от первой метки успевает
+    // закрыться — и человеку, который сам удалил аккаунт, сообщали бы, что у
+    // него истекла сессия.
+    void supa().then(async sb => { await wipeCloud(sb); markSignOut(); await sb.auth.signOut() })
       .catch(() => { /* без сети уборка не состоялась: сад вернётся при входе */ })
     d({ t: 'wipe' })
     go('landing')

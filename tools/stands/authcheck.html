@@ -177,6 +177,33 @@ const footOff = () => { const b = D().querySelector('.foot .btn'); return b ? b.
   say(hash() === 'paywall', 'из онбординга → paywall (' + hash() + ')');
   say(!!S().account && S().account.email === 'sam@example.com', 'аккаунт с введённой почтой');
 
+  // ── 5b. Онбординг НЕ выпускает в приложение без аккаунта. Ровно так и
+  //     пришла жалоба «прошёл онборд, а в настройках висит Sign in»: с preview
+  //     ссылка «I’ll pick my own» открывала библиотеку как экран ПРИЛОЖЕНИЯ —
+  //     с таб-баром, «назад» на Home и кнопкой внизу на Home. Человек попадал
+  //     внутрь, минуя Save, и Google тут был не при чём.
+  head('онбординг не выпускает без аккаунта');
+  await seed({onbMode: 'plan'}, 'preview');
+  say(!D().querySelector('.nav'), 'на preview таб-бара нет');
+  await tap('pick my own');
+  say(hash() === 'add-plant', 'preview → add-plant (' + hash() + ')');
+  say(!D().querySelector('.nav'), 'в библиотеке как шаге онбординга таб-бара нет');
+  // Дальше читаем DOM защищённо: когда эта секция ПАДАЕТ, приложение уже увело
+  // в другой экран, и голый .click() по отсутствующему узлу обрушил бы стенд
+  // целиком — вместе с разделами после него.
+  const bk = D().querySelector('.back');
+  if (bk) { bk.click(); await sleep(280) }
+  say(hash() === 'preview', 'назад ведёт на preview, а не в приложение (' + hash() + ')');
+  if (hash() !== 'add-plant') await tap('pick my own');
+  const row = D().querySelector('.plist > *');
+  if (row) { row.click(); await sleep(220) }
+  const fb = D().querySelector('.foot .btn');
+  if (fb) { fb.click(); await sleep(320) }
+  say(hash() === 'save', 'кнопка внизу ведёт на регистрацию (' + hash() + ')');
+  say(!S().account, 'аккаунт по дороге сам не появился');
+  say((D().querySelector('.overlay') || {}).innerText?.includes('Save your plants'),
+      'на Save обещают сохранить СВОИ растения, а не «наш план»');
+
   // ── 6. Настройки → экран аккаунта. Выход и удаление переехали туда: среди
   //     тумблеров необратимого не ждут, а крестик 32x32 не дотягивал до 44.
   head('аккаунт в настройках');

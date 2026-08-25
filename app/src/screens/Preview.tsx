@@ -105,7 +105,11 @@ export function PreviewScreen({ go }: { go: Go }) {
 export function SaveScreen({ go }: { go: Go }) {
   const { s } = useStore()
   const c = usePlanCtx()
-  const own = s.onbMode === 'own'
+  // «Свои растения», а не «наш план» — обе ветки, где план не применялся:
+  // «уже есть растения» ('own') и «I’ll pick my own» (остаётся 'plan', потому
+  // что applyPlan не вызывался). Прошедшему план onbMode гасит сам applyPlan,
+  // и только ему можно обещать «Your plan is already built».
+  const own = s.onbMode !== null
   const plan = s.plants.length ? s.plants.map(p => p.s) : buildPlan(c)
   return (
     <div className="screen on" id="s-save">
@@ -121,8 +125,8 @@ export function SaveScreen({ go }: { go: Go }) {
           {plan.length} {plan.length === 1 ? 'PLANT' : 'PLANTS'} ·{' '}
           {c.outdoor ? `${seasonWeeks(c.zip)} WEEKS` : 'YEAR-ROUND'}
         </span>
-        {/* Ветка «уже есть растения» приходит сюда со своими растениями, а не с
-            планом: обещать «твой план готов» ей нельзя. */}
+        {/* Обе ветки без применённого плана приходят сюда со своими растениями,
+            а не с планом: обещать «твой план готов» им нельзя. */}
         <div className="cap-f" style={{ fontSize: 'var(--t-40)', lineHeight: 1.03, marginTop: 16 }}>
           {own ? <>Save your plants<br /></> : <>Save your plan<br /></>}
           <span style={{ color: 'var(--lime)' }}>so we can remind you.</span>

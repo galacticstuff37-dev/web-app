@@ -47,6 +47,14 @@ export function AddPlantScreen({ go }: { go: Go }) {
   const { s, d, pool } = useStore()
   const q = s.query.trim().toLowerCase()
   const own = s.onbMode === 'own'
+  // Экран открыт КАК ШАГ онбординга, а не из приложения. Сюда приходят двумя
+  // ветками: «уже есть растения» с q0 и «I’ll pick my own» с preview — и в обеих
+  // регистрация ещё впереди. Проверять надо onbMode целиком, а не только 'own':
+  // на плановой ветке все три выхода (назад, таб-бар и кнопка внизу) вели на
+  // Home, то есть человек оказывался внутри приложения без аккаунта, а в
+  // настройках висело «Sign in». Ровно эта жалоба и пришла.
+  // applyPlan гасит onbMode сам, поэтому у прошедшего план флаг уже пуст.
+  const onb = s.onbMode !== null
   const lim = limit(s.isPro)
 
   const groups = useMemo(() => {
@@ -89,7 +97,7 @@ export function AddPlantScreen({ go }: { go: Go }) {
     // Онбординг «уже есть» продолжается: где растения живут и сколько там света.
     // Без этих двух шагов движок ухода считал по умолчанию «улица, 6–8 часов»
     // даже для монстеры в комнате, а точки прогресса обещали пять шагов из двух.
-    go(own ? 'q1' : 'home')
+    go(own ? 'q1' : onb ? 'save' : 'home')
   }
 
   // На лимите строка не выбирается, а объяснение лежит в самом низу списка —
@@ -106,8 +114,8 @@ export function AddPlantScreen({ go }: { go: Go }) {
   return (
     // Пока онбординг не пройден, таб-бара нет: из него можно было уйти на Home
     // мимо оставшихся шагов, и настройки ухода оставались пустыми.
-    <Screen id="add-plant" back={() => go(own ? 'q0' : 'home')}
-            nav={own ? undefined : { active: 'Week', go }} scrollKey="add-plant"
+    <Screen id="add-plant" back={() => go(own ? 'q0' : onb ? 'preview' : 'home')}
+            nav={onb ? undefined : { active: 'Week', go }} scrollKey="add-plant"
             foot={
               <div className={'btn b-pri' + (own || s.pending.length ? '' : ' off')}
                    role="button" tabIndex={0} onClick={submit}>{cta}</div>

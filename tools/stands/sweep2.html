@@ -89,6 +89,13 @@ const TOTAL = ROUTES.length * Object.keys(STATES).length * SIZES.length;
       localStorage.setItem('hg.state', JSON.stringify(st));
       if (st.account) localStorage.setItem('hg.sync', JSON.stringify(SNAP));
       else localStorage.removeItem('hg.sync');
+      // Причина прошлого провала входа живёт отдельным ключом и показывается
+      // нотой на #signin. Вешаем её на состояние «пусто», иначе самый длинный
+      // вариант этого экрана не мерился бы ни на одной ширине.
+      if (sname === 'пусто') {
+        localStorage.setItem('hg.authErr', JSON.stringify({at: Date.now(),
+          why: 'the link came back to a different address than it started from'}));
+      } else localStorage.removeItem('hg.authErr');
       // Приветственный лист накрыл бы каждый экран этого состояния и дал бы
       // ложные выходы за экран. Его дело проверяет authcheck.
       try { sessionStorage.setItem('hg.greeted', '1') } catch (e) {}

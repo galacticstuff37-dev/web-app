@@ -85,6 +85,27 @@ export function clearAuthUrl(): void {
  * этом перезагружается целиком, поэтому в состоянии его не сохранить — кладём
  * рядом с состоянием в localStorage.
  */
+/**
+ * Почему в прошлый раз не вошло. Тост живёт семь секунд и уходит, а человек
+ * остаётся перед кнопкой входа без объяснения — и «ничего не произошло»
+ * выглядит как поломка приложения, а не как отказ провайдера. Держим причину
+ * рядом с состоянием и показываем на экране входа, пока вход не удастся.
+ */
+const ERR_KEY = 'hg.authErr'
+export const setAuthError = (why: string) => {
+  try { localStorage.setItem(ERR_KEY, JSON.stringify({ at: Date.now(), why })) }
+  catch { /* приватный режим */ }
+}
+export const authError = (): { at: number; why: string } | null => {
+  try {
+    const raw = localStorage.getItem(ERR_KEY)
+    return raw ? (JSON.parse(raw) as { at: number; why: string }) : null
+  } catch { return null }
+}
+export const clearAuthError = () => {
+  try { localStorage.removeItem(ERR_KEY) } catch { /* приватный режим */ }
+}
+
 const NEXT_KEY = 'hg.authNext'
 export const setAuthNext = (id: string) => {
   try { localStorage.setItem(NEXT_KEY, id) } catch { /* приватный режим */ }

@@ -1,7 +1,28 @@
+import { execSync } from 'node:child_process'
 import fs from 'node:fs'
 import path from 'node:path'
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
+
+// Метка сборки. Появилась после вечера, потраченного на вопрос «а эта версия
+// уже с правками?»: приложение открывают с телефона, с симулятора и с ноутбука,
+// и отличить свежую страницу от страницы из кэша браузера было нечем, кроме
+// инструментов разработчика. Теперь номер сборки написан внизу настроек.
+function stamp(): string {
+  try {
+    // Дата коммита, и только она. Ни времени сборки (оно делало бы каждую сборку
+    // отличной от предыдущей и убило проверку «пересборка не даёт диффа»), ни
+    // короткого sha: собираем ДО коммита, поэтому sha назвал бы РОДИТЕЛЯ — ровно
+    // та путаница, против которой метка и заводится. Кто именно загружен,
+    // отвечает хеш бандла (см. buildId в src/lib/assets.ts).
+    //
+    // --date=short, потому что аргумент уходит через шелл: любой пробел в формате
+    // распадается на два аргумента, git падает, и метка молча становится 'dev'.
+    return execSync('git log -1 --format=%cd --date=short', { encoding: 'utf8' }).trim()
+  } catch {
+    return 'dev'          // собирают не из репозитория — не повод падать
+  }
+}
 
 // Собираемся в /react у корня репозитория: GitHub Pages раздаёт корень, а живой
 // прототип index.html остаётся на месте и не задет.
@@ -40,6 +61,7 @@ function serveRepoRoot() {
 
 export default defineConfig({
   plugins: [react(), serveRepoRoot()],
+  define: { __BUILD__: JSON.stringify(stamp()) },
   base: '/web-app/react/',
   build: {
     outDir: '../react',

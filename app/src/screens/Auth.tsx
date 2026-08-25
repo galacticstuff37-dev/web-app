@@ -18,7 +18,8 @@ import { Screen } from '../components/Chrome'
 import { ASSET_ROOT, bg } from '../lib/assets'
 import { Icon } from '../icons/Icon'
 import {
-  authRedirect, authReturn, clearAuthUrl, setAuthNext, supa, takeAuthNext,
+  authError, authRedirect, authReturn, clearAuthError, clearAuthUrl, setAuthError,
+  setAuthNext, supa, takeAuthNext,
 } from '../lib/supabase'
 import { useStore, type Account, type AuthVia } from '../state/store'
 
@@ -93,6 +94,7 @@ export function useAuthSession(go: Go) {
       sb.auth.getSession().then(({ data }) => {
         if (!alive) return
         if (data.session) {
+          clearAuthError()
           d({ t: 'signIn', v: accountOf(data.session.user) })
           const next = takeAuthNext()
           // Уводим либо туда, куда собирались, либо на home — но ТОЛЬКО если это
@@ -111,6 +113,7 @@ export function useAuthSession(go: Go) {
           ? ret.error
           : 'the link came back to a different address than it started from'
         console.error('[auth] возврат без сессии:', why)
+        setAuthError(why)
         d({ t: 'toast', v: { html: '<span>Sign-in did not finish — ' + why
           + '. Nothing was saved; try again.</span>', ms: 7000, at: Date.now() } })
       })
@@ -192,12 +195,22 @@ export function Providers({ go, from }: { go: Go; from: string }) {
 
 // ─────────────────────────────────────────── Возврат: «уже есть аккаунт»
 export function SignInScreen({ go }: { go: Go }) {
+  // Причина прошлого провала. Читаем один раз на входе: она меняется только
+  // после настоящей попытки, а та перезагружает страницу целиком.
+  const [err] = useState(authError)
   return (
     <Screen id="signin" back={() => go('landing')} scrollKey="signin">
       <div className="h1" style={{ marginTop: 16 }}>Welcome back</div>
       <div style={{ fontSize: 'var(--t-14)', color: 'var(--muted)', marginTop: 4 }}>
         Your plants and their schedule are waiting.
       </div>
+      {err && (
+        <div className="note" style={{ marginTop: 16 }}>
+          <b>Last attempt did not finish</b>
+          <p>{err.why}. Nothing was saved and nothing was lost — the button below
+            starts over.</p>
+        </div>
+      )}
       <div style={{ marginTop: 16 }}><Providers go={go} from="signin" /></div>
       <div className="tlink2" role="button" tabIndex={0} style={{ marginTop: 16 }}
            onClick={() => go('q0')}>New here? Start free</div>

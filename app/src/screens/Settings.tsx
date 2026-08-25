@@ -8,7 +8,7 @@ import { AccountRow } from './Auth'
 import { Screen } from '../components/Chrome'
 import { PickRow, SetRow, SwRow } from '../components/parts'
 import { IcChev } from '../icons/Icon'
-import { bg } from '../lib/assets'
+import { bg, buildId } from '../lib/assets'
 import {
   LIGHT_IN, LIGHT_OUT, LIGHT_RANK_IN, LIGHT_RANK_OUT, PICKS, REMIND_AT,
   SPACE_OPTS, TRACKWORD, isOutdoorSpace,
@@ -145,6 +145,10 @@ export function SettingsScreen({ go }: { go: Go }) {
       </div>
       {/* Delete account и Sign out уехали на экран аккаунта: среди тумблеров
           необратимого не ждут, а строка аккаунта наверху туда и ведёт. */}
+
+      {/* Номер сборки. Приложение открывают с телефона, с симулятора и с ноутбука,
+          и отличить свежую страницу от страницы из кэша браузера было нечем. */}
+      <div className="build">Build {buildId()}</div>
     </Screen>
   )
 }

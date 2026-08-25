@@ -1,0 +1,208 @@
+<!doctype html>
+<meta charset=utf-8>
+<meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover">
+<style>
+ html,body{margin:0;background:#0d1512;color:#dfe8e2;font:11px/1.32 ui-monospace,Menlo,monospace}
+ #log{padding:6px 8px;white-space:pre-wrap}
+ .ok{color:#8ee06a} .no{color:#ff7a7a} .h{color:#8fc7ff}
+ iframe{position:fixed;right:0;bottom:0;width:402px;height:714px;border:0;opacity:.02;pointer-events:none}
+</style>
+<div id=verdict style="position:fixed;left:0;right:0;top:0;z-index:9;padding:6px 8px;background:#0d1512;border-bottom:1px solid #24352c;font-weight:700"></div>
+<div id=log style="padding-top:30px">гоняю…</div>
+<iframe id=f></iframe>
+<script>
+// Что проверять. По умолчанию /web-app/react/ — собранный бандл ссылается на
+// ассеты по этому абсолютному пути, поэтому репозиторий обязан отдаваться как
+// /web-app (см. README рядом). ?app=<url> — любая другая сборка того же origin.
+const APP = new URLSearchParams(location.search).get('app') || '/web-app/react/index.html';
+const F = document.getElementById('f'), LOG = document.getElementById('log');
+let out = [], fails = 0;
+const sleep = ms => new Promise(r => setTimeout(r, ms));
+const W = () => F.contentWindow, D = () => F.contentDocument;
+const S = () => W().__state();
+function say(ok, msg) {
+  if (!ok) fails++;
+  out.push(`<span class="${ok ? 'ok' : 'no'}">${ok ? '✓' : '✗'}</span> ${msg}`);
+  LOG.innerHTML = out.join('<br>');
+}
+function head(t) { out.push(`<span class="h">── ${t}</span>`); LOG.innerHTML = out.join('<br>'); }
+function seed(st, hash) {
+  const base = {v:1, plants:[], choices:{}, selected:0, isPro:false, units:'imperial', remind:3,
+    care:{pick:true,leaf:true,rotate:true,feed:true}, mail:{weekly:true,water:true,news:false},
+    done:{}, calView:'month', onbMode:null, account:null};
+  localStorage.setItem('hg.state', JSON.stringify(Object.assign(base, st)));
+  return load(hash);
+}
+function load(hash) {
+  return new Promise(res => { F.onload = () => setTimeout(res, 430); F.src = APP + '?t=' + Date.now() + '#' + hash });
+}
+function el(text, sel) {
+  return [...D().querySelectorAll(sel || '[role],input')].find(e =>
+    ((e.getAttribute('aria-label') || '') + ' ' + (e.innerText || ''))
+      .replace(/\s+/g, ' ').includes(text)) || null;
+}
+async function tap(text, sel) {
+  const e = el(text, sel); if (!e) return false;
+  e.click(); await sleep(220); return true;
+}
+/** ввод в управляемое React поле: нативный сеттер + событие input */
+async function type(sel, text) {
+  const e = D().querySelector(sel); if (!e) return false;
+  const set = Object.getOwnPropertyDescriptor(W().HTMLInputElement.prototype, 'value').set;
+  set.call(e, text);
+  e.dispatchEvent(new (W().Event)('input', {bubbles: true}));
+  await sleep(200); return true;
+}
+const hash = () => W().location.hash.slice(1);
+const footOff = () => { const b = D().querySelector('.foot .btn'); return b ? b.className.includes('off') : null };
+
+(async () => {
+  // ── 1. Вход для вернувшегося: ссылка с лендинга
+  head('вход с лендинга');
+  await seed({}, 'landing');
+  say(!!el('Sign in'), 'на лендинге есть ссылка входа');
+  await tap('Sign in');
+  say(hash() === 'signin', 'лендинг → signin (' + hash() + ')');
+  const btns = [...D().querySelectorAll('.btn')].map(b => b.innerText.replace(/\s+/g,' ').trim());
+  say(btns.some(b => b.includes('Google')) && btns.some(b => b.includes('email')),
+      'два рабочих способа: ' + btns.slice(0,2).join(' / '));
+  const logo = D().querySelector('.prov img');
+  if (logo && !logo.complete) { try { await logo.decode() } catch (e) {} }
+  await sleep(250);
+  say(!!logo && logo.naturalWidth > 0,
+      'логотип Google загрузился (' + (logo ? logo.naturalWidth + 'px, ' + logo.currentSrc.split('/').slice(-2).join('/') : 'нет img') + ')');
+  say(!D().querySelector('.nav'), 'на входе нет таб-бара');
+
+  // ── 2. Google: настоящий вход через Supabase
+  head('Google — настоящий');
+  const sb = await W().__supa();
+  say(!!sb && !!sb.auth, 'клиент Supabase загрузился (отдельным чанком)');
+  const { data: ses, error: sesErr } = await sb.auth.getSession();
+  say(!sesErr && ses.session === null, 'сессии нет и ошибки нет (аноним)');
+  const { data: oa, error: oaErr } = await sb.auth.signInWithOAuth({
+    provider: 'google',
+    options: { redirectTo: 'https://galacticstuff37-dev.github.io/web-app/react/',
+               skipBrowserRedirect: true } });
+  const u = (oa && oa.url) || '';
+  say(!oaErr && !!u, 'ссылка входа построена' + (oaErr ? ': ' + oaErr.message : ''));
+  say(u.startsWith('https://bslttprzsbigcfplpxff.supabase.co/auth/v1/authorize?provider=google'),
+      'ведёт в authorize провайдера google');
+  say(u.includes('code_challenge'), 'PKCE: в ссылке code_challenge, токены не уедут в хеш');
+  say(u.includes('galacticstuff37-dev.github.io'), 'возврат на адрес приложения');
+  say(!S().account, 'демо-аккаунт при этом не создаётся');
+
+  // ── 2b. Apple: кнопки нет, пока нет ключей — и она никого не впускает
+  head('Apple — выключен, а не поддельный');
+  await seed({}, 'signin');
+  const labels = [...D().querySelectorAll('.btn')].map(b => b.innerText.trim());
+  say(!labels.some(l => l.includes('Apple')), 'кнопки Apple нет: ' + labels.join(' / '));
+  say((D().querySelector('.prov-note') || {}).innerText?.includes('Apple'),
+      'вместо неё подпись, почему её нет');
+  say(!S().account, 'аккаунт не заводится сам собой');
+
+  // ── 3. Почта: валидация
+  head('почта и код');
+  await seed({}, 'signin');
+  await tap('Continue with email');
+  say(hash() === 'email', 'signin → email (' + hash() + ')');
+  say(footOff() === true, 'кнопка погашена на пустом поле');
+  const inp = D().querySelector('.fld input');
+  say(inp && inp.type === 'email' && inp.getAttribute('autocomplete') === 'email'
+      && inp.inputMode === 'email', 'поле: type=email, autocomplete=email, inputmode=email');
+  say(inp && parseFloat(W().getComputedStyle(inp).fontSize) >= 16,
+      'шрифт поля ≥16px (iOS не зумит): ' + (inp ? W().getComputedStyle(inp).fontSize : '—'));
+  await type('.fld input', 'yakov@');
+  say(footOff() === true, 'на «yakov@» кнопка всё ещё погашена');
+  await type('.fld input', 'yakov@vortexgames.com');
+  say(footOff() === false, 'на валидном адресе кнопка зажглась');
+  await tap('Send me a code');
+  say(hash() === 'code', 'email → code (' + hash() + ')');
+  say((D().querySelector('.mob').innerText || '').includes('yakov@vortexgames.com'),
+      'экран кода показывает введённый адрес');
+
+  // ── 4. Код: клетки, таймер, ошибка, вход
+  const cells = D().querySelectorAll('.otp-cells i').length;
+  say(cells === 6, 'шесть клеток (' + cells + ')');
+  const ci = D().querySelector('.otp input');
+  say(ci && ci.getAttribute('autocomplete') === 'one-time-code' && ci.inputMode === 'numeric',
+      'поле кода: autocomplete=one-time-code, inputmode=numeric');
+  say(((D().querySelector('.otp-again') || {}).innerText || '').includes('Ask for a new code in'),
+      'обратный отсчёт идёт в формате mm:ss');
+  say(/\d\d:\d\d/.test((D().querySelector('.otp-again') || {}).innerText || ''),
+      'время показано как 00:59, а не «59s»');
+  say([...D().querySelectorAll('.btn')].some(b => b.innerText.includes('Use another email')),
+      'смена адреса — кнопка во всю ширину, как в референсе');
+  say(parseFloat(W().getComputedStyle(D().querySelector('.otp')).height) >= 72,
+      'клетки крупные: ' + W().getComputedStyle(D().querySelector('.otp')).height);
+  say(footOff() === true, 'кнопка погашена без кода');
+  await type('.otp input', '12345');
+  say(footOff() === true, 'пять цифр — кнопка погашена');
+  await type('.otp input', 'ab12cd3');
+  const ci2 = D().querySelector('.otp input');
+  say(!!ci2 && ci2.value === '123',
+      'буквы отброшены, остались цифры (' + (ci2 ? '«' + ci2.value + '»' : 'экран ' + hash()) + ')');
+  await type('.otp input', '000000');
+  say(!!D().querySelector('.fld-err') && !S().account,
+      'шесть цифр отправляют сами; 000000 — видимая ошибка, входа нет');
+  say((D().querySelector('.otp input') || {}).value === '', 'после ошибки поле очищено');
+  await type('.otp input', '481502');
+  say(!!S().account && S().account.email === 'yakov@vortexgames.com' && S().account.via === 'email',
+      'вход по коду без нажатия кнопки: аккаунт с введённой почтой');
+  say(hash() === 'home', 'вход с возврата → home (' + hash() + ')');
+
+  // ── 5. Онбординг: тот же вход, но дальше в пейволл. Проверяем почтой:
+  //     Google уводит браузер на accounts.google.com и стенд бы оборвался.
+  head('вход из онбординга');
+  await seed({}, 'save');
+  say(!!el('Continue with Google') && !!el('Continue with email'),
+      'на Save те же способы входа');
+  await tap('Continue with email');
+  await type('.fld input', 'sam@example.com');
+  await tap('Send me a code');
+  await type('.otp input', '481502');
+  say(hash() === 'paywall', 'из онбординга → paywall (' + hash() + ')');
+  say(!!S().account && S().account.email === 'sam@example.com', 'аккаунт с введённой почтой');
+
+  // ── 6. Настройки: кто вошёл и выход
+  head('аккаунт в настройках');
+  await seed({account: {email: 'sam@example.com', via: 'email'}}, 'settings');
+  say((D().querySelector('.acct') || {}).innerText?.includes('sam@example.com'),
+      'настройки показывают почту вошедшего');
+  await tap('Sign out');
+  say(!S().account, 'выход очистил аккаунт');
+  say(hash() === 'signin', 'после выхода → signin (' + hash() + ')');
+  await seed({plants: [{id:'basil',since:1,day:20,photos:[]}]}, 'settings');
+  say(!!el('Sign in') && !D().querySelector('.acct'), 'без входа в настройках кнопка Sign in');
+
+  // ── 7. Аккаунт переживает перезагрузку, Delete account его уносит
+  head('аккаунт и перезагрузка');
+  await seed({account: {email: 'sam@example.com', via: 'google', demo: true},
+              plants: [{id:'basil',since:1,day:20,photos:[]}]}, 'home');
+  await load('home');
+  say(!!S().account && S().account.email === 'sam@example.com', 'аккаунт на месте после перезагрузки');
+  await load('settings');
+  const del = el('Delete account');
+  if (del) { del.click(); await sleep(320) }
+  const dlg = D().querySelector('[role=alertdialog]');
+  say(!!dlg, 'Delete account сначала спрашивает (диалог есть)');
+  say(!!S().account && S().plants.length === 1, 'до ответа ничего не стёрто');
+  say(!!dlg && dlg.innerText.includes('1 plant'), 'диалог называет, что исчезнет: '
+      + (dlg ? JSON.stringify(dlg.innerText.split('\n')[1] || '').slice(0, 60) : '—'));
+  const keep = el('Keep my plants', '.cf-box .btn'); if (keep) { keep.click(); await sleep(260) }
+  say(!D().querySelector('[role=alertdialog]') && S().plants.length === 1,
+      '«Keep my plants» закрывает диалог и ничего не трогает');
+  el('Delete account').click(); await sleep(300);
+  el('Delete it all', '.cf-box .btn').click(); await sleep(320);
+  say(!S().account && S().plants.length === 0, 'после подтверждения аккаунт и растения стёрты');
+  say(hash() === 'landing', 'после стирания → landing (' + hash() + ')');
+
+  // итог наверх: снизу его закрывает панель Safari
+  document.getElementById('verdict').innerHTML = fails
+    ? `<span class="no">ПРОВАЛОВ: ${fails}</span>` : '<span class="ok">ВСЁ ПРОЙДЕНО</span>';
+  LOG.innerHTML = out.join('<br>');
+})().catch(e => {
+  document.getElementById('verdict').innerHTML =
+    '<span class="no">СБОЙ СТЕНДА: ' + e.message + '</span>';
+  LOG.innerHTML += '<br><span class="no">СБОЙ: ' + e.message + '</span>';
+});
+</script>

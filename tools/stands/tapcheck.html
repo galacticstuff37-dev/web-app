@@ -1,0 +1,174 @@
+<!doctype html>
+<meta charset=utf-8>
+<meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover">
+<style>
+ html,body{margin:0;background:#0d1512;color:#dfe8e2;font:11px/1.32 ui-monospace,Menlo,monospace}
+ #log{padding:6px 8px;white-space:pre-wrap}
+ .ok{color:#8ee06a} .no{color:#ff7a7a} .h{color:#8fc7ff}
+ iframe{position:fixed;right:0;bottom:0;width:402px;height:714px;border:0;opacity:.02;pointer-events:none}
+</style>
+<div id=verdict style="position:fixed;left:0;right:0;top:0;z-index:9;padding:6px 8px;background:#0d1512;border-bottom:1px solid #24352c;font-weight:700"></div>
+<div id=log style="padding-top:30px">гоняю…</div>
+<iframe id=f></iframe>
+<script>
+// Что проверять. По умолчанию /web-app/react/ — собранный бандл ссылается на
+// ассеты по этому абсолютному пути, поэтому репозиторий обязан отдаваться как
+// /web-app (см. README рядом). ?app=<url> — любая другая сборка того же origin.
+const APP = new URLSearchParams(location.search).get('app') || '/web-app/react/index.html';
+const F = document.getElementById('f'), LOG = document.getElementById('log');
+let out = [], fails = 0;
+const sleep = ms => new Promise(r => setTimeout(r, ms));
+const W = () => F.contentWindow, D = () => F.contentDocument;
+const S = () => W().__state();
+
+function say(ok, msg) {
+  if (!ok) fails++;
+  out.push(`<span class="${ok ? 'ok' : 'no'}">${ok ? '✓' : '✗'}</span> ${msg}`);
+  LOG.innerHTML = out.join('<br>');
+}
+function head(t) { out.push(`<span class="h">── ${t}</span>`); LOG.innerHTML = out.join('<br>'); }
+
+function seed(st, hash) {
+  const base = {v:1, plants:[], choices:{}, selected:0, isPro:false, units:'imperial', remind:3,
+    care:{pick:true,leaf:true,rotate:true,feed:true}, mail:{weekly:true,water:true,news:false},
+    done:{}, calView:'month', onbMode:null};
+  localStorage.setItem('hg.state', JSON.stringify(Object.assign(base, st)));
+  return load(hash);
+}
+function load(hash) {
+  return new Promise(res => {
+    F.onload = () => setTimeout(res, 420);
+    F.src = APP + '?t=' + Date.now() + '#' + hash;
+  });
+}
+/** элемент по видимому тексту или aria-label */
+function el(text, sel) {
+  const all = [...D().querySelectorAll(sel || '[role],input')];
+  return all.find(e => ((e.getAttribute('aria-label') || '') + ' ' + (e.innerText || ''))
+    .replace(/\s+/g, ' ').includes(text)) || null;
+}
+async function tap(text, sel) {
+  const e = el(text, sel);
+  if (!e) return false;
+  // настоящий тап: pointer + touch + click, как от пальца
+  const r = e.getBoundingClientRect(), x = r.left + r.width / 2, y = r.top + r.height / 2;
+  const t = new Touch({identifier: 1, target: e, clientX: x, clientY: y});
+  e.dispatchEvent(new TouchEvent('touchstart', {bubbles: true, touches: [t], targetTouches: [t], changedTouches: [t]}));
+  e.dispatchEvent(new TouchEvent('touchend', {bubbles: true, touches: [], targetTouches: [], changedTouches: [t]}));
+  e.click();
+  await sleep(230);
+  return true;
+}
+/** ввод в управляемое React поле: нативный сеттер + событие input */
+async function type(sel, text) {
+  const e = D().querySelector(sel); if (!e) return false;
+  const set = Object.getOwnPropertyDescriptor(W().HTMLInputElement.prototype, 'value').set;
+  set.call(e, text);
+  e.dispatchEvent(new (W().Event)('input', {bubbles: true}));
+  await sleep(220); return true;
+}
+const hash = () => W().location.hash.slice(1);
+const footOff = () => {
+  const b = D().querySelector('.foot .btn');
+  return b ? b.className.includes('off') : null;
+};
+
+(async () => {
+  // ── 1. Ветка «хочу начать»: на каждом шаге кнопка, выбор виден, без выбора не пускает
+  head('онбординг: хочу начать');
+  await seed({}, 'landing');
+  await tap('Get started free');
+  say(hash() === 'q0', 'лендинг → q0 (' + hash() + ')');
+  say(footOff() === true, 'q0: Continue погашен до выбора');
+  await tap('Continue');
+  say(hash() === 'q0', 'q0: погашенный Continue не пускает дальше');
+  await tap('I want to start growing');
+  say(D().querySelectorAll('.opt.sel').length === 1, 'q0: выбор виден (.opt.sel)');
+  say(footOff() === false, 'q0: Continue зажёгся');
+  await tap('Continue');
+  say(hash() === 'qwhat', 'q0 → qwhat (' + hash() + ')');
+  say(D().querySelectorAll('.opt.sel').length === 0, 'qwhat: ничего не выбрано заранее');
+  await tap('Something to eat'); await tap('Continue');
+  say(hash() === 'q1' && S().choices.track === 'edible', 'qwhat → q1, трек edible');
+  await tap('Patio'); await tap('Continue');
+  say(hash() === 'q2' && S().choices.outdoor === true, 'q1 → q2 (ZIP), outdoor=true');
+  say(footOff() === true, 'q2: Continue погашен, пока ZIP не введён');
+  await type('.fld input', '787');
+  say(footOff() === true, 'три цифры — рано');
+  await type('.fld input', '99999');
+  say(!!D().querySelector('.fld-err'), 'неизвестный ZIP: сказано прямо, что данных нет');
+  await type('.fld input', '78704');
+  say(footOff() === false && (D().querySelector('.acc')||{}).innerText?.includes('Austin'),
+      'известный ZIP: показан климат Austin, кнопка зажглась');
+  await tap('Continue');
+  say(hash() === 'q3', 'q2 → q3 (' + hash() + ')');
+  await tap('6–8 hours'); await tap('Continue');
+  say(hash() === 'q4' && S().choices.sunRank === 2, 'q3 → q4, sunRank=2');
+  say(footOff() === true, 'q4: Continue погашен без целей');
+  await tap('Salads and greens'); await tap('Continue');
+  say(hash() === 'q5' && S().choices.goals.length === 1, 'q4 → q5, одна цель');
+  say(D().querySelectorAll('.opt.sel').length === 0, 'q5: ничего не выбрано заранее (было: 20 минут)');
+  await tap('About 10 minutes'); await tap('Continue');
+  say(hash() === 'preview' && S().choices.effort === 3, 'q5 → preview, effort=3');
+
+  // ── 2. Ветка «уже есть»: библиотека без таб-бара и продолжение до конца
+  head('онбординг: уже есть растения');
+  await seed({}, 'q0');
+  await tap('I already have plants'); await tap('Continue');
+  say(hash() === 'add-plant', 'q0 → add-plant (' + hash() + ')');
+  say(!D().querySelector('.nav'), 'библиотека в онбординге БЕЗ таб-бара');
+  await tap('Add Monstera to your plants');
+  await tap('Add Pothos to your plants');
+  say(S().pending.length === 2, 'выбрано 2 вида (' + S().pending.length + ')');
+  await tap('Add 2 and continue');
+  say(hash() === 'q1', 'библиотека → q1, а не сразу на Home (' + hash() + ')');
+  say(S().choices.track === 'house', 'трек выведен из занесённого: house (' + S().choices.track + ')');
+  say(S().plants.length === 2 && S().onbMode === 'own', 'растения добавлены, режим онбординга жив');
+  await tap('Windowsill'); await tap('Continue');
+  say(hash() === 'q2i' && S().choices.outdoor === false, 'q1 → q2i (свет в комнате), outdoor=false');
+  await tap('East or West'); await tap('Continue');
+  say(hash() === 'save', 'q2i → save: ветка «уже есть» тоже требует регистрации (' + hash() + ')');
+  say((D().querySelector('.mob').innerText || '').includes('Save your plants'),
+      'на save текст про растения, а не про план');
+  say(S().choices.sunRank === 1 && !!S().choices.sun, 'свет записан (sunRank=' + S().choices.sunRank + ')');
+  say(!D().querySelector('.nav'), 'на регистрации таб-бара нет');
+
+  // ── 3. Библиотека на бесплатном лимите
+  head('лимит бесплатного плана');
+  await seed({plants: [{id:'radish',since:0,day:10,photos:[]},{id:'basil',since:0,day:10,photos:[]},
+                       {id:'kale',since:0,day:10,photos:[]}]}, 'add-plant');
+  const t0 = !!S().toast;
+  await tap('Add Cucumber to your plants');
+  say(!t0 && !!S().toast, 'тап по строке на лимите отвечает тостом, а не молчит');
+  say(S().pending.length === 0, 'в выбор не попало (лимит соблюдён)');
+
+  // ── 4. Мнимые чекбоксы
+  head('элементы, которые обещали отметку');
+  for (const h of ['shopping', 'indoor', 'week-back', 'week-lock']) {
+    await seed({plants: [{id:'radish',since:9,day:30,photos:[]},{id:'basil',since:4,day:34,photos:[]}]}, h);
+    say(D().querySelectorAll('.task[role=checkbox]').length === 0,
+        '#' + h + ': нет мнимых чекбоксов');
+  }
+  await seed({plants: [{id:'radish',since:9,day:30,photos:[]},{id:'basil',since:4,day:34,photos:[]}]}, 'home');
+  const boxes = D().querySelectorAll('.br-row[role=checkbox], .task[role=checkbox]').length;
+  const done0 = Object.keys(S().done).length;
+  await tap(D().querySelector('.wk-list .br-row') ? D().querySelector('.wk-list .br-row').innerText.split('\n')[0] : 'нет');
+  say(boxes > 0 && Object.keys(S().done).length === done0 + 1,
+      'на Home задачи недели отмечаются (' + boxes + ' строк)');
+
+  // ── 5. Состояние переживает перезагрузку (проверка, что стор не сломан правками)
+  head('сессия после перезагрузки');
+  const before = JSON.stringify(S().plants.map(p => [p.s.id, p.since]));
+  await load('home');
+  say(JSON.stringify(S().plants.map(p => [p.s.id, p.since])) === before, 'растения на месте');
+  say(Object.keys(S().done).length === done0 + 1, 'отметка задачи на месте');
+
+  document.getElementById('verdict').innerHTML = fails
+    ? `<span class="no">ПРОВАЛОВ: ${fails}</span>` : '<span class="ok">ВСЁ ПРОЙДЕНО</span>';
+  LOG.innerHTML = out.join('<br>');
+})().catch(e => {
+  document.getElementById('verdict').innerHTML =
+    '<span class="no">СБОЙ СТЕНДА: ' + e.message + '</span>';
+  LOG.innerHTML += '<br><span class="no">СБОЙ: ' + e.message + '</span>';
+});
+</script>

@@ -1,0 +1,90 @@
+<!doctype html>
+<meta charset=utf-8>
+<meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover">
+<style>
+ html,body{margin:0;background:#0d1512;color:#dfe8e2;font:11px/1.34 ui-monospace,Menlo,monospace}
+ #log{padding:6px 8px;white-space:pre-wrap}
+ .ok{color:#8ee06a} .no{color:#ff7a7a} .h{color:#8fc7ff}
+ #f{position:fixed;right:0;bottom:0;border:0;opacity:.02;pointer-events:none}
+</style>
+<div id=log>свип…</div>
+<iframe id=f></iframe>
+<script>
+// Что проверять. По умолчанию /web-app/react/ — собранный бандл ссылается на
+// ассеты по этому абсолютному пути, поэтому репозиторий обязан отдаваться как
+// /web-app (см. README рядом). ?app=<url> — любая другая сборка того же origin.
+const APP = new URLSearchParams(location.search).get('app') || '/web-app/react/index.html';
+const F = document.getElementById('f'), LOG = document.getElementById('log');
+const sleep = ms => new Promise(r => setTimeout(r, ms));
+const D = () => F.contentDocument, W = () => F.contentWindow;
+
+const ROUTES = ['landing','q0','qwhat','q1','q2','q3','q2i','q4','q5','preview','save','signin','email','code',
+  'home','add-plant','week-lock','week-empty','week-back','week-long','season-end',
+  'scan','plant','harvest','shopping','calendar','crop','paywall','week-done',
+  'settings','pick','indoor'];
+const SIZES = [[320,568],[360,640],[375,667],[390,844],[414,896],[430,932]];
+const P = (id, since, day, ph) => ({id, since, day, photos: ph || []});
+const base = st => Object.assign({v:1, plants:[], choices:{}, selected:0, isPro:false,
+  units:'imperial', remind:3, care:{pick:true,leaf:true,rotate:true,feed:true},
+  mail:{weekly:true,water:true,news:false}, done:{}, calView:'month', onbMode:null}, st);
+const STATES = {
+  'овощи': base({plants:[P('radish',0,27,[{f:'radish',day:24}]),P('lettuce',1,24,[{f:'leaves3',day:18}]),
+                        P('basil',3,34,[{f:'basil',day:21}]),P('cherrytomato',1,12)]}),
+  'комнатные': base({plants:[P('monstera',4,210,[{f:'leaves3',day:18}]),P('snakeplant',20,430),
+                             P('pothos',9,96),P('peacelily',2,64,[{f:'flowers',day:21}])],
+                     choices:{track:'house',space:'windowsill',outdoor:false,sun:'bright indirect light',sunRank:2,goals:[],effort:4,zip:'78704'}}),
+  'смешанные': base({plants:[P('monstera',4,210),P('pothos',9,96),P('basil',1,34),P('radish',0,27)],
+                     choices:{track:'both',space:'patio',outdoor:true,sun:'6–8 hours of sun',sunRank:2,goals:[],effort:4,zip:'10025'}}),
+  'пусто': base({}),
+  'pro': base({plants:[P('monstera',4,210),P('pothos',9,96),P('basil',1,34),P('radish',0,27)], isPro:true, units:'metric'}),
+};
+
+function reload(hash) {
+  return new Promise(res => { F.onload = () => setTimeout(res, 480); F.src = APP + '?t=' + Date.now() + '#' + hash; });
+}
+/** выход за границы вьюпорта: пропускаем то, что режет родитель с overflow */
+function measure() {
+  const d = D(), w = W().innerWidth, bad = [];
+  const clipped = e => { for (let p = e.parentElement; p; p = p.parentElement) {
+    const ox = W().getComputedStyle(p).overflowX;
+    if (ox === 'auto' || ox === 'scroll' || ox === 'hidden') return true; } return false; };
+  d.querySelectorAll('.mob *').forEach(e => {
+    const r = e.getBoundingClientRect();
+    if (!r.width && !r.height) return;
+    if ((r.right > w + 0.5 || r.left < -0.5) && !clipped(e))
+      bad.push((e.className || e.tagName) + '[' + Math.round(r.left) + '..' + Math.round(r.right) + ']');
+  });
+  const de = d.documentElement;
+  return {page: de.scrollWidth > de.clientWidth + 0.5,
+          empty: !d.querySelector('.mob') || !d.querySelector('.mob').children.length,
+          n: bad.length, first: bad.slice(0, 2).join(' ')};
+}
+
+(async () => {
+  let renders = 0; const viol = [], errs = [];
+  for (const [w, h] of SIZES) {
+    F.style.width = w + 'px'; F.style.height = h + 'px';
+    for (const [sname, st] of Object.entries(STATES)) {
+      localStorage.setItem('hg.state', JSON.stringify(st));
+      await reload('home');
+      W().addEventListener('error', ev => errs.push(sname + ' ' + ev.message));
+      const ce = W().console.error;
+      W().console.error = (...a) => { errs.push(sname + ' ' + a.join(' ').slice(0, 90)); ce(...a); };
+      for (const r of ROUTES) {
+        W().location.hash = r;
+        await sleep(70);
+        const m = measure(); renders++;
+        if (m.page || m.n || m.empty)
+          viol.push(`${w}x${h} ${sname} #${r}: page=${m.page} empty=${m.empty} n=${m.n} ${m.first}`);
+      }
+      LOG.innerHTML = `<span class=h>рендеров ${renders}/960 · выходов ${viol.length} · ошибок ${errs.length}</span>`;
+    }
+  }
+  LOG.innerHTML = `<span class=h>── свип: 32 экрана × 5 состояний × 6 ширин</span><br>`
+    + `рендеров: ${renders}<br>`
+    + `<span class="${viol.length ? 'no' : 'ok'}">выходов за экран: ${viol.length}</span><br>`
+    + viol.slice(0, 12).map(v => '  ' + v).join('<br>')
+    + `<br><span class="${errs.length ? 'no' : 'ok'}">ошибок консоли: ${errs.length}</span><br>`
+    + errs.slice(0, 8).map(v => '  ' + v).join('<br>');
+})().catch(e => { LOG.innerHTML += '<br><span class=no>СБОЙ: ' + e.message + '</span>'; });
+</script>

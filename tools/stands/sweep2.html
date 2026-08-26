@@ -29,6 +29,27 @@ const P1 = 'aaaaaaaa-1111-4111-8111-111111111111';
 const P2 = 'bbbbbbbb-2222-4111-8111-222222222222';
 const F1 = 'ffffffff-1111-4111-8111-111111111111';
 const CAM = 'data:image/gif;base64,R0lGODlhAQABAAAAACw=';
+/** Синтетическая сессия: настоящую без Google не получить, а без сессии экраны
+    приложения закрыты стеной. Токен не подписан ключом проекта — база отвечает
+    401, и это ровно то, что нужно: свип мерит вёрстку, а не данные. */
+const SESSION_KEY = 'sb-bslttprzsbigcfplpxff-auth-token';
+function putSession() {
+  const now = Math.floor(Date.now() / 1000), exp = now + 86400;
+  const b64 = o => btoa(JSON.stringify(o)).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'');
+  const uid = '77777777-7777-4777-8777-777777777777';
+  const iso = s => new Date(s * 1000).toISOString();
+  localStorage.setItem(SESSION_KEY, JSON.stringify({
+    access_token: [b64({alg:'HS256',typ:'JWT'}),
+                   b64({sub:uid, aud:'authenticated', role:'authenticated', exp,
+                        email:'sam@example.com'}), 'sig'].join('.'),
+    token_type: 'bearer', expires_in: 86400, expires_at: exp,
+    refresh_token: 'synthetic-refresh',
+    user: {id: uid, aud: 'authenticated', role: 'authenticated', email: 'sam@example.com',
+           email_confirmed_at: iso(now - 600), created_at: iso(now - 600), updated_at: iso(now),
+           app_metadata: {provider: 'google', providers: ['google']},
+           user_metadata: {}, identities: []},
+  }));
+}
 const base = st => Object.assign({v:1, plants:[], choices:{}, selected:0, isPro:false,
   units:'imperial', remind:3, care:{pick:true,leaf:true,rotate:true,feed:true},
   mail:{weekly:true,water:true,news:false}, done:{}, calView:'month', onbMode:null}, st);
@@ -87,6 +108,10 @@ const TOTAL = ROUTES.length * Object.keys(STATES).length * SIZES.length;
     F.style.width = w + 'px'; F.style.height = h + 'px';
     for (const [sname, st] of Object.entries(STATES)) {
       localStorage.setItem('hg.state', JSON.stringify(st));
+      // Сессия обязательна: приложение закрыто без входа, и без неё свип
+      // рендерил бы экран входа вместо 33 экранов — покрытие молча упало бы до
+      // одного экрана, а «0 выходов за экран» стало бы бессмысленным.
+      putSession();
       if (st.account) localStorage.setItem('hg.sync', JSON.stringify(SNAP));
       else localStorage.removeItem('hg.sync');
       // Причина прошлого провала входа живёт отдельным ключом и показывается

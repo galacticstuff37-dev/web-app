@@ -339,13 +339,18 @@ export function CalendarScreen({ go, openSpecies }:
   // справочник больше не сужается треком, поэтому isHousePool(pool) всегда лгал
   // бы «тут есть съедобное». У кого комнатные — календарь ухода, у кого
   // съедобные — календарь урожая, у кого и те и те — оба.
+  // Справочник стал полным — в pool теперь и комнатные. Календарю УРОЖАЯ они не
+  // нужны: «посеять монстеру» бессмыслица, а полка «No season» с глаголом Sow
+  // приняла бы их без разговоров. Поэтому здесь свой список: только съедобное, и
+  // только то, что вообще может расти в его месте.
+  const crops = pool.filter(sp => sp.kind === 'edible' && (ctx.outdoor || sp.sill))
   const houses = s.plants.filter(p => !isEdible(p))
   const edibles = s.plants.filter(isEdible)
   const harvest = !s.plants.length || !!edibles.length
   const view = s.calView
   const month = s.calMonth ?? nowMonth()
   const f = frostDates(ctx.zip)
-  const openNow = pool.filter(sp => entries(windows(sp, ctx)).some(r => live(r, NOW))).length
+  const openNow = crops.filter(sp => entries(windows(sp, ctx)).some(r => live(r, NOW))).length
 
   return (
     <Screen id="calendar" nav={{ active: 'Calendar', go }} scrollKey="calendar">
@@ -374,12 +379,12 @@ export function CalendarScreen({ go, openSpecies }:
 
           {view === 'month' ? (
             <>
-              <MonthPicker pool={pool} ctx={ctx} month={month}
+              <MonthPicker pool={crops} ctx={ctx} month={month}
                            pick={m => d({ t: 'calMonth', v: m })} />
-              <Feed pool={pool} ctx={ctx} month={month} open={openSpecies} />
+              <Feed pool={crops} ctx={ctx} month={month} open={openSpecies} />
             </>
           ) : (
-            <Seasons pool={pool} ctx={ctx} open={openSpecies} />
+            <Seasons pool={crops} ctx={ctx} open={openSpecies} />
           )}
 
           <p className="hint">

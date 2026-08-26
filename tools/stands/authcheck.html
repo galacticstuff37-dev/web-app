@@ -44,7 +44,15 @@ function seed(st, hash, greet) {
   const base = {v:1, plants:[], choices:{}, selected:0, isPro:false, units:'imperial', remind:3,
     care:{pick:true,leaf:true,rotate:true,feed:true}, mail:{weekly:true,water:true,news:false},
     done:{}, calView:'month', onbMode:null, account:null};
-  localStorage.setItem('hg.state', JSON.stringify(Object.assign(base, st)));
+  const blob = Object.assign(base, st);
+  localStorage.setItem('hg.state', JSON.stringify(blob));
+  // Аккаунт в состоянии ПОДРАЗУМЕВАЕТ живую сессию: без неё приложение теперь
+  // закрыто, и раздел, который проверяет экран настроек или аккаунта, упирался
+  // бы в стену вместо проверяемого экрана. Раздел, которому нужна именно мёртвая
+  // или отсутствующая сессия, говорит это явным putSession(-60) перед seed().
+  if (!wantSession && blob.account && !blob.account.demo) putSession(86400);
+  if (!wantSession) localStorage.removeItem(SESSION_KEY);
+  wantSession = false;
   try {
     if (greet) sessionStorage.removeItem('hg.greeted');
     else sessionStorage.setItem('hg.greeted', '1');
@@ -100,7 +108,18 @@ function sessionBlob(secondsLeft) {
            user_metadata: {}, identities: []},
   };
 }
-const putSession = s => localStorage.setItem(SESSION_KEY, JSON.stringify(sessionBlob(s)));
+/**
+ * Сессия — состояние ОРIGIN, а не страницы, и она переживает переход между
+ * стендами: tapcheck кладёт свою синтетическую сессию, а authcheck идёт следом в
+ * том же Safari и видит вошедшего там, где проверяет анонима. Поэтому seed()
+ * ниже стирает сессию по умолчанию, а раздел, которому она нужна, просит её
+ * явным putSession() перед seed().
+ */
+let wantSession = false;
+const putSession = s => {
+  wantSession = true;
+  localStorage.setItem(SESSION_KEY, JSON.stringify(sessionBlob(s)));
+};
 /**
  * Стереть следы предыдущего раздела: причину прошлого провала И метку нарочного
  * выхода. Метка живёт в localStorage (иначе соседняя вкладка врёт человеку про
@@ -136,8 +155,8 @@ const footOff = () => { const b = D().querySelector('.foot .btn'); return b ? b.
   await tap('Sign in');
   say(hash() === 'signin', 'лендинг → signin (' + hash() + ')');
   const btns = [...D().querySelectorAll('.btn')].map(b => b.innerText.replace(/\s+/g,' ').trim());
-  say(btns.some(b => b.includes('Google')) && btns.some(b => b.includes('email')),
-      'два рабочих способа: ' + btns.slice(0,2).join(' / '));
+  say(btns.some(b => b.includes('Google')) && !btns.some(b => b.includes('email')),
+      'одна рабочая дверь — Google: ' + btns.slice(0, 2).join(' / '));
   const logo = D().querySelector('.prov img');
   if (logo && !logo.complete) { try { await logo.decode() } catch (e) {} }
   await sleep(250);
@@ -173,67 +192,24 @@ const footOff = () => { const b = D().querySelector('.foot .btn'); return b ? b.
   say(!S().account, 'аккаунт не заводится сам собой');
 
   // ── 3. Почта: валидация
-  head('почта и код');
+  head('почта — закрыта, пока демонстрационная');
   await seed({}, 'signin');
-  await tap('Continue with email');
-  say(hash() === 'email', 'signin → email (' + hash() + ')');
-  say(footOff() === true, 'кнопка погашена на пустом поле');
-  const inp = D().querySelector('.fld input');
-  say(inp && inp.type === 'email' && inp.getAttribute('autocomplete') === 'email'
-      && inp.inputMode === 'email', 'поле: type=email, autocomplete=email, inputmode=email');
-  say(inp && parseFloat(W().getComputedStyle(inp).fontSize) >= 16,
-      'шрифт поля ≥16px (iOS не зумит): ' + (inp ? W().getComputedStyle(inp).fontSize : '—'));
-  await type('.fld input', 'yakov@');
-  say(footOff() === true, 'на «yakov@» кнопка всё ещё погашена');
-  await type('.fld input', 'yakov@vortexgames.com');
-  say(footOff() === false, 'на валидном адресе кнопка зажглась');
-  await tap('Send me a code');
-  say(hash() === 'code', 'email → code (' + hash() + ')');
-  say((D().querySelector('.mob').innerText || '').includes('yakov@vortexgames.com'),
-      'экран кода показывает введённый адрес');
+  const doors = [...D().querySelectorAll('.btn')].map(x => x.innerText.replace(/\s+/g,' ').trim());
+  say(!doors.some(x => /email/i.test(x)), 'кнопки «Continue with email» нет: '
+      + doors.slice(0, 2).join(' / '));
+  say((D().querySelector('.prov-note') || {}).innerText?.includes('email'),
+      'вместо неё подпись, почему её нет');
+  // Дверь закрыта именно потому, что вход по почте демонстрационный: он выдаёт
+  // аккаунт БЕЗ серверной сессии, а без сессии приложение теперь не открывается.
+  // Экраны никуда не удалены — они за флагом EMAIL_READY.
+  await seed({}, 'email');
+  say(!S().account, 'прямая ссылка на экран почты аккаунта не выдаёт');
 
-  // ── 4. Код: клетки, таймер, ошибка, вход
-  const cells = D().querySelectorAll('.otp-cells i').length;
-  say(cells === 6, 'шесть клеток (' + cells + ')');
-  const ci = D().querySelector('.otp input');
-  say(ci && ci.getAttribute('autocomplete') === 'one-time-code' && ci.inputMode === 'numeric',
-      'поле кода: autocomplete=one-time-code, inputmode=numeric');
-  say(((D().querySelector('.otp-again') || {}).innerText || '').includes('Ask for a new code in'),
-      'обратный отсчёт идёт в формате mm:ss');
-  say(/\d\d:\d\d/.test((D().querySelector('.otp-again') || {}).innerText || ''),
-      'время показано как 00:59, а не «59s»');
-  say([...D().querySelectorAll('.btn')].some(b => b.innerText.includes('Use another email')),
-      'смена адреса — кнопка во всю ширину, как в референсе');
-  say(parseFloat(W().getComputedStyle(D().querySelector('.otp')).height) >= 72,
-      'клетки крупные: ' + W().getComputedStyle(D().querySelector('.otp')).height);
-  say(footOff() === true, 'кнопка погашена без кода');
-  await type('.otp input', '12345');
-  say(footOff() === true, 'пять цифр — кнопка погашена');
-  await type('.otp input', 'ab12cd3');
-  const ci2 = D().querySelector('.otp input');
-  say(!!ci2 && ci2.value === '123',
-      'буквы отброшены, остались цифры (' + (ci2 ? '«' + ci2.value + '»' : 'экран ' + hash()) + ')');
-  await type('.otp input', '000000');
-  say(!!D().querySelector('.fld-err') && !S().account,
-      'шесть цифр отправляют сами; 000000 — видимая ошибка, входа нет');
-  say((D().querySelector('.otp input') || {}).value === '', 'после ошибки поле очищено');
-  await type('.otp input', '481502');
-  say(!!S().account && S().account.email === 'yakov@vortexgames.com' && S().account.via === 'email',
-      'вход по коду без нажатия кнопки: аккаунт с введённой почтой');
-  say(hash() === 'home', 'вход с возврата → home (' + hash() + ')');
-
-  // ── 5. Онбординг: тот же вход, но дальше в пейволл. Проверяем почтой:
-  //     Google уводит браузер на accounts.google.com и стенд бы оборвался.
   head('вход из онбординга');
   await seed({}, 'save');
-  say(!!el('Continue with Google') && !!el('Continue with email'),
-      'на Save те же способы входа');
-  await tap('Continue with email');
-  await type('.fld input', 'sam@example.com');
-  await tap('Send me a code');
-  await type('.otp input', '481502');
-  say(hash() === 'paywall', 'из онбординга → paywall (' + hash() + ')');
-  say(!!S().account && S().account.email === 'sam@example.com', 'аккаунт с введённой почтой');
+  say(!!el('Continue with Google'), 'на Save есть Google');
+  say(!el('Continue with email'), 'демонстрационной двери на Save нет');
+  say(!S().account, 'и аккаунт сам собой не появляется');
 
   // ── 5b. Онбординг НЕ выпускает в приложение без аккаунта. Ровно так и
   //     пришла жалоба «прошёл онборд, а в настройках висит Sign in»: с preview
@@ -288,9 +264,14 @@ const footOff = () => { const b = D().querySelector('.foot .btn'); return b ? b.
   say(!!el('Sign out') && !!el('Delete account'), 'выход и удаление живут здесь');
   await tap('Sign out');
   say(!S().account, 'выход очистил аккаунт');
-  say(hash() === 'home', 'после выхода → home (' + hash() + ')');
+  // Раньше выход вёл на home. Теперь home без сессии закрыт, и стена уводит на
+  // вход — это и есть правильный конец выхода при закрытом приложении.
+  say(hash() === 'signin', 'после выхода → вход (' + hash() + ')');
+  // Состояния «настройки с кнопкой Sign in» больше НЕТ: без живой сессии
+  // приложение закрыто целиком, и настройки в том числе. Проверяем то, что стало
+  // правдой — стену.
   await seed({plants: [{id:'basil',since:1,day:20,photos:[]}]}, 'settings');
-  say(!!el('Sign in') && !D().querySelector('.acct'), 'без входа в настройках кнопка Sign in');
+  say(hash() === 'signin', 'настройки без входа закрыты (' + hash() + ')');
 
   // ── 6b. Экрана входа для вошедшего не существует
   head('вошедшему не предлагают войти');
@@ -318,7 +299,9 @@ const footOff = () => { const b = D().querySelector('.foot .btn'); return b ? b.
 
   // ── 7. Аккаунт переживает перезагрузку, Delete account его уносит
   head('аккаунт и перезагрузка');
-  await seed({account: {email: 'sam@example.com', via: 'google', demo: true},
+  // Аккаунт НЕ демонстрационный: демо-вход не даёт сессии, а без сессии экран
+  // аккаунта закрыт стеной — раздел проверял бы стену вместо диалога удаления.
+  await seed({account: {email: 'sam@example.com', via: 'google'},
               plants: [{id:'basil',since:1,day:20,photos:[]}]}, 'home');
   await load('home');
   say(!!S().account && S().account.email === 'sam@example.com', 'аккаунт на месте после перезагрузки');
@@ -341,6 +324,10 @@ const footOff = () => { const b = D().querySelector('.foot .btn'); return b ? b.
   // ── 7b. Живая сессия. Раньше сюда было не дотянуться вовсе, и именно здесь
   //     жили две жалобы: «после входа всегда подписка» и «вход не починился».
   head('живая сессия');
+  // Пауза не для красоты: предыдущий раздел кончается Delete account, а тот не
+  // ждёт уборку в облаке — его signOut доезжает асинхронно и сносит сессию,
+  // которую этот раздел только что положил.
+  await sleep(1500);
   putSession(86400);
   // Мина от брошенной попытки: человек ушёл на Google с экрана save и вернулся
   // кнопкой «назад». В hg.authNext осталось слово paywall — и раньше оно
@@ -375,25 +362,32 @@ const footOff = () => { const b = D().querySelector('.foot .btn'); return b ? b.
 
   // ── 7d. Сессия умерла сама. Молчать тут нельзя: человек входил, а потом
   //     видит «Sign in» — и делает единственный доступный ему вывод.
-  head('непрошеный выход объясняется');
+  head('непрошеый выход объясняется');
   putSession(-60);
   clearErr();
   clearOut();
   await seed({account: {email: 'sam@example.com', via: 'google'}}, 'settings');
-  // библиотека просит новый токен, получает отказ и сносит сессию
-  await waitFor(() => !S().account, 6000);
-  await sleep(200);             // дать перерисоваться ноте
-  say(!S().account, 'умершая сессия гасит аккаунт');
+  // библиотека просит новый токен, получает отказ и сносит сессию, а стена в App
+  // уводит на экран входа: без живой сессии приложение недоступно
+  await waitFor(() => S().session === 'none' && hash() === 'signin', 8000);
+  await sleep(300);
+  say(S().session === 'none', 'умершая сессия гасит доступ');
+  say(hash() === 'signin', 'стена уводит на вход (' + hash() + ')');
+  say(!!S().account, 'но аккаунт помнится: забыть его может только Sign out');
   const ae = JSON.parse(localStorage.getItem('hg.authErr') || 'null');
   say(!!ae && ae.kind === 'expired', 'причина записана видом «expired»: '
       + (ae ? JSON.stringify(ae.kind) : '—'));
   const nt = D().querySelector('.note');
   say(!!nt && nt.innerText.includes('You were signed out'),
-      'настройки объясняют, почему опять «Sign in»');
+      'экран входа объясняет, почему человек тут оказался');
   await sleep(600);             // пусть умирающий документ дорассылает своё
   // Синтетическую сессию убираем: следующий раздел проверяет, что БЕЗ сессии
   // синхронизация не делает ничего, и живая сессия сломала бы ему смысл.
   localStorage.removeItem(SESSION_KEY);
+
+  // ── Стена и льгота офлайна проверяются отдельным стендом gatecheck.html:
+  //     здесь они роняли вкладку Safari целиком, унося с собой все 80+ проверок.
+  //     Рискованные проверки должны жить в своей странице, а не в общей.
 
   // ── 8. Синхронизация с базой
   head('синхронизация');

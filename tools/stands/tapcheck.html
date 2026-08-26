@@ -28,11 +28,40 @@ function say(ok, msg) {
 }
 function head(t) { out.push(`<span class="h">── ${t}</span>`); LOG.innerHTML = out.join('<br>'); }
 
+/**
+ * Синтетическая сессия Supabase. Понадобилась, когда приложение закрыли без
+ * входа: экраны приложения (Home, задачи недели) стали недоступны анониму, и
+ * стенд, у которого сессии не было, честно упирался в стену вместо Home.
+ * Настоящую сессию без Google не получить, поэтому кладём в localStorage свою.
+ * Токен не подписан ключом проекта — PostgREST отвечает на него 401, и это ровно
+ * то, что нужно: проверяем экраны, а не базу.
+ * Онбординг сессии не требует и от неё не зависит.
+ */
+const SESSION_KEY = 'sb-bslttprzsbigcfplpxff-auth-token';
+function putSession() {
+  const now = Math.floor(Date.now() / 1000), exp = now + 86400;
+  const b64 = o => btoa(JSON.stringify(o)).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'');
+  const uid = '77777777-7777-4777-8777-777777777777';
+  const iso = s => new Date(s * 1000).toISOString();
+  localStorage.setItem(SESSION_KEY, JSON.stringify({
+    access_token: [b64({alg:'HS256',typ:'JWT'}),
+                   b64({sub:uid, aud:'authenticated', role:'authenticated', exp,
+                        email:'sam@example.com'}), 'sig'].join('.'),
+    token_type: 'bearer', expires_in: 86400, expires_at: exp,
+    refresh_token: 'synthetic-refresh',
+    user: {id: uid, aud: 'authenticated', role: 'authenticated', email: 'sam@example.com',
+           email_confirmed_at: iso(now - 600), created_at: iso(now - 600), updated_at: iso(now),
+           app_metadata: {provider: 'google', providers: ['google']},
+           user_metadata: {}, identities: []},
+  }));
+}
 function seed(st, hash) {
   const base = {v:1, plants:[], choices:{}, selected:0, isPro:false, units:'imperial', remind:3,
     care:{pick:true,leaf:true,rotate:true,feed:true}, mail:{weekly:true,water:true,news:false},
-    done:{}, calView:'month', onbMode:null};
+    done:{}, calView:'month', onbMode:null,
+    account: {email: 'sam@example.com', via: 'google'}};
   localStorage.setItem('hg.state', JSON.stringify(Object.assign(base, st)));
+  putSession();
   return load(hash);
 }
 function load(hash) {
@@ -163,6 +192,9 @@ const footOff = () => {
   say(JSON.stringify(S().plants.map(p => [p.s.id, p.since])) === before, 'растения на месте');
   say(Object.keys(S().done).length === done0 + 1, 'отметка задачи на месте');
 
+  // Синтетическую сессию убираем за собой: она переживает переход на другой
+  // стенд, и authcheck, который проверяет анонима, увидел бы вошедшего.
+  localStorage.removeItem(SESSION_KEY);
   document.getElementById('verdict').innerHTML = fails
     ? `<span class="no">ПРОВАЛОВ: ${fails}</span>` : '<span class="ok">ВСЁ ПРОЙДЕНО</span>';
   LOG.innerHTML = out.join('<br>');

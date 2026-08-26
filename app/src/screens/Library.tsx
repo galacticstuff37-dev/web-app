@@ -62,10 +62,13 @@ export function AddPlantScreen({ go }: { go: Go }) {
       || (x.latin || '').toLowerCase().indexOf(q) > -1
       || x.tags.some(t => t.indexOf(q) > -1)
     const hit = pool.filter(match)
-    const lit = hit.filter(x => fitsLight(x, s.choices.sunRank))
-    const dim = hit.filter(x => !fitsLight(x, s.choices.sunRank))
-    const house = lit.filter(x => x.kind === 'house')
-    const edible = lit.filter(x => x.kind === 'edible')
+    // Вид, которому не хватает света, БОЛЬШЕ НЕ ГАСИТСЯ и не уезжает в отдельный
+    // ящик «Needs more light than you have». Тап по нему работал и раньше, но
+    // 50% прозрачности плюс отдельная секция внизу читались как «нельзя» — и
+    // человек в онбординге видел половину справочника недоступной. Свет остаётся
+    // фактом в подписи строки: это информация, а не запрет. Решает человек.
+    const house = hit.filter(x => x.kind === 'house')
+    const edible = hit.filter(x => x.kind === 'edible')
     // Оба вида доступны ВСЕГДА. Трек решает, что человек увидит первым, и
     // только это: выбор на первом экране онбординга не должен навсегда лишать
     // половины справочника. Внутри своего вида сохраняется прежнее деление —
@@ -84,7 +87,6 @@ export function AddPlantScreen({ go }: { go: Go }) {
     const out: Array<[string, Species[], boolean]> = houseFirst
       ? [...houseGroups, ...edibleGroups]
       : [...edibleGroups, ['Houseplants', house, false]]
-    if (dim.length) out.push(['Needs more light than you have', dim, true])
     return { out: out.filter(g => g[1].length), empty: !hit.length }
   }, [pool, q, own, s.choices.track, s.choices.outdoor, s.choices.sunRank])
 

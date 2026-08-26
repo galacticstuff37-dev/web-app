@@ -42,6 +42,20 @@ export function supa(): Promise<SupabaseClient> {
 // и, например, получить ссылку входа без настоящего перехода на Google.
 ;(window as unknown as { __supa?: typeof supa }).__supa = supa
 
+/**
+ * Лежит ли в браузере сохранённая сессия. Нужен синхронный ответ ДО загрузки
+ * клиента Supabase: стена не должна гасить приложение, пока клиент отвечает, но
+ * и ждать его вечно нельзя. Раньше признаком служило «нет аккаунта в состоянии»,
+ * и это была догадка: состояние могло быть чистым (стёрли данные сайта, новое
+ * устройство, стенд) при живой сессии в localStorage — человека вышибало на
+ * экран входа за миг до того, как клиент сказал «сессия есть».
+ * Ключ формирует сам supabase-js: sb-<ref>-auth-token.
+ */
+const SESSION_KEY = 'sb-' + SUPABASE_URL.split('//')[1].split('.')[0] + '-auth-token'
+export function hasStoredSession(): boolean {
+  try { return !!localStorage.getItem(SESSION_KEY) } catch { return false }
+}
+
 /** Куда Google возвращает человека. Работает и на Pages, и на localhost. */
 export const authRedirect = () => location.origin + import.meta.env.BASE_URL
 

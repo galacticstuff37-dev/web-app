@@ -83,6 +83,15 @@ export interface State {
   query: string
   /** null — не входил. Живёт между сессиями вместе с остальным состоянием. */
   account: Account | null
+  /**
+   * Живая ли сессия НА СЕРВЕРЕ. Это не то же самое, что account: аккаунт лежит
+   * в localStorage и переживает смерть сессии, а доступ к приложению даёт только
+   * сессия. 'unknown' — клиент Supabase ещё не ответил: он грузится отдельным
+   * чанком, и до его ответа гасить приложение нельзя, иначе вошедший человек
+   * увидит стену на полсекунды при каждом запуске. В localStorage НЕ пишется:
+   * это факт текущего запуска, а не состояние сада.
+   */
+  session: 'unknown' | 'live' | 'none'
   /** откуда пришли во вход: из онбординга — дальше в пейволл, с возврата — на Home */
   authFrom: string
   /** введённый адрес: экран кода показывает его и подписывает им аккаунт */
@@ -143,6 +152,7 @@ export const INIT: State = {
   toast: null,
   query: '',
   account: null,
+  session: 'unknown',
   authFrom: 'save',
   authEmail: '',
 }
@@ -209,6 +219,7 @@ export type Action =
   | { t: 'addPhoto'; v: { i: number; url: string } }
   | { t: 'signIn'; v: Account }
   | { t: 'signOut' }
+  | { t: 'session'; v: State['session'] }
   | { t: 'authFrom'; v: string }
   | { t: 'authEmail'; v: string }
   | { t: 'enterCalendar' }
@@ -300,10 +311,11 @@ function reducer(s: State, a: Action): State {
     case 'query': return { ...s, query: a.v }
     case 'addPhoto': return { ...s, plants: s.plants.map((p, i) =>
       i === a.v.i ? { ...p, photos: [{ id: uid(), u: a.v.url, day: p.day }, ...p.photos] } : p) }
+    case 'session': return s.session === a.v ? s : { ...s, session: a.v }
     case 'signIn': return { ...s, account: a.v, authEmail: a.v.email }
     // Выход не трогает растения: это выход из аккаунта, а не удаление данных —
     // для удаления есть отдельная строка в настройках.
-    case 'signOut': return { ...s, account: null }
+    case 'signOut': return { ...s, account: null, session: 'none' }
     case 'authFrom': return { ...s, authFrom: a.v }
     case 'authEmail': return { ...s, authEmail: a.v }
     // Вход на календарь всегда про «сейчас»: пролистанный месяц и раскрытая
@@ -350,10 +362,11 @@ export function StoreProvider({ children, initial }:
     // трек один раз на первом экране и лишился половины приложения навсегда.
     // Трек теперь решает только ПОРЯДОК показа (см. Library.tsx), а не то, что
     // вообще можно иметь: растения человека — его список, а не следствие плана.
-    // Единственный оставшийся отбор внутри speciesPool физический, а не
-    // вкусовой: съедобное, которое не живёт на подоконнике, не предлагается
-    // тому, у кого нет улицы.
-    const p: Pool = { track: 'both', outdoor: s.choices.outdoor }
+    // И место тоже больше не отбирает. Правило «съедобное, которое не живёт на
+    // подоконнике, не предлагаем тому, у кого нет улицы» прятало из поиска
+    // помидоры у всех, кто выбрал комнатное место — а человек их искал. Теперь
+    // справочник полный, а место и свет остаются подписью в строке.
+    const p: Pool = { track: 'both', outdoor: true }
     return { s, d, ctx, pool: speciesPool(p) }
   }, [s])
   // Пишем только когда меняется сохраняемое. Ссылки на слайсы стабильны, так

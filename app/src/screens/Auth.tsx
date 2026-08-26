@@ -41,6 +41,20 @@ const APPLE_MARK = 'M859 248C907 190 941 111 941 31C941 20 940 9 938 0C860 3 766
  */
 const APPLE_READY = false
 
+/**
+ * Почта выключена по той же причине, по которой выключен Apple, и это следствие
+ * правила «без входа приложение недоступно». Вход по почте здесь
+ * демонстрационный: письма никто не отправляет, кода на сервере нет, и аккаунт
+ * он выдаёт БЕЗ серверной сессии. Пока приложение открывалось и анонимно, такая
+ * дверь была честной демонстрацией экранов. Теперь она вела бы человека прямо в
+ * стену: он «вошёл», а приложение его не пускает. Мёртвая дверь хуже её
+ * отсутствия — та же логика, что у APPLE_READY.
+ *
+ * Экраны email и code никуда не удалены и остаются в маршрутах: появится свой
+ * SMTP — флаг в true, и ветка снова живая.
+ */
+const EMAIL_READY = false
+
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[a-z]{2,}$/i
 /** Код, которым в прототипе можно посмотреть состояние ошибки. */
 const BAD_CODE = '000000'
@@ -142,6 +156,7 @@ export function useAuthSession(go: Go) {
       if (!alive) return
       sb.auth.getSession().then(({ data }) => {
         if (!alive) return
+        d({ t: 'session', v: data.session ? 'live' : 'none' })
         if (data.session) {
           clearAuthError()
           d({ t: 'signIn', v: accountOf(data.session.user) })
@@ -172,15 +187,29 @@ export function useAuthSession(go: Go) {
           + '. Nothing was saved; try again.</span>', ms: 7000, at: Date.now() } })
       })
       const { data: sub } = sb.auth.onAuthStateChange((event, session) => {
-        if (session) { clearAuthError(); d({ t: 'signIn', v: accountOf(session.user) }); return }
+        if (session) {
+          clearAuthError()
+          d({ t: 'session', v: 'live' })
+          d({ t: 'signIn', v: accountOf(session.user) })
+          return
+        }
         if (event !== 'SIGNED_OUT') return
-        d({ t: 'signOut' })
+        // Умершая сессия гасит ДОСТУП, но не память о том, кто вошёл. Это две
+        // разные вещи, и раньше они были склеены: account очищался вместе с
+        // сессией. Из-за склейки льгота офлайна оставалась без опоры — библиотека
+        // сносит сессию и когда токен не обновить из-за отсутствия связи, и
+        // человек в саду без сети упирался бы в стену перед собственным списком
+        // полива. Теперь доступ решает стена в App (живая сессия ЛИБО офлайн при
+        // known аккаунте), а забыть аккаунт может только сам человек кнопкой
+        // Sign out — там dispatch signOut стоит явно.
+        d({ t: 'session', v: 'none' })
         // Сессия умерла сама: access-токен живёт час, и если обновить его не
         // удалось (нет сети, либо refresh-токен уже забрало другое устройство),
         // библиотека сносит сессию — а приложение молча гасило аккаунт. Человек
         // видел ровно то, на что и жаловался: он входил, а потом в настройках
         // опять «Sign in», и ни слова о том, что случилось.
         if (wasOnPurpose()) return
+        if ('onLine' in navigator && !navigator.onLine) return   // офлайн объясняется сам
         const why = 'the session expired and could not be renewed'
         console.error('[auth] непрошеный выход:', why)
         setAuthError(why, 'expired')
@@ -247,14 +276,20 @@ export function Providers({ go, from }: { go: Go; from: string }) {
           <span>Continue with Apple</span>
         </div>
       )}
-      <div className="btn b-ghost" role="button" tabIndex={0}
-           onClick={() => { d({ t: 'authFrom', v: from }); go('email') }}
-           onKeyDown={e => {
-             if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); d({ t: 'authFrom', v: from }); go('email') }
-           }}>Continue with email</div>
-      {!APPLE_READY && (
-        <div className="prov-note">Apple sign-in comes next — it needs its own
-          developer keys.</div>
+      {EMAIL_READY && (
+        <div className="btn b-ghost" role="button" tabIndex={0}
+             onClick={() => { d({ t: 'authFrom', v: from }); go('email') }}
+             onKeyDown={e => {
+               if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); d({ t: 'authFrom', v: from }); go('email') }
+             }}>Continue with email</div>
+      )}
+      {(!APPLE_READY || !EMAIL_READY) && (
+        <div className="prov-note">
+          {!EMAIL_READY && !APPLE_READY
+            ? 'Apple and email sign-in come next — both need keys of their own.'
+            : !EMAIL_READY ? 'Email sign-in comes next — it needs its own mail server.'
+            : 'Apple sign-in comes next — it needs its own developer keys.'}
+        </div>
       )}
     </>
   )

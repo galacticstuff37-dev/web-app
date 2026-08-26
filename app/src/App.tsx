@@ -3,7 +3,7 @@
 
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { useAuthSession } from './screens/Auth'
-import { supa } from './lib/supabase'
+import { hasStoredSession, supa } from './lib/supabase'
 import { lastReport, runSync, type SyncReport } from './lib/sync'
 import { Toast } from './components/parts'
 import { Welcome } from './components/Welcome'
@@ -94,6 +94,21 @@ declare global {
 /** Приветствие показано в этом визите. Визит = вкладка, отсюда sessionStorage. */
 const GREET_KEY = 'hg.greeted'
 
+/**
+ * Есть ли сеть. Нужна не для красоты: без сети сессию не обновить, и человек с
+ * умершим токеном оказался бы отрезан от собственного сада — а это приложение
+ * про полив на балконе, где связи может не быть вовсе.
+ */
+function useOnline(): boolean {
+  const [on, setOn] = useState(() => !('onLine' in navigator) || navigator.onLine)
+  useEffect(() => {
+    const up = () => setOn(true), down = () => setOn(false)
+    addEventListener('online', up); addEventListener('offline', down)
+    return () => { removeEventListener('online', up); removeEventListener('offline', down) }
+  }, [])
+  return on
+}
+
 export function App() {
   const [hash, go] = useHash()
   const { s, d } = useStore()
@@ -133,6 +148,45 @@ export function App() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id])
 
+  // ── Стена. Без живой сессии приложение недоступно: решение владельца продукта.
+  //
+  // Стена стоит ПОСЛЕ превью плана. Онбординг — вопросы, план, превью — открыт
+  // и без аккаунта: человек сначала видит, за чем регистрируется. Дальше экран
+  // Save, и в приложение он не пускает.
+  //
+  // Две защиты от ложного срабатывания:
+  // 1. session === 'unknown' — клиент Supabase грузится отдельным чанком и ещё
+  //    не ответил. Гасить приложение в этот момент нельзя: вошедший человек
+  //    видел бы стену на полсекунды при каждом запуске. Но если аккаунта нет в
+  //    localStorage вовсе, ответа ждать нечего — сессии заведомо нет.
+  // 2. Льгота офлайна: сети нет, а вход когда-то был — приложение работает от
+  //    телефона. Демо-аккаунт (вход по почте) льготы не даёт: за ним никогда не
+  //    стояло сессии, и выдавать по нему доступ значило бы обходить стену.
+  const online = useOnline()
+  const known = s.session !== 'unknown' || !hasStoredSession()
+  const offlineGrace = !online && !!s.account && !s.account.demo
+  const access = s.session === 'live' || offlineGrace
+  // Онбординг — это не только группа «Онбординг» в карте маршрутов. Библиотека
+  // и сканер лежат в группе Home, но обе ветки онбординга ходят через них:
+  // «уже есть растения» с q0 и «I’ll pick my own» с preview. Без этой поправки
+  // стена рубила онбординг на первом же шаге ветки «уже есть».
+  const onboarding = ROUTE(id)?.group === 'Онбординг'
+    || (s.onbMode !== null && (id === 'add-plant' || id === 'scan'))
+  const walled = known && !access && !onboarding && hash !== 'review'
+  // Цель одна — экран входа, и это не упрощение. Ветка «посреди онбординга →
+  // Save» проигрывала гонку: эффект «home завершает онбординг» гасит onbMode
+  // раньше, чем стена успевает его прочитать, и ветка всё равно уводила на
+  // signin. А главное, она и не нужна: на signin есть оба способа входа и
+  // ссылка «New here? Start free» назад в онбординг, так что тупика нет.
+  // Идущий по флоу человек попадает на Save сам, кнопкой, а не стеной.
+  useEffect(() => { if (walled) go('signin') }, [walled, go])
+
+  // Режим льготы виден в разметке: настройки объясняют, почему приложение
+  // работает без сессии, и что синхронизация ждёт сети.
+  useEffect(() => {
+    document.body.classList.toggle('is-offline', offlineGrace)
+  }, [offlineGrace])
+
   // Экрана входа для вошедшего не существует. «Welcome back + Continue with
   // Google» человеку с живой сессией — это предложение сделать то, что уже
   // сделано; он попадал сюда потому, что уводило отсюда только сохранённое
@@ -143,9 +197,15 @@ export function App() {
   // аккаунт появляется в состоянии РАНЬШЕ, чем меняется хеш (dispatch немедленно,
   // hashchange — следующим тиком), и эффект успевал перебить go('paywall') на
   // home. Онбординг из-за этого не доводил до пейволла.
+  // Условие «вошедшему не показываем экран входа» требует ЖИВОЙ сессии, а не
+  // просто памяти об аккаунте. Иначе оно воевало со стеной: у человека с
+  // запомненным аккаунтом и умершей сессией стена уводила с home на signin, а
+  // этот эффект тут же возвращал на home — сотни переходов в секунду, вкладка
+  // Safari падала целиком. Аккаунт теперь помнится и после смерти сессии
+  // (иначе не на что опереть льготу офлайна), поэтому проверять надо сессию.
   useEffect(() => {
-    if (s.account && id === 'signin') go('home')
-  }, [id, s.account, go])
+    if (s.account && s.session === 'live' && id === 'signin') go('home')
+  }, [id, s.account, s.session, go])
 
   // Приветствие: один раз за визит. Визит — это вкладка, поэтому флаг в
   // sessionStorage, а не в состоянии: переходы внутри приложения и перерисовки

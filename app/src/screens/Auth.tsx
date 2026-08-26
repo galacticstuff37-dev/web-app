@@ -107,7 +107,8 @@ function WhyNote({ err, mt }: { err: AuthErr; mt: number }) {
       <b>{err.kind === 'expired' ? 'You were signed out' : 'The last sign-in did not finish'}</b>
       <p>{h.say}. {h.tail}</p>
       {h.raw && (
-        <p style={{ fontSize: 'var(--t-12)', color: 'var(--muted)', marginTop: 6 }}>
+        <p style={{ fontSize: 'var(--t-12)', color: 'var(--muted)',
+                    marginTop: 'var(--sp-8)' }}>
           {h.raw}
         </p>
       )}

@@ -283,8 +283,15 @@ function reducer(s: State, a: Action): State {
     }
     // План — предложение. Раньше он строился, показывался и молча выбрасывался:
     // после save→paywall на Home лежал демо-набор, а не то, что человек видел.
-    case 'applyPlan': return { ...s, onbMode: null,
-      plants: a.v.slice(0, a.room).map(sp => mkPlant(sp.id, 0, 0, [])) }
+    // План ДОБАВЛЯЕТ растения, а не становится ими: сад — список человека, а не
+    // содержимое плана. В онбординге список и так пуст, но за его пределами
+    // (повторный проход, план поверх уже занесённого) подмена стирала бы чужое.
+    case 'applyPlan': {
+      const have = new Set(s.plants.map(p => p.s.id))
+      const add = a.v.slice(0, a.room).filter(sp => !have.has(sp.id))
+      return { ...s, onbMode: null,
+               plants: [...s.plants, ...add.map(sp => mkPlant(sp.id, 0, 0, []))] }
+    }
     case 'scanUrl': return { ...s, scanUrl: a.v }
     case 'scanKeep': return { ...s, scanKeep: a.v }
     case 'pickKey': return { ...s, pickKey: a.v }
@@ -338,12 +345,15 @@ export function StoreProvider({ children, initial }:
   const [s, d] = useReducer(reducer, { ...load(INIT), ...initial })
   const value = useMemo<Store>(() => {
     const ctx: Ctx = { zip: s.choices.zip, outdoor: s.choices.outdoor }
-    // На ветке «уже есть» трек ещё не выведен — он считается по занесённому,
-    // а до библиотеки стоит значение по умолчанию (edible). Справочник тут
-    // сужать нельзя: комнатных в онбординге просто не было в списке, хотя
-    // экран спрашивает «What do you have?».
-    const p: Pool = { track: s.onbMode === 'own' ? 'both' : s.choices.track,
-                      outdoor: s.choices.outdoor }
+    // Справочник НЕ сужается ответами онбординга. Раньше выбор «комнатные»
+    // означал, что съедобных в библиотеке не существует вовсе — человек выбрал
+    // трек один раз на первом экране и лишился половины приложения навсегда.
+    // Трек теперь решает только ПОРЯДОК показа (см. Library.tsx), а не то, что
+    // вообще можно иметь: растения человека — его список, а не следствие плана.
+    // Единственный оставшийся отбор внутри speciesPool физический, а не
+    // вкусовой: съедобное, которое не живёт на подоконнике, не предлагается
+    // тому, у кого нет улицы.
+    const p: Pool = { track: 'both', outdoor: s.choices.outdoor }
     return { s, d, ctx, pool: speciesPool(p) }
   }, [s])
   // Пишем только когда меняется сохраняемое. Ссылки на слайсы стабильны, так

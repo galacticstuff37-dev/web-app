@@ -5,12 +5,13 @@
    порт отличается от прототипа, и правка не конфликтует с работой над самим
    app.css.
 
-   Шаг 8. Две роли снаружи, лестница внутри:
-     --s1  8px  внутри пары: ярлык и его содержимое, подпись и значение
-     --s2 16px  боковой отступ экрана, между блоками, между элементами группы
-   Внутри компонентов допустимы 8, 12 и 16 — больше ничего. */
+   Лестница живёт в tokens.css как --sp-4…--sp-32. Здесь остались две роли,
+   которыми пользуется уже написанный код:
+     --s1  внутри пары: ярлык и его содержимое, подпись и значение
+     --s2  боковой отступ экрана, между блоками, между элементами группы
+   Обе теперь ссылаются на шкалу, а не на свои числа: одно место правды. */
 
-.screen { --s1: 8px; --s2: 16px }
+.screen { --s1: var(--sp-8); --s2: var(--sp-16) }
 
 /* Боковой отступ страницы и подвала: было 20 — на экране соседствовали две
    сетки, и дашборд не совпадал с остальными экранами. */
@@ -26,7 +27,7 @@
 
 /* Внутренние отступы карточек: было 20. */
 .acc, .pcard, .scan-foot { padding: var(--s2) }
-.scan-ov { padding: 24px var(--s2) }
+.scan-ov { padding: var(--sp-24) var(--s2) }
 .danger { margin-top: var(--s2) }
 
 /* ─────────── Ритм компонентов: структурные значения на лестницу.
@@ -47,7 +48,7 @@
 .br-m { margin-top: 0; line-height: 24px }
 
 /* Ярлык секции: тап-зона раздувалась на 14/10 и вылезала за полосу */
-.sec-h i { padding: 12px var(--s1); margin: -12px calc(-1 * var(--s1)); line-height: 24px }
+.sec-h i { padding: var(--sp-12) var(--s1); margin: calc(-1 * var(--sp-12)) calc(-1 * var(--s1)); line-height: 24px }
 
 /* Счёт и вердикт: было 14 и 10 */
 .score-row { gap: var(--s2) }
@@ -61,12 +62,12 @@
 .plist { padding: var(--s1) var(--s2) }
 
 /* Тап-зона подсказки сканера: было 6/4, теперь как у остальных — 12/8 */
-.scanhint b { padding: 12px var(--s1); margin: -12px calc(-1 * var(--s1)) }
+.scanhint b { padding: var(--sp-12) var(--s1); margin: calc(-1 * var(--sp-12)) calc(-1 * var(--s1)) }
 
 /* Тап-зоны ссылок «удалить всё» и «условия»: было 14 → 12. Это блоки во всю
    ширину, поэтому только вертикальный паддинг — отрицательные поля вывели бы
    их за контейнер. min-height:44px в базовом правиле остаётся. */
-.danger, .tlink { padding-top: 12px; padding-bottom: 12px }
+.danger, .tlink { padding-top: var(--sp-12); padding-bottom: var(--sp-12) }
 
 /* ───────────── Вход: способы, поле почты, клетки кода
    Новых цветов нет — только токены. Исключение: чёрный у кнопки Apple и белый
@@ -79,11 +80,11 @@
 .b-dark { background: #000; color: #fff }
 
 .signin-l { text-align: center; font-size: var(--t-14); color: #C3D2C7;
-            padding: 12px 0; margin-top: var(--s1); cursor: pointer }
+            padding: var(--sp-12) 0; margin-top: var(--s1); cursor: pointer }
 .signin-l b { color: #fff; font-weight: 600 }
 
 .fld { display: block; background: var(--surface); border-radius: var(--r-lg);
-       padding: 10px var(--s2) 12px; border: 1.5px solid transparent;
+       padding: var(--sp-12) var(--sp-16); border: 1.5px solid transparent;
        transition: border-color .16s ease-out }
 .fld-l { display: block; font-size: var(--t-12); font-weight: 600; color: var(--muted);
          letter-spacing: -.02em }
@@ -119,12 +120,12 @@
 .otp-row { display: flex; align-items: center; gap: var(--s1); margin-top: var(--s2);
            font-size: var(--t-14); color: var(--muted) }
 .otp-row b { color: var(--primary); font-weight: 600; cursor: pointer;
-             padding: 12px 0; margin: -12px 0 }
+             padding: var(--sp-12) 0; margin: calc(-1 * var(--sp-12)) 0 }
 .otp-sep { color: var(--muted) }
 
 /* Кто вошёл. Отдельная строка над тарифом: это ответ на «мой ли аккаунт». */
 .acct { margin-top: var(--s2) }
-.acct .acc-who { display: flex; align-items: center; gap: 12px; padding: 12px;
+.acct .acc-who { display: flex; align-items: center; gap: var(--sp-12); padding: var(--sp-12);
                  background: var(--deepest); border-radius: var(--r-lg); color: #fff }
 .acct .acc-av { flex: none; width: 40px; height: 40px; border-radius: 50%;
                 background-size: cover; background-position: center }
@@ -172,7 +173,7 @@
 .otp-again { text-align: center; font-size: var(--t-14); color: var(--muted);
              margin-top: var(--s2) }
 .otp-again b { color: var(--primary); font-weight: 600; font-variant-numeric: tabular-nums }
-.otp-link { cursor: pointer; padding: 12px var(--s2); margin: -12px 0; display: inline-block }
+.otp-link { cursor: pointer; padding: var(--sp-12) var(--s2); margin: calc(-1 * var(--sp-12)) 0; display: inline-block }
 /* Почему в списке нет Apple: подпись вместо мёртвой кнопки. */
 .prov-note { font-size: var(--t-13); line-height: 1.45; color: var(--muted);
              text-align: center; margin-top: var(--s2) }
@@ -185,13 +186,74 @@
 /* Кто вошёл — в приветственном листе. Тише строки состояния над ней: сначала
    человек читает, что его ждёт, и только потом чей это аккаунт. */
 .cf-who { font-size: var(--t-13); line-height: 1.45; color: var(--muted);
-          margin-top: 10px; overflow-wrap: anywhere }
+          margin-top: var(--sp-8); overflow-wrap: anywhere }
 .cf-who b { color: var(--ink-2); font-weight: 600 }
 /* Пояснение сразу под списком фактов: без зазора две белые карточки сходятся
    скруглениями и читаются как шов, а не как два разных блока. Правило точечное —
    .note в других местах не задето. */
-.plist + .note { margin-top: 12px }
+.plist + .note { margin-top: var(--sp-12) }
 /* Номер сборки: последняя строка настроек, тише всего на экране. Не украшение —
    единственный способ увидеть с телефона, свежая ли это страница. */
 .build { text-align: center; font-size: var(--t-12); color: #9AA49E;
-         letter-spacing: -.01em; margin-top: 20px; font-variant-numeric: tabular-nums }
+         letter-spacing: -.01em; margin-top: var(--sp-24); font-variant-numeric: tabular-nums }
+
+/* ───────────── Остатки вне шкалы
+   Найдены измерением computed-значений по 33 экранам в трёх состояниях данных,
+   а не на глаз: 55 объявлений давали 5, 6, 9, 10, 14, 20 и 26px. Числа жили
+   в перенесённом app.css, поэтому правка идёт слоем.
+   Что НЕ трогаю: оптические 1–3px внутри пары «подпись/значение» (вертикальный
+   кернинг) и клиренс .bd под подвалом — он считается из настоящих высот. */
+
+/* Таб-бар. Шасси общее для всех экранов, поэтому и заметнее всего: 6px висели
+   на каждом экране с навигацией. Высота 56 задана отдельно, иконки просто
+   встают на полшага ниже. */
+.nav { padding: var(--sp-8) var(--sp-4) 0 }
+
+/* И цвет: в перенесённом CSS у таб-бара стоит var(--surface), а карточки стали
+   светло-лаймовыми — таб-бар слился с лаймовой полосой апселла прямо над ним,
+   две одинаковые полосы подряд. Таб-бар не карточка, а шасси: остаётся на фоне
+   страницы. Новый цвет не выдуман — это существующий токен --ground. */
+.nav { background: var(--ground) }
+
+/* Карточка ожидающего снимка: было 10. */
+.scanwait { padding: var(--sp-12) }
+
+/* Сегмент тарифов на пейволле: было 0 26px. */
+.seg div { padding: 0 var(--sp-24) }
+
+/* Текстовые табы календаря и пилюля «жарко»: было 5 и 5/9. */
+.ftabs button { gap: var(--sp-4) }
+.frow .frt.hot { padding: var(--sp-4) var(--sp-8) }
+
+/* Ссылка «выберу сам» на пустом Home: было 14/8, как у .danger и .tlink. */
+.eh-alt { padding: var(--sp-12) var(--sp-8) }
+
+/* Клиренс по умолчанию: 100 → 96, единственное число из этой пары, которое
+   вообще задано вручную (остальные Chrome.tsx считает из реальных высот). */
+.screen:has(.foot) .bd { padding-bottom: var(--foot-h, 96px) }
+
+/* ───────────── Календарь ухода за комнатными
+   Строка растения и полоса на 28 дней. Идиома взята с этого же экрана: карточка
+   на --surface с радиусом --r-lg, круглая миниатюра 40px, подпись --muted — как
+   в .wchip и .frow, новых приёмов не заводим.
+
+   Пустая клетка полосы — --ground, а не серый --hair: карточки светло-лаймовые,
+   и серая клетка на них читается как выключенный элемент чужой палитры.
+   Залитая — --primary: тот же цвет, которым на этом экране помечен посев. */
+
+.clist { display: grid; gap: var(--sp-8) }
+.crow { display: grid; grid-template-columns: 40px 1fr; align-items: center;
+        gap: var(--sp-12); background: var(--surface); border-radius: var(--r-lg);
+        padding: var(--sp-12) }
+.crow-ph { width: 40px; height: 40px; border-radius: 50%; background-size: cover;
+           background-position: center }
+.crow-tx { min-width: 0 }
+.crow-tx b { display: block; font-size: var(--t-15); font-weight: 600; letter-spacing: -.02em;
+             white-space: nowrap; overflow: hidden; text-overflow: ellipsis }
+.crow-tx s { display: block; font-size: var(--t-12); color: var(--muted);
+             text-decoration: none; margin-top: 2px }
+/* Полоса во всю ширину карточки: 28 равных клеток вместо фиксированной ширины —
+   на 320px строка из точек рядом с текстом не помещалась. */
+.cstrip { grid-column: 1 / -1; display: flex; gap: 2px }
+.cstrip i { flex: 1; height: 8px; border-radius: 2px; background: var(--ground) }
+.cstrip i.on { background: var(--primary) }

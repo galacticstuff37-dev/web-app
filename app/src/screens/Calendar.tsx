@@ -17,9 +17,10 @@ import { useLayoutEffect, useRef, useState } from 'react'
 import { Screen } from '../components/Chrome'
 import { Icon } from '../icons/Icon'
 import { bg } from '../lib/assets'
+import { isEdible, lc, wDue, type Plant } from '../lib/plants'
 import type { Species as Sp } from '../data/species'
 import {
-  MON, MONF, daysBetween, entries, fmtMD, fmtRange, frostDates, isHousePool,
+  MON, MONF, daysBetween, entries, fmtMD, fmtRange, frostDates,
   live, nextWin, nowMonth, seasonDays, today, windows, zipInfo, type Ctx, type Range,
 } from '../lib/season'
 import { useStore } from '../state/store'
@@ -34,7 +35,7 @@ function Context({ ctx, openCount }: { ctx: Ctx; openCount: number }) {
   const z = zipInfo(ctx.zip)
   const cell = (icon: string, label: string, val: string) => (
     <div key={label} className="cell">
-      <s style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+      <s style={{ display: 'flex', alignItems: 'center', gap: 'var(--sp-8)' }}>
         <Icon name={icon} color="var(--lime)" size={14} />{label}
       </s>
       <b>{val}</b>
@@ -258,26 +259,105 @@ function Seasons({ pool, ctx, open }: { pool: Sp[]; ctx: Ctx; open: (sp: Sp) => 
   )
 }
 
+/* ── Календарь ухода: полив и подкормка комнатных ──
+   Раньше комнатному человеку этот экран говорил «планировать нечего»: сезона и
+   посева у монстеры нет, и harvest-календарь про неё молчал. Но ухаживать за
+   ней надо ровно так же по календарю — просто ритм задаёт не заморозок, а
+   интервал полива.
+
+   Все числа настоящие: ритм — p.s.water из справочника, первый полив — wDue
+   (дни до следующего; отрицательное значение = просрочен, тогда сегодня).
+   Даты подкормки НЕ выдуманы: приложение пока не хранит, когда кормили, поэтому
+   строка кормления называет правило и честно говорит, что даты у него нет. */
+const SPAN = 28
+
+function waterDays(p: Plant): number[] {
+  const out: number[] = []
+  for (let d = Math.max(0, wDue(p)); d < SPAN; d += p.s.water) out.push(d)
+  return out
+}
+
+const dayName = (offset: number) => {
+  const d = new Date(NOW)
+  d.setDate(d.getDate() + offset)
+  return `${MON[d.getMonth()]} ${d.getDate()}`
+}
+
+function CareRow({ p }: { p: Plant }) {
+  const days = waterDays(p)
+  const due = wDue(p)
+  const next = due <= 0 ? 'today' : due === 1 ? 'tomorrow' : dayName(due)
+  return (
+    <div className="crow">
+      <span className="crow-ph" style={{ backgroundImage: bg(p.s.img) }} />
+      <div className="crow-tx">
+        <b>{p.s.name}</b>
+        <s>every {p.s.water} days · next {next}</s>
+      </div>
+      <div className="cstrip" aria-hidden="true">
+        {Array.from({ length: SPAN }, (_, i) => (
+          <i key={i} className={days.indexOf(i) > -1 ? 'on' : undefined} />
+        ))}
+      </div>
+    </div>
+  )
+}
+
+function CareCalendar({ plants }: { plants: Plant[] }) {
+  const soon = plants.filter(p => wDue(p) <= 0)
+  return (
+    <>
+      <div className="gsec">Watering · next {SPAN} days</div>
+      <div className="clist">
+        {plants.map((p, i) => <CareRow key={p.id || i} p={p} />)}
+      </div>
+      {!!soon.length && (
+        <p className="hint" style={{ marginTop: 0 }}>
+          {soon.length === 1
+            ? `The ${lc(soon[0].s.name)} is thirsty today.`
+            : `${soon.length} plants are thirsty today.`}
+        </p>
+      )}
+      <div className="gsec">Feeding</div>
+      <div className="wchip">
+        <b style={{ fontSize: 'var(--t-15)', fontWeight: 600 }}>Once a month, all pots together</b>
+        <p style={{ fontSize: 'var(--t-13)', color: 'var(--muted)', lineHeight: 1.45,
+                    marginTop: 'var(--sp-4)' }}>
+          Container soil runs out faster than a bed. No date here on purpose: the app does not
+          yet record when you last fed, and a made-up date is worse than none. The weekly list
+          carries the reminder.
+        </p>
+      </div>
+    </>
+  )
+}
+
 export function CalendarScreen({ go, openSpecies }:
                                { go: (id: string) => void; openSpecies: (sp: Sp) => void }) {
   const { s, d, ctx, pool } = useStore()
-  const house = isHousePool(pool)
-  const view = house ? 'month' : s.calView
+  // Что показывать, решает САД человека, а не выбор на первом экране онбординга:
+  // справочник больше не сужается треком, поэтому isHousePool(pool) всегда лгал
+  // бы «тут есть съедобное». У кого комнатные — календарь ухода, у кого
+  // съедобные — календарь урожая, у кого и те и те — оба.
+  const houses = s.plants.filter(p => !isEdible(p))
+  const edibles = s.plants.filter(isEdible)
+  const harvest = !s.plants.length || !!edibles.length
+  const view = s.calView
   const month = s.calMonth ?? nowMonth()
   const f = frostDates(ctx.zip)
   const openNow = pool.filter(sp => entries(windows(sp, ctx)).some(r => live(r, NOW))).length
 
   return (
     <Screen id="calendar" nav={{ active: 'Calendar', go }} scrollKey="calendar">
-      <div className="h1" style={{ marginTop: 16 }}>Harvest calendar</div>
-      <Context ctx={ctx} openCount={openNow} />
+      <div className="h1" style={{ marginTop: 16 }}>
+        {houses.length && harvest ? 'Calendar'
+         : houses.length ? 'Care calendar' : 'Harvest calendar'}
+      </div>
+      {harvest && <Context ctx={ctx} openCount={openNow} />}
 
-      {house ? (
-        <p className="hint">
-          A harvest calendar has nothing to plan for a houseplant: there is no sowing and no
-          season. What matters for them is light, and that lives on the plant page.
-        </p>
-      ) : (
+      {!!houses.length && <CareCalendar plants={houses} />}
+
+      {harvest && (
         <>
           <div className="seg wide" role="radiogroup" aria-label="Calendar view">
             {(['month', 'year'] as const).map(v => (

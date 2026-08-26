@@ -66,21 +66,24 @@ export function AddPlantScreen({ go }: { go: Go }) {
     const dim = hit.filter(x => !fitsLight(x, s.choices.sunRank))
     const house = lit.filter(x => x.kind === 'house')
     const edible = lit.filter(x => x.kind === 'edible')
-    const out: Array<[string, Species[], boolean]> = []
-    if (own || s.choices.track === 'both') {
-      // трек ещё не выбран или выбраны оба — показываем обе группы, иначе
-      // половина справочника не попадала ни в одну секцию
-      out.push(['Houseplants', house, false])
-      out.push([own ? 'Edible'
-        : s.choices.outdoor ? 'Edible — container crops' : 'Edible — windowsill crops',
-        edible, false])
-    } else if (s.choices.track === 'house') {
-      out.push(['Hard to kill', house.filter(x => x.water >= 12), false])
-      out.push(['A bit more attention', house.filter(x => x.water < 12), false])
-    } else {
-      out.push(['Fast wins', edible.filter(x => x.days <= 35), false])
-      out.push(['Worth the wait', edible.filter(x => x.days > 35), false])
-    }
+    // Оба вида доступны ВСЕГДА. Трек решает, что человек увидит первым, и
+    // только это: выбор на первом экране онбординга не должен навсегда лишать
+    // половины справочника. Внутри своего вида сохраняется прежнее деление —
+    // комнатные по требовательности, съедобные по скорости.
+    const houseGroups: Array<[string, Species[], boolean]> = [
+      ['Hard to kill', house.filter(x => x.water >= 12), false],
+      ['A bit more attention', house.filter(x => x.water < 12), false],
+    ]
+    const edibleLabel = s.choices.outdoor ? 'Edible — container crops'
+                                          : 'Edible — windowsill crops'
+    const edibleGroups: Array<[string, Species[], boolean]> = house.length && edible.length
+      ? [[edibleLabel, edible, false]]
+      : [['Fast wins', edible.filter(x => x.days <= 35), false],
+         ['Worth the wait', edible.filter(x => x.days > 35), false]]
+    const houseFirst = own ? false : s.choices.track === 'house'
+    const out: Array<[string, Species[], boolean]> = houseFirst
+      ? [...houseGroups, ...edibleGroups]
+      : [...edibleGroups, ['Houseplants', house, false]]
     if (dim.length) out.push(['Needs more light than you have', dim, true])
     return { out: out.filter(g => g[1].length), empty: !hit.length }
   }, [pool, q, own, s.choices.track, s.choices.outdoor, s.choices.sunRank])
@@ -122,7 +125,9 @@ export function AddPlantScreen({ go }: { go: Go }) {
             }>
       <div className="h1" style={{ marginTop: 16 }}>{own ? 'What do you have?' : 'Add a plant'}</div>
       <div style={{ fontSize: 'var(--t-14)', color: 'var(--muted)', marginTop: 4 }}>
-        {own ? 'Everything we know how to look after' : (LIBNOTE[s.choices.track] || LIBNOTE.both)}
+        {/* Подзаголовок обещал один вид («finishes in one season»), а в списке
+            теперь оба — это было бы неправдой про половину списка. */}
+        {own ? 'Everything we know how to look after' : LIBNOTE.both}
         {' · '}{s.pending.length ? `${s.pending.length} selected` : 'nothing selected'}
       </div>
 

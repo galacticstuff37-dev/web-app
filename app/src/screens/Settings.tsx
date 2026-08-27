@@ -7,14 +7,13 @@
 import { AccountRow } from './Auth'
 import { Screen } from '../components/Chrome'
 import { PickRow, SetRow, SwRow } from '../components/parts'
-import { IcChev } from '../icons/Icon'
 import { bg, buildId } from '../lib/assets'
 import {
   LIGHT_IN, LIGHT_OUT, LIGHT_RANK_IN, LIGHT_RANK_OUT, PICKS, REMIND_AT,
   SPACE_OPTS, TRACKWORD, isOutdoorSpace,
 } from '../data/onboarding'
 import { ZIPS } from '../data/zips'
-import { allPhotos, isEdible } from '../lib/plants'
+import { isEdible } from '../lib/plants'
 import { cap } from '../lib/plan'
 import { seasonDays, zipInfo } from '../lib/season'
 import { useStore, type Units } from '../state/store'
@@ -28,30 +27,6 @@ export function SettingsScreen({ go }: { go: Go }) {
   const hasEdible = s.plants.some(isEdible)
   const openPick = (k: string) => { d({ t: 'pickKey', v: k }); go('pick') }
   const pic = s.plants.length && s.plants[0].s.img ? s.plants[0].s.img : 'hero-plants'
-
-  const exportPlants = () => {
-    const payload = {
-      app: 'HOMEGROWN', exported: 'prototype demo', units: s.units, track: c.track,
-      plants: s.plants.map(p => ({
-        id: p.s.id, name: p.s.name, kind: p.s.kind, latin: p.s.latin,
-        ageDays: p.day, daysSinceWater: p.since, waterEvery: p.s.water,
-        photos: p.photos.length,
-      })),
-    }
-    try {
-      const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' })
-      const a = document.createElement('a')
-      a.href = URL.createObjectURL(blob)
-      a.download = 'homegrown-plants.json'
-      document.body.appendChild(a); a.click()
-      setTimeout(() => { URL.revokeObjectURL(a.href); a.remove() }, 0)
-      d({ t: 'toast', v: { html: `<span>Exported ${s.plants.length} `
-        + `${s.plants.length === 1 ? 'plant' : 'plants'}</span>`, ms: 3500, at: Date.now() } })
-    } catch {
-      d({ t: 'toast', v: { html: '<span>Export is not available in this browser</span>',
-                           ms: 3500, at: Date.now() } })
-    }
-  }
 
   return (
     <Screen id="settings" nav={{ active: 'Settings', go }} scrollKey="settings">
@@ -69,8 +44,11 @@ export function SettingsScreen({ go }: { go: Go }) {
           <div className="big" style={{ fontSize: 'var(--t-24)', marginTop: 12 }}>
             Everything is open
           </div>
+          {/* Даты продления тут не было и быть не может: биллинга нет, isPro —
+              локальный флаг без срока, а «Renews Mar 14, 2027» было просто
+              вписано руками. Пока подписку никто не считает — не обещаем срок. */}
           <div className="sub">
-            Every week planned, unlimited plants and photos, full export. Renews Mar 14, 2027.
+            Every week planned, unlimited plants and photos.
           </div>
           <div className="btn" style={{ background: '#17492F', color: '#fff' }}
                role="button" tabIndex={0} onClick={() => d({ t: 'pro', v: false })}>
@@ -134,15 +112,6 @@ export function SettingsScreen({ go }: { go: Go }) {
         <SwRow label="Product updates" on={s.mail.news} onToggle={() => d({ t: 'mail', v: 'news' })} />
       </div>
 
-      <div className="sl">Data</div>
-      <div className="plist">
-        <div className="pl" role="button" tabIndex={0} onClick={exportPlants}>
-          <div className="nm"><b>Export my plants</b>
-            <s>{s.plants.length} {s.plants.length === 1 ? 'plant' : 'plants'} and{' '}
-               {allPhotos(s.plants).length} photos as JSON</s></div>
-          <span className="setval">Download</span><IcChev />
-        </div>
-      </div>
       {/* Delete account и Sign out уехали на экран аккаунта: среди тумблеров
           необратимого не ждут, а строка аккаунта наверху туда и ведёт. */}
 

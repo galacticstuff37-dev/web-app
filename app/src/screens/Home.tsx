@@ -4,7 +4,7 @@
 
 import { Screen } from '../components/Chrome'
 import { MetricRow, PhotoTile, RingBig } from '../components/bits'
-import { IcCheck2, IcChevD, IcDrop, IcDropBig, IcDropP, IcLeafLime } from '../icons/Icon'
+import { IcCheck2, IcChevD, IcDrop, IcDropP, IcLeafLime } from '../icons/Icon'
 import { bg } from '../lib/assets'
 import {
   hEta, isEdible, lc, lightShort, pState, tkey, verdict, wDue, weekTasks,
@@ -149,8 +149,12 @@ function Hero() {
         <div className="score-s">{v[1]}</div>
 
         <div className="wgrid">
-          <div className="wg wg-dark">
-            <div className="wg-top"><div className="num">{due.length}</div><IcDropBig /></div>
+          {/* Обе карточки белые. Тёмная слева была третьим тёмным слоем поверх
+              фотографии и её скрима — на белом пара читается как одна группа, а
+              не как «эта важнее». Каплю тоже пришлось перекрасить: лаймовая
+              давала на белом 1.5:1 и просто исчезала. */}
+          <div className="wg wg-lite">
+            <div className="wg-top"><div className="num">{due.length}</div><IcDropP /></div>
             <div className="lbl">Water today</div>
             <MetricRow items={[['Soon', soon.length], ['Plants', plants.length]]}
                       icons={['calendar-days', 'potted-plant']} />

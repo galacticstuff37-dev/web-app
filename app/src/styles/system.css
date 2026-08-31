@@ -44,7 +44,7 @@
 .wk-list { padding: 0 var(--s2) var(--s1) }
 .br-row { gap: var(--s2); padding: var(--s1) 0 }
 .br-t { line-height: 24px }
-.br-t s { margin-top: 0; line-height: 16px }
+.br-t s { margin-top: var(--sp-4); line-height: 16px }
 .br-m { margin-top: 0; line-height: 24px }
 
 /* Ярлык секции: тап-зона раздувалась на 14/10 и вылезала за полосу */
@@ -138,7 +138,7 @@
                   letter-spacing: -.02em; white-space: nowrap; overflow: hidden;
                   text-overflow: ellipsis }
 .acct .acc-tx s { display: block; font-size: var(--t-12); color: #A9BCB0;
-                  text-decoration: none; margin-top: 2px }
+                  text-decoration: none; margin-top: var(--sp-4) }
 .acct .acc-go { flex: none; width: 32px; height: 32px; border-radius: 50%;
                 background: rgba(255, 255, 255, .14); display: flex; align-items: center;
                 justify-content: center; cursor: pointer }
@@ -322,9 +322,46 @@
 .crow-tx b { display: block; font-size: var(--t-15); font-weight: 600; letter-spacing: -.02em;
              white-space: nowrap; overflow: hidden; text-overflow: ellipsis }
 .crow-tx s { display: block; font-size: var(--t-12); color: var(--muted);
-             text-decoration: none; margin-top: 2px }
+             text-decoration: none; margin-top: var(--sp-4) }
 /* Полоса во всю ширину карточки: 28 равных клеток вместо фиксированной ширины —
    на 320px строка из точек рядом с текстом не помещалась. */
 .cstrip { grid-column: 1 / -1; display: flex; gap: 2px }
 .cstrip i { flex: 1; height: 8px; border-radius: 2px; background: var(--ground) }
 .cstrip i.on { background: var(--primary) }
+
+
+/* ───────────── Пары «строка и её подпись»: 4, а не 1–3
+   Владелец посмотрел на живом экране и сказал прямо: «в плашках текст очень
+   прилип друг к другу, сделай по 4px». Это отменяет прежнее решение оставлять
+   здесь оптический кернинг 1–3px: в перенесённом CSS такие пары стояли на 1, 2
+   и 3px по месту, и на плашке с тёмным фоном (строка аккаунта) слипание видно
+   особенно.
+
+   Четыре — ступень шкалы (--sp-4), её же определение и есть «пара: заголовок и
+   его подпись». Правки идут слоем: app.css — дословный перенос прототипа.
+   Что НЕ тронуто, потому что это не пары текста, а выравнивание:
+     .box     +1px  — квадратик отметки по кап-линии заголовка
+     .min     +2px  — минуты справа по базовой линии заголовка
+     .scorehead +2px — сдвиг контейнера, а не разрыв между строками
+   И .score-v: он живёт только в герое Home, где dash.css осознанно ставит 0 —
+   там боксы обрезаны, и ноль уже оптический.
+   .tk s в app.css тоже на 2px, но класс мёртв: в приложении его нет. */
+
+/* Строка списка: подпись под названием. Было 1px — самое тесное место в
+   приложении, и оно же самое частое: настройки, справочник, списки растений. */
+.nm s { margin-top: var(--sp-4) }
+/* То же внутри тёмной карточки тарифа. Селектор повторяет форму из app.css
+   (0,3,1), иначе правило выше проигрывает ему по специфичности. */
+.acc .prow .nm s { margin-top: var(--sp-4) }
+/* Значение метрики в карточке .wg. На дашборде уже 4 (dash.css), а на экране
+   растения оставалось 2 — те же карточки выглядели по-разному. */
+.mrow b { margin-top: var(--sp-4) }
+/* Подпись тумблера, подпись строки календаря, автор цитаты, подпись каптиона,
+   значение факта на экране культуры. */
+.sw-tx s { margin-top: var(--sp-4) }
+.crow .crt s { margin-top: var(--sp-4) }
+.qwho s { margin-top: var(--sp-4) }
+.jc figcaption s { margin-top: var(--sp-4) }
+.fact b { margin-top: var(--sp-4) }
+/* Поле ввода под своей подписью: тоже плашка, и тоже пара. */
+.fld input { margin-top: var(--sp-4) }

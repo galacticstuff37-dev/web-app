@@ -82,10 +82,22 @@ const SNAP = {v:1, uid:UID, at:new Date(Date.now() - 7*60000).toISOString(),
 function reload(hash) {
   return new Promise(res => { F.onload = () => setTimeout(res, 480); F.src = APP + '?t=' + Date.now() + '#' + hash; });
 }
-/** выход за границы вьюпорта: пропускаем то, что режет родитель с overflow */
+/**
+ * Выход за границы вьюпорта: пропускаем то, что режет родитель с overflow.
+ *
+ * ИСКЛЮЧЕНИЕ — .cf-box. Лист (аккаунт) прокручивается ПО ВЕРТИКАЛИ, и ради
+ * этого у него overflow-y: auto. Браузер при этом считает и overflow-x равным
+ * auto — так требует спецификация, если хотя бы одна ось не visible. Из-за этого
+ * всё содержимое листа выпадало из осмотра: свип видел лист как горизонтальную
+ * карусель, которой он не является. Правило про overflow здесь ради карусели
+ * растений (.prow-scroll), а не ради листа, поэтому лист клипером не считаем и
+ * идём выше по дереву. Отдельно ниже проверяется, что сам лист не поехал
+ * горизонтально.
+ */
 function measure() {
   const d = D(), w = W().innerWidth, bad = [];
   const clipped = e => { for (let p = e.parentElement; p; p = p.parentElement) {
+    if (p.classList && p.classList.contains('cf-box')) continue;
     const ox = W().getComputedStyle(p).overflowX;
     if (ox === 'auto' || ox === 'scroll' || ox === 'hidden') return true; } return false; };
   d.querySelectorAll('.mob *').forEach(e => {
@@ -93,6 +105,12 @@ function measure() {
     if (!r.width && !r.height) return;
     if ((r.right > w + 0.5 || r.left < -0.5) && !clipped(e))
       bad.push((e.className || e.tagName) + '[' + Math.round(r.left) + '..' + Math.round(r.right) + ']');
+  });
+  // Горизонтальная прокрутка ВНУТРИ листа — такой же дефект, как выход за экран:
+  // лист обязан прокручиваться только вверх-вниз.
+  d.querySelectorAll('.cf-box').forEach(x => {
+    if (x.scrollWidth > x.clientWidth + 0.5)
+      bad.push('cf-box[поехал горизонтально: ' + x.scrollWidth + '>' + x.clientWidth + ']');
   });
   const de = d.documentElement;
   return {page: de.scrollWidth > de.clientWidth + 0.5,

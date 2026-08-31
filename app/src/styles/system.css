@@ -205,9 +205,15 @@
    стать двухстрочным на узком экране. */
 .cf-head { display: flex; align-items: flex-start; justify-content: space-between;
            gap: var(--sp-12) }
-/* Крестик на светлом: та же тёмная кружка, что у стрелки в строке аккаунта
-   (.acc-go), поэтому новых цветов не заводим. Размер 44 остаётся от .xbtn. */
-.cf-head .xbtn { flex: none }
+/* Крестик без подложки: на светлом листе тёмная кружка 44px весила как второй
+   заголовок и спорила с ним за внимание. Остаётся только глиф, но тап-зона 44
+   от .xbtn сохраняется — она невидима, а не отсутствует.
+   Отрицательные поля — не косметика: глиф 17px в боксе 44 стоит с отбивкой 13.5
+   с каждой стороны, поэтому без сдвига он вставал бы в 29.5 от края карточки
+   вместо 16 и заметно ниже строки заголовка. Двенадцать — та же идиома
+   «тап-зона шире элемента», что у .sec-h i и .scanhint b. */
+.cf-head .xbtn { flex: none; background: none;
+                 margin: calc(-1 * var(--sp-12)) calc(-1 * var(--sp-12)) 0 0 }
 @keyframes cf-fade { from { opacity: 0 } to { opacity: 1 } }
 @keyframes cf-up { from { transform: translateY(100%) } to { transform: translateY(0) } }
 @media (prefers-reduced-motion: reduce) {

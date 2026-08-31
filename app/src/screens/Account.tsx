@@ -165,7 +165,9 @@ export function AccountScreen({ go }: { go: Go }) {
             <div className="xbtn" role="button" tabIndex={0} aria-label="Close"
                  onClick={close}
                  onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); close() } }}>
-              <Icon name="x" color="#CFE0D4" size={17} sw={2} />
+              {/* Цвет глифа --ink-2: без тёмной подложки светлый #CFE0D4 давал
+                  на листе 1.2:1 и просто исчезал. */}
+              <Icon name="x" color="var(--ink-2)" size={17} sw={2} />
             </div>
           </div>
 

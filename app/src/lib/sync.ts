@@ -103,6 +103,10 @@ export interface ProfileRow {
   care_pick: boolean; care_leaf: boolean; care_rotate: boolean; care_feed: boolean
   mail_weekly: boolean; mail_water: boolean; mail_news: boolean
   is_pro: boolean
+  /** Срок Pro. Колонка есть в живой базе (0001_init.sql:71, проверено запросом
+      select=pro_until). Тарифа рядом НЕТ: profiles.pro_plan не существует,
+      поэтому название тарифа остаётся локальным. */
+  pro_until: string | null
 }
 export interface PlantRow {
   id: string; user_id: string; species_id: string
@@ -153,6 +157,7 @@ export function profileOf(s: State, uid: string): ProfileRow {
     mail_water: s.mail.water,
     mail_news: s.mail.news,
     is_pro: s.isPro,
+    pro_until: s.proUntil,
   }
 }
 
@@ -160,7 +165,8 @@ export function profileOf(s: State, uid: string): ProfileRow {
 const profileFp = (r: ProfileRow) =>
   [r.track, r.space, r.outdoor, r.sun, r.sun_rank, r.goals.join(','), r.effort, r.zip,
    r.units, r.cal_view, r.remind_at, r.tz, r.care_pick, r.care_leaf, r.care_rotate,
-   r.care_feed, r.mail_weekly, r.mail_water, r.mail_news, r.is_pro].join('|')
+   r.care_feed, r.mail_weekly, r.mail_water, r.mail_news, r.is_pro,
+   r.pro_until].join('|')
 
 // ───────────────────────────────────────────── слияние
 
@@ -319,6 +325,7 @@ export function merge(s: State, c: Cloud, snap: Snap | null, week: string,
       pulled.units = r.units
       pulled.calView = r.cal_view
       pulled.isPro = r.is_pro
+      pulled.proUntil = r.pro_until
       if (ri > -1) pulled.remind = ri
       pulled.care = { pick: r.care_pick, leaf: r.care_leaf,
                       rotate: r.care_rotate, feed: r.care_feed }

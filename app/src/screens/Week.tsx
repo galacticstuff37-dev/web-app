@@ -10,12 +10,10 @@ import { inDays } from '../lib/plan'
 import {
   hEta, hPct, hStage, isEdible, lc, wDue, weekTasks, type Plant,
 } from '../lib/plants'
-import { MON, TODAY, dayOffset } from '../lib/season'
 import { useStore } from '../state/store'
 
 type Go = (id: string) => void
 
-const WORDNUM = ['No', 'One', 'Two', 'Three', 'Four', 'Five', 'Six']
 const pPct = (p: Plant) => (isEdible(p) ? hPct(p)
   : Math.max(0, Math.min(100, Math.round((p.since / p.s.water) * 100))))
 const pSub = (p: Plant) => isEdible(p)
@@ -122,22 +120,37 @@ export function WeekLongScreen({ go }: { go: Go }) {
 }
 
 // ─────────────────────────────────────────── Soft-lock
+//
+// Экран существует ради ОДНОГО: показать бесплатному человеку, что впереди
+// запланировано больше, чем ему видно. Три вещи, которые он делал вместо этого,
+// убраны — каждая была неправдой:
+//
+// 1. Заголовок обещал конкретное окно «Two weeks from now · Apr 24–30». Даты
+//    считались от условного «сегодня» прототипа (season.ts: START + TODAY =
+//    10 апреля 2026) — то есть настоящему человеку в августе показывали апрель.
+//    Пока приложение живёт по замороженным часам, никакого окна тут называть
+//    нельзя: «дальше этой недели» — единственное, что правда.
+// 2. Число в h1 считалось из weekTasks(), а это задачи ТЕКУЩЕЙ недели.
+//    Функции «что будет через две недели» в приложении нет вообще: weekTasks
+//    берёт сегодняшнее состояние растений и времени не принимает. Заголовок
+//    «через две недели» стоял над списком этой недели.
+// 3. Pro-ветка печатала эти же задачи текущей недели под ярлыком «What they
+//    are» — то есть дублировала Home и выдавала это за план на будущее.
+//
+// Куда попадает человек после покупки, решено в Moments.tsx: в календарь, как и
+// обещают кнопки пейволла. Сюда Pro-ветка остаётся достижимой прямой ссылкой и
+// из каталога /review, поэтому она есть — но говорит только то, что знает.
 export function WeekLockScreen({ go }: { go: Go }) {
   const { s } = useStore()
-  // Окно «через две недели» считается от TODAY, а не от захардкоженных дат.
-  const a = dayOffset(TODAY + 14), b = dayOffset(TODAY + 20)
-  const when = `Two weeks from now · ${MON[a.getMonth()]} ${a.getDate()}–`
-    + (a.getMonth() === b.getMonth() ? b.getDate() : `${MON[b.getMonth()]} ${b.getDate()}`)
-  const tasks = weekTasks(s.plants, s.care)
-  const cnt = Math.min(3, tasks.length)
 
   return (
     <Screen id="week-lock" back={() => go('home')} nav={{ active: 'Week', go }}
             scrollKey="week-lock">
-      <div className="greet">{when}</div>
+      <div className="greet">{s.isPro ? 'Pro is on' : 'Beyond this week'}</div>
       <div className="h1">
-        {WORDNUM[cnt] || cnt} {cnt === 1 ? 'task' : 'tasks'}
-        <br /><span className="m">already planned.</span>
+        {s.isPro
+          ? <>The whole calendar<br /><span className="m">is open.</span></>
+          : <>More is planned<br /><span className="m">than you can see.</span></>}
       </div>
       {!s.plants.length
         ? <Note title="Nothing is scheduled yet"
@@ -146,16 +159,16 @@ export function WeekLockScreen({ go }: { go: Go }) {
             Add a plant and the weeks ahead fill themselves in — that is what Pro keeps open.
           </Note>
         : s.isPro
-        ? <>
-            <div className="sl">What they are</div>
-            {tasks.slice(0, 3).map((x, i) => <Task key={i} t={[x[0], x[1], x[2]]} />)}
-            <Note title="You have the whole calendar">
-              Every week ahead is planned. Nothing is hidden any more.
-            </Note>
-          </>
+        ? <Note title="Nothing is hidden any more"
+                cta={<div className="btn b-pri" role="button" tabIndex={0}
+                          onClick={() => go('calendar')}>Open the calendar</div>}>
+            Every week ahead is planned, and the calendar shows all of it — this screen
+            is only the preview a free plan gets.
+          </Note>
         : <>
-            <div className="sl">What they are</div>
-            {/* Даты и объём видны, скрыты только формулировки. Это не стена. */}
+            <div className="sl">What is waiting</div>
+            {/* Объём виден, скрыты формулировки. Это не стена.
+                Про «даты» здесь больше не говорим: их не показывают. */}
             <Task t={['', '4 min']} locked bars={[76, 52]} />
             <Task t={['', '3 min']} locked bars={[60]} />
             <Task t={['', '10 min']} locked bars={[68]} />
@@ -165,7 +178,7 @@ export function WeekLockScreen({ go }: { go: Go }) {
                 Pro unlocks<br />the whole calendar
               </div>
               <div className="sub">
-                The dates and the workload are real — only the wording is hidden.
+                The workload is real — only the wording is hidden.
               </div>
               <div className="btn b-lime" role="button" tabIndex={0}
                    onClick={() => go('paywall')}>Unlock the full plan</div>

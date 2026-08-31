@@ -67,15 +67,23 @@ export function Task({ t, done, onToggle, locked, bars }:
       </div>
     )
   }
+  // Квадратик с галочкой рисуется ТОЛЬКО когда строку правда можно отметить.
+  // Без этого условия каждая строка обещала отметку, которой нет: onToggle не
+  // передаётся ни в одном из вызовов (week-back, week-lock, shopping, indoor) —
+  // отмечаемые задачи недели на Home сделаны другим компонентом, .br-row.
+  // Стенд это пропускал: он ищет `.task[role=checkbox]`, то есть элемент,
+  // который САМ СЕБЯ объявил чекбоксом, а здесь роли и не было — был только
+  // рисунок чекбокса и палец вместо курсора. Класс flat снимает и палец, по той
+  // же идиоме, что .pl.flat на экране аккаунта.
   return (
-    <div className={'task' + (done ? ' done' : '')}
+    <div className={'task' + (done ? ' done' : '') + (onToggle ? '' : ' flat')}
          {...(onToggle ? {
            role: 'checkbox', tabIndex: 0, 'aria-checked': !!done, onClick: onToggle,
            onKeyDown: (e: React.KeyboardEvent) => {
              if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onToggle() }
            },
          } : {})}>
-      <div className="box" aria-hidden="true"><IcCheck2 /></div>
+      {onToggle && <div className="box" aria-hidden="true"><IcCheck2 /></div>}
       <div className="tt">
         <div className="t">{t[0]}</div>
         {t[2] && <div className="b">{t[2]}</div>}

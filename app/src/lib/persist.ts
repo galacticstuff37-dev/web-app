@@ -30,6 +30,8 @@ interface Saved {
   plants: SavedPlant[]
   selected: number
   isPro: boolean
+  proUntil: string | null
+  proPlan: 'year' | 'month' | null
   units: Units
   remind: number
   care: Care
@@ -62,6 +64,8 @@ export function load(init: State): State {
     plants,
     selected: Math.min(Math.max(0, j.selected ?? 0), Math.max(0, plants.length - 1)),
     isPro: j.isPro ?? init.isPro,
+    proUntil: j.proUntil ?? init.proUntil,
+    proPlan: j.proPlan ?? init.proPlan,
     units: j.units ?? init.units,
     remind: j.remind ?? init.remind,
     care: { ...init.care, ...j.care },
@@ -83,6 +87,8 @@ export function save(s: State): void {
                                 photos: p.photos })),
     selected: s.selected,
     isPro: s.isPro,
+    proUntil: s.proUntil,
+    proPlan: s.proPlan,
     units: s.units,
     remind: s.remind,
     care: s.care,

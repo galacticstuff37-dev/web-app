@@ -15,7 +15,7 @@ import {
 import { ZIPS } from '../data/zips'
 import { isEdible } from '../lib/plants'
 import { cap } from '../lib/plan'
-import { seasonDays, zipInfo } from '../lib/season'
+import { MON, seasonDays, zipInfo } from '../lib/season'
 import { useStore, type Units } from '../state/store'
 
 type Go = (id: string) => void
@@ -28,6 +28,17 @@ export function SettingsScreen({ go }: { go: Go }) {
   const openPick = (k: string) => { d({ t: 'pickKey', v: k }); go('pick') }
   const pic = s.plants.length && s.plants[0].s.img ? s.plants[0].s.img : 'hero-plants'
 
+  // Срок Pro. Даты НЕТ, если Pro включили сборкой, которая её не писала, или
+  // чипом в /review — тогда молчим, а не выдумываем: биллинга в приложении нет,
+  // и придумать дату продления было бы ровно тем, чего делать нельзя.
+  const until = s.isPro && s.proUntil ? new Date(s.proUntil) : null
+  const termDate = until && !isNaN(until.getTime())
+    ? `${MON[until.getMonth()]} ${until.getDate()}, ${until.getFullYear()}`
+    : null
+  const ended = !!until && until.getTime() < Date.now()
+  const planWord = s.proPlan === 'year' ? 'Year pass'
+                 : s.proPlan === 'month' ? 'Monthly' : null
+
   return (
     <Screen id="settings" nav={{ active: 'Settings', go }} scrollKey="settings">
       <div className="h1" style={{ marginTop: 16 }}>Settings</div>
@@ -38,22 +49,27 @@ export function SettingsScreen({ go }: { go: Go }) {
       <div className="acc" style={{ marginTop: 16 }}>
         <div className="acc-photo" style={{ backgroundImage: bg(pic) }} />
         <div className="row1">
-          <span className="tag">{s.isPro ? 'Pro · full plan' : 'Free plan'}</span>
+          <span className="tag">
+            {!s.isPro ? 'Free plan' : planWord ? `Pro · ${planWord.toLowerCase()}` : 'Pro · full plan'}
+          </span>
         </div>
         {s.isPro ? <>
           <div className="big" style={{ fontSize: 'var(--t-24)', marginTop: 12 }}>
             Everything is open
           </div>
-          {/* Даты продления тут не было и быть не может: биллинга нет, isPro —
-              локальный флаг без срока, а «Renews Mar 14, 2027» было просто
-              вписано руками. Пока подписку никто не считает — не обещаем срок. */}
+          {/* Срок настоящий: записан в момент покупки на пейволле из системной
+              даты (Moments.tsx). Если его нет — строки про дату тоже нет.
+              «Renews» здесь не пишем: продлевать некому, биллинга не существует;
+              честное слово — до какого числа доступ открыт. */}
           <div className="sub">
             Every week planned, unlimited plants and photos.
+            {termDate && (ended
+              ? ` The ${planWord ? planWord.toLowerCase() : 'plan'} ran to ${termDate}.`
+              : ` Open until ${termDate}.`)}
           </div>
-          <div className="btn" style={{ background: '#17492F', color: '#fff' }}
-               role="button" tabIndex={0} onClick={() => d({ t: 'pro', v: false })}>
-            Back to Free (demo)
-          </div>
+          {/* Кнопка «Back to Free (demo)» убрана: у человека с активным Pro ей
+              нечего делать среди фактов о подписке. Для проверки Pro-ветки
+              остался чип Pro в каталоге /review. */}
         </> : <>
           <div className="big" style={{ fontSize: 'var(--t-24)', marginTop: 12 }}>
             1 space · 3 plants<br />this week only

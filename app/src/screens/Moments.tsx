@@ -233,12 +233,24 @@ export function PaywallScreen({ go }: { go: Go }) {
   const back = () => go(s.pwFrom === 'paywall' ? 'home' : s.pwFrom)
 
   const buy = () => {
-    d({ t: 'pro', v: true })
+    // Срок считаем от НАСТОЯЩЕЙ даты, а не от условного «сегодня» прототипа
+    // (season.ts: START + TODAY = 10 апреля 2026): подписка живёт в календаре
+    // человека, а не в симуляции сада. Это единственное место, где срок
+    // появляется, — поэтому он настоящий, а не вписанный руками.
+    const until = new Date()
+    if (yearly) until.setFullYear(until.getFullYear() + 1)
+    else until.setMonth(until.getMonth() + 1)
+    d({ t: 'pro', v: true, plan: yearly ? 'year' : 'month', until: until.toISOString() })
     d({ t: 'toast', v: { html: '<span>Pro unlocked — the whole calendar is open</span>',
                          ms: 5000, at: Date.now(), unpro: true } })
-    // Кнопки обещают «весь календарь», поэтому ведём в календарь. Исключения:
-    // лимит растений обещал библиотеку, а без растений календарь показывать нечем.
-    go(s.pwFrom === 'add-plant' || !s.plants.length ? s.pwFrom : 'week-lock')
+    // Кнопки обещают «весь календарь» — ведём В КАЛЕНДАРЬ. Раньше комментарий
+    // говорил именно это, а код уводил на week-lock: то есть после покупки
+    // человек попадал на экран, вся суть которого — тизер пейволла.
+    // Исключения: лимит растений обещал библиотеку; без растений календарь
+    // показывать нечем, и тогда нужен home с его приглашением добавить растение
+    // (раньше здесь стоял s.pwFrom, и при pwFrom='paywall' покупка возвращала
+    // на сам пейволл — тупик).
+    go(s.pwFrom === 'add-plant' ? 'add-plant' : !s.plants.length ? 'home' : 'calendar')
   }
 
   return (

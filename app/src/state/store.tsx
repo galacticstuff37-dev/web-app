@@ -48,6 +48,15 @@ export interface State {
   plants: Plant[]
   selected: number
   isPro: boolean
+  /** Срок доступа Pro. Записывается в момент покупки из НАСТОЯЩЕЙ даты, а не из
+      условного «сегодня» прототипа: подписка живёт в календаре человека.
+      null — Pro включён сборкой, которая срока не писала (или чипом в /review):
+      тогда экран настроек честно молчит про дату вместо того, чтобы её выдумать. */
+  proUntil: string | null
+  /** Какой тариф выбрали на пейволле. Колонки в базе под него нет (проверено
+      пробой: profiles.pro_plan не существует), поэтому живёт только локально —
+      на другом устройстве покажется дата без названия тарифа. */
+  proPlan: 'year' | 'month' | null
   units: Units
   /** индекс в REMIND_AT */
   remind: number
@@ -130,6 +139,8 @@ export const INIT: State = {
   plants: seedPlants(),
   selected: 0,
   isPro: false,
+  proUntil: null,
+  proPlan: null,
   units: 'imperial',
   remind: 3,
   care: { pick: true, leaf: true, rotate: true, feed: true },
@@ -171,6 +182,9 @@ export interface Pulled {
   mail?: Mail
   calView?: CalView
   isPro?: boolean
+  /** Срок Pro приезжает с другого устройства вместе с профилем. Тарифа рядом
+      нет: колонки profiles.pro_plan не существует, он остаётся локальным. */
+  proUntil?: string | null
   done?: Record<string, boolean>
 }
 
@@ -189,7 +203,7 @@ export type Action =
   | { t: 'water'; v: number }
   | { t: 'remove'; v: number }
   | { t: 'undo' }
-  | { t: 'pro'; v: boolean }
+  | { t: 'pro'; v: boolean; plan?: 'year' | 'month'; until?: string }
   | { t: 'units'; v: Units }
   | { t: 'remind'; v: number }
   | { t: 'care'; v: keyof Care }
@@ -245,7 +259,11 @@ function reducer(s: State, a: Action): State {
       plants.splice(s.undo.i, 0, s.undo.p)
       return { ...s, plants, undo: null, toast: null }
     }
-    case 'pro': return { ...s, isPro: a.v }
+    // Выключение Pro стирает и срок с тарифом: иначе экран настроек показывал бы
+    // «до такого-то числа» человеку, у которого доступа уже нет.
+    case 'pro': return a.v
+      ? { ...s, isPro: true, proPlan: a.plan ?? s.proPlan, proUntil: a.until ?? s.proUntil }
+      : { ...s, isPro: false, proPlan: null, proUntil: null }
     case 'units': return { ...s, units: a.v }
     case 'remind': return { ...s, remind: a.v }
     // Смена состава задач обнуляет отметки: ключи привязаны к позиции растения,

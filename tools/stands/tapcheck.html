@@ -173,11 +173,37 @@ const footOff = () => {
 
   // ── 4. Мнимые чекбоксы
   head('элементы, которые обещали отметку');
+  // Проверка была ПЕРЕВЁРНУТА: искала `.task[role=checkbox]` и требовала ноль,
+  // то есть ловила строку, которая САМА СЕБЯ объявила чекбоксом. А мнимый
+  // чекбокс — обратное: рисунок чекбокса БЕЗ роли и обработчика. Такие строки
+  // жили на всех четырёх экранах, и проверка их не видела, потому что роли у
+  // них как раз и не было. Теперь ищем то, что обещает глаз: квадратик .box в
+  // строке, которую нельзя отметить. Скелетон soft-lock исключён — там .box
+  // часть заглушки (рядом .blur), и он показывает форму будущей строки.
   for (const h of ['shopping', 'indoor', 'week-back', 'week-lock']) {
     await seed({plants: [{id:'radish',since:9,day:30,photos:[]},{id:'basil',since:4,day:34,photos:[]}]}, h);
-    say(D().querySelectorAll('.task[role=checkbox]').length === 0,
-        '#' + h + ': нет мнимых чекбоксов');
+    const fake = [...D().querySelectorAll('.task')].filter(x =>
+      x.getAttribute('role') !== 'checkbox' && x.querySelector('.box') && !x.querySelector('.blur'));
+    say(fake.length === 0, '#' + h + ': нет мнимых чекбоксов'
+        + (fake.length ? ' — ' + fake.length + ' шт.' : ''));
+    // И наоборот: то, что отметить можно, обязано объявить себя чекбоксом.
+    const mute = [...D().querySelectorAll('.task[role=checkbox]')].filter(x => !x.querySelector('.box'));
+    say(mute.length === 0, '#' + h + ': отмечаемая строка не осталась без квадратика');
   }
+  // Pro-ветка week-lock раньше не проверялась вообще: стенд сеял экран БЕЗ
+  // isPro, поэтому видел только заглушки, а выдуманный список задач текущей
+  // недели под заголовком «через две недели» жил именно в Pro-ветке.
+  await seed({isPro: true, plants: [{id:'radish',since:9,day:30,photos:[]},
+                                    {id:'basil',since:4,day:34,photos:[]}]}, 'week-lock');
+  const proFake = [...D().querySelectorAll('.task')].filter(x =>
+    x.getAttribute('role') !== 'checkbox' && x.querySelector('.box') && !x.querySelector('.blur'));
+  say(proFake.length === 0, '#week-lock с Pro: нет мнимых чекбоксов');
+  const txt = D().body.innerText;
+  say(!/Two weeks from now|weeks from now/.test(txt),
+      'week-lock не называет выдуманное окно «через две недели»');
+  say(!/Apr |Mar |Feb /.test(txt), 'и не показывает апрельские даты прототипа');
+  say(/whole calendar/i.test(txt), 'Pro видит, что календарь открыт: '
+      + (D().querySelector('.h1') || {}).innerText?.replace(/\s+/g, ' '));
   await seed({plants: [{id:'radish',since:9,day:30,photos:[]},{id:'basil',since:4,day:34,photos:[]}]}, 'home');
   const boxes = D().querySelectorAll('.br-row[role=checkbox], .task[role=checkbox]').length;
   const done0 = Object.keys(S().done).length;

@@ -28,41 +28,15 @@ import { Confirm } from '../components/Confirm'
 import { Icon } from '../icons/Icon'
 import { bg } from '../lib/assets'
 import { allPhotos } from '../lib/plants'
-import { MON } from '../lib/season'
 import { clearAuthError, markSignOut, supa } from '../lib/supabase'
 import { forgetSnap, syncFacts, wipeCloud } from '../lib/sync'
 import { useStore } from '../state/store'
 
 type Go = (id: string) => void
 
-/**
- * «Когда» человеческим языком. Точное время тут никому не нужно: вопрос звучит
- * как «свежее ли это», а не «во сколько именно».
- */
-function ago(iso: string): string {
-  const m = Math.round((Date.now() - new Date(iso).getTime()) / 60000)
-  if (m < 1) return 'just now'
-  if (m < 60) return `${m} ${m === 1 ? 'minute' : 'minutes'} ago`
-  const h = Math.round(m / 60)
-  if (h < 24) return `${h} ${h === 1 ? 'hour' : 'hours'} ago`
-  const d = Math.round(h / 24)
-  if (d === 1) return 'yesterday'
-  if (d < 7) return `${d} days ago`
-  const t = new Date(iso)
-  return `${MON[t.getMonth()]} ${t.getDate()}`
-}
 
 const plural = (n: number, one: string) => `${n} ${n === 1 ? one : one + 's'}`
 
-/** Строка-факт: та же строка списка, но она никуда не ведёт и не притворяется. */
-function FactRow({ label, value }: { label: string; value: string }) {
-  return (
-    <div className="pl flat">
-      <div className="nm"><b>{label}</b></div>
-      <span className="setval">{value}</span>
-    </div>
-  )
-}
 
 export function AccountScreen({ go }: { go: Go }) {
   const { s, d } = useStore()
@@ -149,11 +123,6 @@ export function AccountScreen({ go }: { go: Go }) {
   }
 
   const photos = allPhotos(s.plants).length
-  const cloud = f.plants || f.photos
-    ? [plural(f.plants, 'plant'), f.photos ? plural(f.photos, 'photo') : '']
-        .filter(Boolean).join(' · ')
-    : acc.demo ? 'Nothing' : 'Nothing yet'
-
   return (
     <>
       <div className="cf">
@@ -181,16 +150,13 @@ export function AccountScreen({ go }: { go: Go }) {
             </div>
           </div>
 
-          <div className="sl">Your data</div>
-          <div className="plist">
-            <FactRow label="On the server" value={cloud} />
-            <FactRow label="Last synced"
-                     value={f.at ? ago(f.at) : acc.demo ? 'Never' : 'Not yet'} />
-            {f.localOnly > 0 && (
-              <FactRow label="Only on this phone" value={plural(f.localOnly, 'photo')} />
-            )}
-          </div>
-
+          {/* Карточки «Your data» здесь больше нет: три строки-факта («On the
+              server», «Last synced», «Only on this phone») были инженерной
+              версией того же, что нота ниже говорит человеческими словами.
+              Владелец просил убрать карточку последней синхронизации — это она.
+              Нота осталась: в ней настоящее объяснение, включая случай камерных
+              фото и предупреждение про демо-вход. Цифры из снимка отправки
+              никуда не делись, по ним по-прежнему выбирается ветка ноты. */}
           {acc.demo ? (
             <div className="note">
               <b>This sign-in is a demo</b>

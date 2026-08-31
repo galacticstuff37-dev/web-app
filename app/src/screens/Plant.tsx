@@ -52,10 +52,14 @@ export function PlantScreen({ go }: { go: (id: string) => void }) {
       </div>
 
       <div className="wgrid" style={{ marginTop: 12 }}>
-        <div className="wg wg-dark">
+        {/* Белая, как и вторая: карточка полива на Home и здесь — один и тот же
+            факт, и до этого он был тёмным на одном экране и белым на другом.
+            Кольцо тоже переехало в светлую раскраску: лаймовое на белом давало
+            1.31:1 и пропадало. */}
+        <div className="wg wg-lite">
           <div className="wg-top">
             <div className="num">{Math.max(0, due)}<span>d</span></div>
-            <Arc pct={100 - wPct(p)} sz={44} dark />
+            <Arc pct={100 - wPct(p)} sz={44} />
           </div>
           <div className="lbl">{due <= 0 ? 'Water it today' : 'Until next water'}</div>
           <MetricRow items={[['Every', p.s.water + 'd'], ['Last', p.since + 'd ago']]} />

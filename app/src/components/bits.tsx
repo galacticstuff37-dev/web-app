@@ -27,7 +27,9 @@ export function Ring({ pct, dark = false, sz = 38, sw = 3.2 }:
 }
 
 /** Дуга для виджетов. arc() из proto.py. */
-export function Arc({ pct, sz, dark }: { pct: number; sz: number; dark?: boolean }) {
+/** Кольцо в карточке. Флага dark больше нет: тёмных карточек .wg в приложении
+    не осталось, обе пары белые, и вторая раскраска стояла мёртвой веткой. */
+export function Arc({ pct, sz }: { pct: number; sz: number }) {
   const sw = 5
   const r = (sz - sw) / 2
   const c = 2 * Math.PI * r
@@ -35,9 +37,9 @@ export function Arc({ pct, sz, dark }: { pct: number; sz: number; dark?: boolean
   return (
     <svg aria-hidden="true" width={sz} height={sz} viewBox={`0 0 ${sz} ${sz}`}>
       <circle cx={sz / 2} cy={sz / 2} r={r} fill="none"
-              stroke={dark ? 'rgba(255,255,255,.18)' : '#E4E8E2'} strokeWidth={sw} />
+              stroke="#E4E8E2" strokeWidth={sw} />
       <circle cx={sz / 2} cy={sz / 2} r={r} fill="none"
-              stroke={dark ? '#B4F461' : '#22A559'} strokeWidth={sw} strokeLinecap="round"
+              stroke="#22A559" strokeWidth={sw} strokeLinecap="round"
               strokeDasharray={c.toFixed(1)} strokeDashoffset={off.toFixed(1)}
               transform={`rotate(-90 ${sz / 2} ${sz / 2})`} />
     </svg>

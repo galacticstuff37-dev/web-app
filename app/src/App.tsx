@@ -247,9 +247,18 @@ export function App() {
     goTracked('crop')
   }
 
+  // Экран аккаунта приходит ЛИСТОМ поверх настроек: он оттуда открывается и туда
+  // же возвращает, значит это слой над местом, а не отдельное место. Маршрут при
+  // этом сохранён целиком — прямая ссылка, каталог /review и стенды работают
+  // как раньше, а go('settings') закрывает лист. Под листом рисуем настройки:
+  // иначе за скримом была бы пустота и таб-бар взять было бы негде.
+  const sheet = id === 'account' ? ROUTE('account') : null
+  const base = sheet ? ROUTE('settings') : ROUTE(id)
+
   return (
     <main className="mob">
-      {(ROUTE(id) || ROUTES[0]).render({ go: goTracked, openSpecies })}
+      {(base || ROUTES[0]).render({ go: goTracked, openSpecies })}
+      {sheet && sheet.render({ go: goTracked, openSpecies })}
       {greet && (
         <Welcome onClose={() => setGreet(false)}
                  onAccount={() => { setGreet(false); goTracked('account') }} />

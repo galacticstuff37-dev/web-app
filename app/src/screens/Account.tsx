@@ -8,10 +8,24 @@
 //
 // Sign out и Delete account переехали сюда с экрана настроек: там они висели
 // среди тумблеров, а это не настройка, а действие над аккаунтом.
+//
+// ФОРМА — ЛИСТ, а не отдельный экран. Открывается он из настроек и возвращает
+// туда же, то есть это не место в приложении, а слой над местом: настройки
+// остаются видны за скримом, таб-бар — их. Форма ровно та же, что у приветствия
+// и у подтверждения удаления: в приложении одна форма всплывающего слоя, и
+// третья читалась бы как третья система.
+//
+// role=dialog, а НЕ alertdialog: alertdialog остаётся единственным и только на
+// необратимом — на подтверждении удаления, которое приходит ПОВЕРХ этого листа.
+// Выходов три и все равнозначны: крестик, тап по скриму, Escape.
+//
+// Маршрут #account сохранён. Лист рендерит App: увидев id === 'account', он
+// показывает настройки, а лист кладёт сверху. Поэтому прямая ссылка, каталог
+// /review и стенды продолжают работать, а go('settings') закрывает лист.
 
-import { useEffect, useState } from 'react'
-import { Screen } from '../components/Chrome'
+import { useEffect, useRef, useState } from 'react'
 import { Confirm } from '../components/Confirm'
+import { Icon } from '../icons/Icon'
 import { bg } from '../lib/assets'
 import { allPhotos } from '../lib/plants'
 import { MON } from '../lib/season'
@@ -54,6 +68,19 @@ export function AccountScreen({ go }: { go: Go }) {
   const { s, d } = useStore()
   const [ask, setAsk] = useState(false)
   const acc = s.account
+  const box = useRef<HTMLDivElement>(null)
+  const close = () => go('settings')
+
+  // Фокус на лист и Escape — как в приветствии: без этого с клавиатуры человек
+  // остаётся в настройках под скримом. Пока открыто подтверждение удаления,
+  // Escape отдаём ему: закрывать надо верхний слой, а не оба сразу.
+  useEffect(() => {
+    box.current?.focus()
+    const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape' && !ask) close() }
+    document.addEventListener('keydown', onKey)
+    return () => document.removeEventListener('keydown', onKey)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [ask])
 
   // Без аккаунта экрана нет: в настройках на его месте кнопка Sign in. Если
   // сюда пришли ссылкой — уводим, а не показываем пустую страницу.
@@ -128,87 +155,102 @@ export function AccountScreen({ go }: { go: Go }) {
     : acc.demo ? 'Nothing' : 'Nothing yet'
 
   return (
-    <Screen id="account" back={() => go('settings')} nav={{ active: 'Settings', go }}
-            scrollKey="account"
-            overlay={ask ? (
-              <Confirm title="Delete everything?"
-                       body={`${plural(s.plants.length, 'plant')}`
-                           + (photos ? ` and ${plural(photos, 'photo')}` : '')
-                           + ', your ZIP, your light and every reminder go with it — here and'
-                           + ' on the server. This cannot be undone.'}
-                       yes="Delete it all" no="Keep my plants"
-                       onYes={wipe} onNo={() => setAsk(false)} />
-            ) : undefined}>
-      <div className="h1" style={{ marginTop: 16 }}>Account</div>
-
-      <div className="acct">
-        <div className="acc-who">
-          <div className="acc-av" style={{ backgroundImage: bg('hero-plants') }} aria-hidden="true" />
-          <div className="acc-tx">
-            <b>{acc.email}</b>
-            <s>Signed in with {via}{acc.demo ? ' · demo, not wired yet' : ''}</s>
+    <>
+      <div className="cf">
+        <div className="cf-sc" onClick={close} aria-hidden="true" />
+        <div className="cf-box cf-tall" role="dialog" aria-modal="true" aria-label="Account"
+             tabIndex={-1} ref={box}>
+          <div className="cf-head">
+            <div className="cf-t">Account</div>
+            <div className="xbtn" role="button" tabIndex={0} aria-label="Close"
+                 onClick={close}
+                 onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); close() } }}>
+              <Icon name="x" color="#CFE0D4" size={17} sw={2} />
+            </div>
           </div>
+
+          <div className="acct">
+            <div className="acc-who">
+              <div className="acc-av" style={{ backgroundImage: bg('hero-plants') }} aria-hidden="true" />
+              <div className="acc-tx">
+                <b>{acc.email}</b>
+                <s>Signed in with {via}{acc.demo ? ' · demo, not wired yet' : ''}</s>
+              </div>
+            </div>
+          </div>
+
+          <div className="sl">Your data</div>
+          <div className="plist">
+            <FactRow label="On the server" value={cloud} />
+            <FactRow label="Last synced"
+                     value={f.at ? ago(f.at) : acc.demo ? 'Never' : 'Not yet'} />
+            {f.localOnly > 0 && (
+              <FactRow label="Only on this phone" value={plural(f.localOnly, 'photo')} />
+            )}
+          </div>
+
+          {acc.demo ? (
+            <div className="note">
+              <b>This sign-in is a demo</b>
+              <p>The screens are real, the account is not: no code was sent and no server
+                knows about it. Nothing syncs until you sign in with Google.</p>
+            </div>
+          ) : f.error ? (
+            <div className="note">
+              <b>Last sync did not go through</b>
+              <p>{f.error}. Your plants are safe on this phone — the next change tries
+                again on its own.</p>
+            </div>
+          ) : !f.at ? (
+            <div className="note">
+              <b>Nothing has gone up yet</b>
+              <p>It happens by itself the moment you change something — water a plant,
+                tick a task, edit a setting. There is no button to press.</p>
+            </div>
+          ) : f.localOnly > 0 ? (
+            <div className="note">
+              <b>Camera photos stay here for now</b>
+              <p>They need file storage, which comes next. Plants, tasks and settings are
+                already on the server and will follow you to another phone.</p>
+            </div>
+          ) : (
+            <div className="note">
+              <b>Open it anywhere</b>
+              <p>Sign in with the same Google account on another phone or laptop and this
+                garden is there — same plants, same schedule, same settings.</p>
+            </div>
+          )}
+
+          <div className="btn b-ghost" role="button" tabIndex={0} style={{ marginTop: 16 }}
+               onClick={signOut}
+               onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); void signOut() } }}>
+            Sign out
+          </div>
+          <div className="dangernote" style={{ marginTop: 8 }}>
+            Signing out leaves your plants on this phone.
+          </div>
+
+          <div className="danger" role="button" tabIndex={0}
+               onClick={() => setAsk(true)}
+               onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setAsk(true) } }}>
+            Delete account
+          </div>
+          <div className="dangernote">Wipes your plants and settings here and on the
+            server, and takes you back to the start.</div>
         </div>
       </div>
-
-      <div className="sl">Your data</div>
-      <div className="plist">
-        <FactRow label="On the server" value={cloud} />
-        <FactRow label="Last synced"
-                 value={f.at ? ago(f.at) : acc.demo ? 'Never' : 'Not yet'} />
-        {f.localOnly > 0 && (
-          <FactRow label="Only on this phone" value={plural(f.localOnly, 'photo')} />
-        )}
-      </div>
-
-      {acc.demo ? (
-        <div className="note">
-          <b>This sign-in is a demo</b>
-          <p>The screens are real, the account is not: no code was sent and no server
-            knows about it. Nothing syncs until you sign in with Google.</p>
-        </div>
-      ) : f.error ? (
-        <div className="note">
-          <b>Last sync did not go through</b>
-          <p>{f.error}. Your plants are safe on this phone — the next change tries
-            again on its own.</p>
-        </div>
-      ) : !f.at ? (
-        <div className="note">
-          <b>Nothing has gone up yet</b>
-          <p>It happens by itself the moment you change something — water a plant,
-            tick a task, edit a setting. There is no button to press.</p>
-        </div>
-      ) : f.localOnly > 0 ? (
-        <div className="note">
-          <b>Camera photos stay here for now</b>
-          <p>They need file storage, which comes next. Plants, tasks and settings are
-            already on the server and will follow you to another phone.</p>
-        </div>
-      ) : (
-        <div className="note">
-          <b>Open it anywhere</b>
-          <p>Sign in with the same Google account on another phone or laptop and this
-            garden is there — same plants, same schedule, same settings.</p>
-        </div>
+      {/* Подтверждение — СОСЕДОМ листа, а не внутри него: оно обязано лежать
+          выше. z-index у обоих слоёв один (40), поэтому решает порядок в DOM, и
+          скрим подтверждения гасит лист под собой. */}
+      {ask && (
+        <Confirm title="Delete everything?"
+                 body={`${plural(s.plants.length, 'plant')}`
+                     + (photos ? ` and ${plural(photos, 'photo')}` : '')
+                     + ', your ZIP, your light and every reminder go with it — here and'
+                     + ' on the server. This cannot be undone.'}
+                 yes="Delete it all" no="Keep my plants"
+                 onYes={wipe} onNo={() => setAsk(false)} />
       )}
-
-      <div className="btn b-ghost" role="button" tabIndex={0} style={{ marginTop: 16 }}
-           onClick={signOut}
-           onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); void signOut() } }}>
-        Sign out
-      </div>
-      <div className="dangernote" style={{ marginTop: 8 }}>
-        Signing out leaves your plants on this phone.
-      </div>
-
-      <div className="danger" role="button" tabIndex={0}
-           onClick={() => setAsk(true)}
-           onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setAsk(true) } }}>
-        Delete account
-      </div>
-      <div className="dangernote">Wipes your plants and settings here and on the
-        server, and takes you back to the start.</div>
-    </Screen>
+    </>
   )
 }

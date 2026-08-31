@@ -254,15 +254,51 @@ const footOff = () => { const b = D().querySelector('.foot .btn'); return b ? b.
   say(hash() === 'account', 'строка аккаунта → account (' + hash() + ')');
 
   head('экран аккаунта');
-  say((D().querySelector('.acct') || {}).innerText?.includes('Signed in with'),
-      'экран называет способ входа');
-  const facts = [...D().querySelectorAll('.plist .pl')].map(x => x.innerText.replace(/\s+/g,' ').trim());
+  // Аккаунт теперь ЛИСТ поверх настроек, а не отдельный экран, поэтому запросы
+  // сужены до .cf-box. Без этого стенд мерил бы настройки, которые стоят за
+  // скримом: у них свой .acct (строка аккаунта) и десяток своих .plist .pl.
+  const SH = sel => [...D().querySelectorAll('.cf-box ' + sel)];
+  const sheet = D().querySelector('.cf-box');
+  say(!!sheet && sheet.getAttribute('role') === 'dialog',
+      'аккаунт приходит листом: role=' + (sheet ? sheet.getAttribute('role') : 'нет .cf-box'));
+  say(!!D().querySelector('.cf-sc'), 'под листом скрим');
+  say(!!D().querySelector('#s-settings'), 'за листом видны настройки, а не пустота');
+  say(!!D().querySelector('.nav'), 'таб-бар на месте — он от настроек');
+  const tall = sheet && W().getComputedStyle(sheet);
+  say(!!tall && tall.overflowY === 'auto' && sheet.getBoundingClientRect().height <= D().documentElement.clientHeight,
+      'лист не выше экрана и прокручивается внутри себя: '
+      + (sheet ? Math.round(sheet.getBoundingClientRect().height) + 'px из '
+                 + D().documentElement.clientHeight : '—'));
+  // Отступы внутри листа: --s1/--s2 объявлены на .screen, а лист рендерится
+  // соседом экрана. Если контекст шкалы на .cf-box забыть, эти блоки молча
+  // останутся без полей — дефект уже случался с padding самого листа.
+  const plistPad = SH('.plist')[0] && W().getComputedStyle(SH('.plist')[0]).paddingLeft;
+  say(plistPad === '16px', 'шкала внутри листа жива: у .plist боковое поле ' + plistPad);
+  say((SH('.acct')[0] || {}).innerText?.includes('Signed in with'),
+      'лист называет способ входа');
+  const facts = SH('.plist .pl').map(x => x.innerText.replace(/\s+/g,' ').trim());
   say(facts.some(x => x.includes('On the server')) && facts.some(x => x.includes('Last synced')),
       'есть строки про данные: ' + facts.join(' / '));
-  say([...D().querySelectorAll('.pl.flat')].length === facts.length,
+  say(SH('.pl.flat').length === facts.length,
       'строки-факты не притворяются тапабельными (.pl.flat у всех)');
-  say(!!el('Sign out') && !!el('Delete account'), 'выход и удаление живут здесь');
-  await tap('Sign out');
+  // Селектор здесь обязателен, и это не перестраховка: контейнер листа несёт
+  // role=dialog, а его innerText содержит подписи всех кнопок внутри. Без
+  // селектора el() возвращал САМ ЛИСТ — проверка проходила бы и с исчезнувшими
+  // кнопками, а tap() кликал в контейнер и ничего не делал. Готча описана в
+  // README рядом, до этой правки она касалась только диалога удаления.
+  say(!!el('Sign out', '.cf-box .btn') && !!el('Delete account', '.cf-box .danger'),
+      'выход и удаление живут здесь');
+  // Три равнозначных выхода. Крестик и скрим проверяем, Escape — с клавиатуры,
+  // на телефоне его нет.
+  await tap('Close');
+  say(hash() === 'settings', 'крестик закрывает лист (' + hash() + ')');
+  await tap('sam@example.com', '.acc-who');
+  say(hash() === 'account', 'строка аккаунта открывает его снова (' + hash() + ')');
+  D().querySelector('.cf-sc').click(); await sleep(280);
+  say(hash() === 'settings', 'тап по скриму тоже закрывает (' + hash() + ')');
+  await tap('sam@example.com', '.acc-who');
+  say(hash() === 'account', 'и снова открыт (' + hash() + ')');
+  await tap('Sign out', '.cf-box .btn');
   say(!S().account, 'выход очистил аккаунт');
   // Раньше выход вёл на home. Теперь home без сессии закрыт, и стена уводит на
   // вход — это и есть правильный конец выхода при закрытом приложении.
@@ -306,7 +342,7 @@ const footOff = () => { const b = D().querySelector('.foot .btn'); return b ? b.
   await load('home');
   say(!!S().account && S().account.email === 'sam@example.com', 'аккаунт на месте после перезагрузки');
   await load('account');
-  const del = el('Delete account');
+  const del = el('Delete account', '.cf-box .danger');
   if (del) { del.click(); await sleep(320) }
   const dlg = D().querySelector('[role=alertdialog]');
   say(!!dlg, 'Delete account сначала спрашивает (диалог есть)');
@@ -316,7 +352,7 @@ const footOff = () => { const b = D().querySelector('.foot .btn'); return b ? b.
   const keep = el('Keep my plants', '.cf-box .btn'); if (keep) { keep.click(); await sleep(260) }
   say(!D().querySelector('[role=alertdialog]') && S().plants.length === 1,
       '«Keep my plants» закрывает диалог и ничего не трогает');
-  el('Delete account').click(); await sleep(300);
+  el('Delete account', '.cf-box .danger').click(); await sleep(300);
   el('Delete it all', '.cf-box .btn').click(); await sleep(320);
   say(!S().account && S().plants.length === 0, 'после подтверждения аккаунт и растения стёрты');
   say(hash() === 'landing', 'после стирания → landing (' + hash() + ')');
@@ -349,7 +385,7 @@ const footOff = () => { const b = D().querySelector('.foot .btn'); return b ? b.
   putSession(86400);
   clearErr();
   await seed({account: {email: 'sam@example.com', via: 'google'}}, 'account');
-  await tap('Sign out');
+  await tap('Sign out', '.cf-box .btn');
   // Ждём ЗАВЕРШЕНИЯ операции, а не её побочного эффекта: аккаунт гаснет раньше,
   // чем выход доделан (уход на home — последний его шаг), и проверка успевала
   // прочитать состояние на полпути.

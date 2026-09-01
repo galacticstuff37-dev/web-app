@@ -3,8 +3,8 @@
 // Задачи недели СЧИТАЮТСЯ из растений, а не захардкожены.
 
 import { Screen } from '../components/Chrome'
-import { MetricRow, PhotoTile, RingBig } from '../components/bits'
-import { IcCheck2, IcChevD, IcDrop, IcDropP, IcLeafLime } from '../icons/Icon'
+import { DropLevel, MetricRow, PhotoTile, RingBig, dropTone } from '../components/bits'
+import { IcCheck2, IcChevD, IcLeafLime } from '../icons/Icon'
 import { bg } from '../lib/assets'
 import {
   hEta, isEdible, lc, lightShort, pState, tkey, verdict, wDue, weekTasks,
@@ -19,7 +19,9 @@ function PlantCard({ p, i, onOpen }: { p: Plant; i: number; onOpen: (i: number) 
     <div className="plcard" role="button" tabIndex={0} onClick={() => onOpen(i)}
          onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onOpen(i) } }}>
       <PhotoTile s={p.s} cls="plcard-ph">
-        <span className="plcard-fav"><IcDrop /></span>
+        {/* Была статичная белая капля — одинаковая на всех карточках, то есть
+            декорация. Теперь показывает уровень воды этого растения. */}
+        <span className="plcard-fav"><DropLevel tone={dropTone(p)} size={15} onDark /></span>
       </PhotoTile>
       <b>{p.s.name}</b>
       <s className={'st-' + st[1]}>{st[0]}</s>
@@ -155,13 +157,19 @@ function Hero() {
               давала на белом 1.31:1 и просто исчезала, --bright даёт 3.18:1 —
               порог для нетекстовой графики 3:1. */}
           <div className="wg wg-lite">
-            <div className="wg-top"><div className="num">{due.length}</div><IcDropP /></div>
+            {/* Здесь число — СЧЁТЧИК растений, которым нужен полив, а не
+                уровень одного растения. Заливать его наполовину нечем, поэтому
+                капля показывает исход: пустая и тревожная, пока кто-то ждёт
+                воды, полная и зелёная, когда не ждёт никто. */}
+            <div className="wg-top"><div className="num">{due.length}</div>
+              <DropLevel tone={due.length ? 'bad' : 'ok'} /></div>
             <div className="lbl">Water today</div>
             <MetricRow items={[['Soon', soon.length], ['Plants', plants.length]]} />
           </div>
           <div className="wg wg-lite">
             <div className="wg-top">
-              <div className="num">{Math.max(0, wDue(nextP))}<span>d</span></div><IcDropP />
+              <div className="num">{Math.max(0, wDue(nextP))}<span>d</span></div>
+              <DropLevel tone={dropTone(nextP)} />
             </div>
             <div className="lbl">
               {wDue(nextP) <= 0 ? `${nextP.s.name} is thirsty` : `Until ${lc(nextP.s.name)}`}

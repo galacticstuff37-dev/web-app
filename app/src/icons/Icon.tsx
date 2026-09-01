@@ -38,8 +38,6 @@ export const IcPlus     = () => <Icon name="plus" color="var(--primary)" size={1
 export const IcCheck    = () => <Icon name="check" color="#fff" size={17} sw={3} />
 export const IcCheck2   = () => <Icon name="check" color="#fff" size={16} sw={3} />
 export const IcCheckG   = () => <Icon name="check" color="var(--bright)" size={17} sw={3} />
-export const IcDrop     = () => <Icon name="drop" color="#fff" size={15} />
-export const IcDropP    = () => <Icon name="drop" color="var(--bright)" size={28} />
 export const IcLeafLime = () => <Icon name="leaf" color="var(--lime)" size={20} />
 export const IcChevD    = () => <Icon name="chevron-right" color="var(--muted)" size={18} sw={2.4} />
 export const IcChev     = () => <Icon name="chevron-right" color="#B4BEB8" size={20} sw={2.2} />

@@ -4,10 +4,10 @@
 // картинка: выдумывать ассеты нельзя.
 
 import { Screen } from '../components/Chrome'
-import { Arc, MetricRow, Note, PhotoTile } from '../components/bits'
+import { Arc, DropLevel, MetricRow, Note, PhotoTile, dropTone } from '../components/bits'
 import { useCamera } from '../components/parts'
 import { IcPlus } from '../icons/Icon'
-import { fmtPot, hPct, isEdible, pState, wDue, wPct, phUrl } from '../lib/plants'
+import { fmtPot, hPct, isEdible, pState, wDue, phUrl } from '../lib/plants'
 import { useStore } from '../state/store'
 
 export function PlantScreen({ go }: { go: (id: string) => void }) {
@@ -59,7 +59,12 @@ export function PlantScreen({ go }: { go: (id: string) => void }) {
         <div className="wg wg-lite">
           <div className="wg-top">
             <div className="num">{Math.max(0, due)}<span>d</span></div>
-            <Arc pct={100 - wPct(p)} sz={44} />
+            {/* Было кольцо на 100 − wPct: тот же остаток воды, но нечитаемый.
+                Полное кольцо неотличимо от обводки, пустое — от дырки, подписи
+                нет. Капля говорит то же самое и объясняет себя сама.
+                Кольцо в соседней карточке остаётся: там прогресс до сбора,
+                другой смысл, и оно живёт в середине диапазона, где читается. */}
+            <DropLevel tone={dropTone(p)} />
           </div>
           <div className="lbl">{due <= 0 ? 'Water it today' : 'Until next water'}</div>
           <MetricRow items={[['Every', p.s.water + 'd'], ['Last', p.since + 'd ago']]} />

@@ -2,9 +2,11 @@
 // кольцо рисуется на SVG, а не conic-gradient, потому что conic не умеет
 // круглые концы.
 
-import type { ReactNode } from 'react'
+import { useId, type ReactNode } from 'react'
 import { Icon, IcBig } from '../icons/Icon'
+import { FILL } from '../icons/paths'
 import { bg } from '../lib/assets'
+import { wDue, type Plant } from '../lib/plants'
 import type { Species } from '../data/species'
 
 /** Кольцо прогресса, светлый и тёмный вариант. Повторяет ring() из proto.py. */
@@ -27,6 +29,72 @@ export function Ring({ pct, dark = false, sz = 38, sw = 3.2 }:
 }
 
 /** Дуга для виджетов. arc() из proto.py. */
+/**
+ * Капля с уровнем воды.
+ *
+ * Заменила кольцо в карточке полива. Кольцо показывало ровно то же самое —
+ * остаток интервала, — но было нечитаемо на обоих краях диапазона: полное
+ * кольцо неотличимо от декоративной обводки, пустое — от дырки в макете, а
+ * подписи у него нет. Владелец так и спросил: «что это за круг?». Капля
+ * объясняет метафору сама: это вода, и её видно сколько.
+ *
+ * Три ступени, а не плавная заливка, и они НЕ придуманы: это ровно три
+ * состояния, которые уже есть в pState() и которыми уже подписана пилюля на
+ * экране растения.
+ *     Healthy      (дней до полива > 2)   полная
+ *     Water soon   (0 < дней ≤ 2)         половина
+ *     Needs water  (дней ≤ 0)             пустая
+ *
+ * Цвета тоже не новые — те же, что у .st-ok / .st-warn / .st-bad. На белой
+ * карточке дают 3.18, 3.25 и 5.18 к единице при пороге 3:1 для нетекстовой
+ * графики.
+ *
+ * Подложка — тот же цвет с прозрачностью, а не серый: пустая капля обязана
+ * читаться как тревога, а серая читалась бы как «выключено».
+ */
+export type DropTone = 'ok' | 'warn' | 'bad'
+const DROP_COLOR: Record<DropTone, string> = {
+  ok: 'var(--bright)', warn: '#B8860B', bad: '#C2410C',
+}
+const DROP_FILL: Record<DropTone, number> = { ok: 100, warn: 50, bad: 0 }
+
+/** Состояние полива для капли. Тот же порог, что у pState. */
+export function dropTone(p: Plant): DropTone {
+  const d = wDue(p)
+  return d <= 0 ? 'bad' : d <= 2 ? 'warn' : 'ok'
+}
+
+/** Только внешний контур капли: в глифе Phosphor второй подпутью идёт блик,
+    и обводить его вместе с силуэтом — рисовать лишнюю дугу внутри. */
+const DROP_OUTLINE = (FILL['drop'].match(/ d="([^"]+)"/)?.[1] ?? '').split('M').filter(Boolean)[0]
+const DROP_D = 'M' + DROP_OUTLINE
+
+export function DropLevel({ tone, size = 28, onDark }:
+    { tone: DropTone; size?: number; onDark?: boolean }) {
+  const id = useId().replace(/[^a-zA-Z0-9]/g, '')
+  const c = onDark ? '#fff' : DROP_COLOR[tone]
+  const pct = DROP_FILL[tone]
+  // Отсечка снизу: вода стоит в капле, а не висит сверху.
+  const y = 256 - (256 * pct) / 100
+  return (
+    <svg aria-hidden="true" viewBox="0 0 256 256" width={size} height={size}>
+      <defs>
+        <clipPath id={'dl' + id}>
+          <rect x="0" y={y} width="256" height={256 - y} />
+        </clipPath>
+      </defs>
+      {/* «Стекло»: силуэт целиком, приглушённый. */}
+      <path d={DROP_D} fill={c} opacity={onDark ? 0.32 : 0.22} />
+      {/* Налитая часть. */}
+      {pct > 0 && <path d={DROP_D} fill={c} clipPath={`url(#dl${id})`} />}
+      {/* Контур. Без него пустая капля почти невидима, и самое тревожное
+          состояние оказывалось самым бледным — иерархия наизнанку. Обводка
+          держит форму при любом уровне, а уровень остаётся читаемым. */}
+      <path d={DROP_D} fill="none" stroke={c} strokeWidth={14} strokeLinejoin="round" />
+    </svg>
+  )
+}
+
 /** Кольцо в карточке. Флага dark больше нет: тёмных карточек .wg в приложении
     не осталось, обе пары белые, и вторая раскраска стояла мёртвой веткой. */
 export function Arc({ pct, sz }: { pct: number; sz: number }) {

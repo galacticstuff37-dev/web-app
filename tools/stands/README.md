@@ -22,7 +22,7 @@ Pages), поэтому репозиторий обязан отдаваться 
 другим именем стенд поднимется, а приложение в iframe останется белым.
 
 ```bash
-mkdir -p /tmp/pages && ln -sfn /Users/yakovpetrov/Desktop/homegrown /tmp/pages/web-app && cd /tmp/pages && python3 -m http.server 5205
+mkdir -p /tmp/pages && ln -sfn ~/homegrown /tmp/pages/web-app && cd /tmp/pages && python3 -m http.server 5205
 ```
 
 Дальше на симуляторе (или в любом браузере):
@@ -49,6 +49,14 @@ sleep 65 && xcrun simctl io booted screenshot /tmp/out.png
 каждый раз грузит с `?t=<время>`, поэтому её кеш не мешает.
 
 ## Готчи, которые стоили времени
+
+- **Репозиторий живёт в `~/homegrown`, а не на рабочем столе, и это не вкусовщина.**
+  Под защитой macOS (TCC) ровно три каталога: Desktop, Documents, Downloads.
+  Пока репозиторий лежал на Desktop, система в какой-то момент отозвала процессу
+  доступ, и `git` начал падать с `Operation not permitted` — причём не на
+  конфиге, как выглядело, а на `getcwd`. Возвращать доступ пришлось бы через
+  «Конфиденциальность → Файлы и папки» с ПЕРЕЗАПУСКОМ приложения: на живой
+  процесс TCC-разрешения не действуют. Из `~/` таких отказов не бывает.
 
 - **Перед прогоном на симуляторе убивать Safari:**
   `xcrun simctl terminate booted com.apple.mobilesafari`. Вкладки прежних сборок
